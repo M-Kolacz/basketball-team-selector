@@ -1,12 +1,14 @@
 # Generate Storybook File
 
-Generate a complete Storybook file for a UI component following the project's established patterns.
+Generate a complete Storybook file for a UI component following the project's
+established patterns.
 
 ## Component Requirements
 
 The component MUST follow the single source of truth pattern:
 
-- Export variant/size style objects as plain objects (e.g., `variantStyles`, `sizeStyles`)
+- Export variant/size style objects as plain objects (e.g., `variantStyles`,
+  `sizeStyles`)
 - These objects should contain the keys that define the available variants
 - Use `class-variance-authority` (CVA) for variant management
 - The CVA configuration should reference the exported style objects
@@ -18,7 +20,8 @@ Create a `.stories.tsx` file that includes:
 1. **Imports**:
    - Import the component and all exported style objects
    - Import necessary icons from `lucide-react` if needed
-   - Import Storybook helpers: `disableControls`, `getObjectKeys`, `selectControl` from `#app/lib/storybook`
+   - Import Storybook helpers: `disableControls`, `getObjectKeys`,
+     `selectControl` from `#app/lib/storybook`
    - Import types: `Meta`, `StoryObj` from `@storybook/nextjs-vite`
 
 2. **Extract Variant Keys**:
@@ -32,66 +35,68 @@ Create a `.stories.tsx` file that includes:
    - Configure `argTypes` using `selectControl()` for each variant prop
 
 4. **Stories**:
-   - **`All{PropName}`**: Create a story for each variant prop (e.g., `AllSizes`)
-   - Use `disableControls()` to hide the control being demonstrated in each story
+   - **`All{PropName}`**: Create a story for each variant prop (e.g.,
+     `AllSizes`)
+   - Use `disableControls()` to hide the control being demonstrated in each
+     story
    - Wrap elements in a flex container with proper spacing
 
 ## Example Structure
 
 ```tsx
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Component, variantStyles, sizeStyles } from "./component";
-import { Icon } from "lucide-react";
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { Component, variantStyles, sizeStyles } from './component'
+import { Icon } from 'lucide-react'
 import {
-  disableControls,
-  getObjectKeys,
-  selectControl,
-} from "#app/lib/storybook";
+	disableControls,
+	getObjectKeys,
+	selectControl,
+} from '#app/lib/storybook'
 
-const variants = getObjectKeys(variantStyles);
-const sizes = getObjectKeys(sizeStyles);
+const variants = getObjectKeys(variantStyles)
+const sizes = getObjectKeys(sizeStyles)
 
 const meta = {
-  title: "UI/Component",
-  component: Component,
-  parameters: {
-    layout: "centered",
-  },
-  tags: ["autodocs"],
-  argTypes: {
-    variant: selectControl(variants),
-    size: selectControl(sizes),
-  },
-} satisfies Meta<typeof Component>;
+	title: 'UI/Component',
+	component: Component,
+	parameters: {
+		layout: 'centered',
+	},
+	tags: ['autodocs'],
+	argTypes: {
+		variant: selectControl(variants),
+		size: selectControl(sizes),
+	},
+} satisfies Meta<typeof Component>
 
-export default meta;
-type Story = StoryObj<typeof meta>;
+export default meta
+type Story = StoryObj<typeof meta>
 
 export const AllVariants: Story = {
-  render: (args) => (
-    <div className="flex items-center gap-3">
-      {variants.map((variant) => (
-        <Component key={variant} {...args} variant={variant}>
-          {variant}
-        </Component>
-      ))}
-    </div>
-  ),
-  ...disableControls<typeof Component>("variant"),
-};
+	render: (args) => (
+		<div className="flex items-center gap-3">
+			{variants.map((variant) => (
+				<Component key={variant} {...args} variant={variant}>
+					{variant}
+				</Component>
+			))}
+		</div>
+	),
+	...disableControls<typeof Component>('variant'),
+}
 
 export const AllSizes: Story = {
-  render: (args) => (
-    <div className="flex items-center gap-3">
-      {sizes.map((size) => (
-        <Component key={size} size={size} {...args}>
-          {size}
-        </Component>
-      ))}
-    </div>
-  ),
-  ...disableControls("size"),
-};
+	render: (args) => (
+		<div className="flex items-center gap-3">
+			{sizes.map((size) => (
+				<Component key={size} size={size} {...args}>
+					{size}
+				</Component>
+			))}
+		</div>
+	),
+	...disableControls('size'),
+}
 ```
 
 ## Instructions
@@ -111,7 +116,8 @@ export const AllSizes: Story = {
    - Meta configuration with select controls
    - Stories for each variant prop showing all options
 
-4. Write the file as `{component-name}.stories.tsx` in the same directory as the component
+4. Write the file as `{component-name}.stories.tsx` in the same directory as the
+   component
 
 ## Validation
 
