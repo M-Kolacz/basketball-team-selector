@@ -41,7 +41,7 @@ export const FallbackOnly: Story = {
 
 export const Multiple: Story = {
   render: () => (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       <Avatar>
         <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
         <AvatarFallback>CN</AvatarFallback>

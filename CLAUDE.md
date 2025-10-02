@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 This is a Next.js 15 application for basketball team selection, bootstrapped with `create-next-app`. It uses:
+
 - **Next.js 15.5.4** with App Router
 - **React 19.1.0**
 - **TypeScript 5**

@@ -28,7 +28,7 @@ type Story = StoryObj<typeof meta>;
 
 export const AllVariants: Story = {
   render: (args) => (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       {buttonVariants.map((variant) => (
         <Button key={variant} {...args} variant={variant}>
           {variant}
@@ -41,7 +41,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: (args) => (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       {buttonSizes.map((size) => (
         <Button key={size} size={size} {...args}>
           {size === "icon" ? <Plus /> : size}

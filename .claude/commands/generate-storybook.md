@@ -16,19 +16,16 @@ The component MUST follow the single source of truth pattern:
 Create a `.stories.tsx` file that includes:
 
 1. **Imports**:
-
    - Import the component and all exported style objects
    - Import necessary icons from `lucide-react` if needed
    - Import Storybook helpers: `disableControls`, `getObjectKeys`, `selectControl` from `#app/lib/storybook`
    - Import types: `Meta`, `StoryObj` from `@storybook/nextjs-vite`
 
 2. **Extract Variant Keys**:
-
    - Use `getObjectKeys()` to extract keys from each style object
    - Example: `const buttonVariants = getObjectKeys(variantStyles);`
 
 3. **Meta Configuration**:
-
    - Set `title` to "UI/{ComponentName}"
    - Set `parameters.layout` to "centered"
    - Add `tags: ["autodocs"]`
@@ -72,7 +69,7 @@ type Story = StoryObj<typeof meta>;
 
 export const AllVariants: Story = {
   render: (args) => (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       {variants.map((variant) => (
         <Component key={variant} {...args} variant={variant}>
           {variant}
@@ -85,7 +82,7 @@ export const AllVariants: Story = {
 
 export const AllSizes: Story = {
   render: (args) => (
-    <div className="flex gap-3 items-center">
+    <div className="flex items-center gap-3">
       {sizes.map((size) => (
         <Component key={size} size={size} {...args}>
           {size}
@@ -100,18 +97,15 @@ export const AllSizes: Story = {
 ## Instructions
 
 1. Read the component file to identify:
-
    - Component name
    - Exported style objects (e.g., `variantStyles`, `sizeStyles`)
    - Variant props defined in CVA
 
 2. Verify single source of truth pattern:
-
    - Ensure style objects are exported
    - Confirm CVA references these objects
 
 3. Generate the Storybook file with:
-
    - Proper imports including all style objects
    - Extracted keys for each variant prop
    - Meta configuration with select controls

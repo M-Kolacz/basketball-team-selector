@@ -8,7 +8,7 @@ export const disableControls = <T extends React.ElementType>(
       ...acc,
       [control]: { table: { disable: true } },
     }),
-    {}
+    {},
   ),
 });
 
@@ -18,5 +18,5 @@ export const selectControl = <T extends readonly string[]>(options: T) => ({
 });
 
 export const getObjectKeys = <T extends Record<string, unknown>>(
-  obj: T
+  obj: T,
 ): (keyof T)[] => Object.keys(obj) as (keyof T)[];
