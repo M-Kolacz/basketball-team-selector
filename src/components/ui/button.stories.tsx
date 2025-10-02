@@ -1,11 +1,11 @@
-import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Button, sizeStyles, variantStyles } from "./button";
+import  { type Meta, type StoryObj } from "@storybook/nextjs-vite";
 import { Plus } from "lucide-react";
 import {
   disableControls,
   getObjectKeys,
   selectControl,
 } from "#app/lib/storybook";
+import { Button, sizeStyles, variantStyles } from "./button";
 
 const buttonVariants = getObjectKeys(variantStyles);
 const buttonSizes = getObjectKeys(sizeStyles);
