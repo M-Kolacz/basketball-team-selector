@@ -1,18 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Button } from "./button";
+import { Button, sizeStyles, variantStyles } from "./button";
 import { Plus } from "lucide-react";
-import { disableControls, selectControl } from "#app/lib/storybook";
+import {
+  disableControls,
+  getObjectKeys,
+  selectControl,
+} from "#app/lib/storybook";
 
-const variants = [
-  "default",
-  "destructive",
-  "outline",
-  "secondary",
-  "ghost",
-  "link",
-] as const;
-
-const sizes = ["sm", "default", "lg", "icon"] as const;
+const buttonVariants = getObjectKeys(variantStyles);
+const buttonSizes = getObjectKeys(sizeStyles);
 
 const meta = {
   title: "UI/Button",
@@ -22,8 +18,8 @@ const meta = {
   },
   tags: ["autodocs"],
   argTypes: {
-    variant: selectControl(variants),
-    size: selectControl(sizes),
+    variant: selectControl(buttonVariants),
+    size: selectControl(buttonSizes),
   },
 } satisfies Meta<typeof Button>;
 
@@ -33,7 +29,7 @@ type Story = StoryObj<typeof meta>;
 export const AllVariants: Story = {
   render: (args) => (
     <div className="flex gap-3 items-center">
-      {variants.map((variant) => (
+      {buttonVariants.map((variant) => (
         <Button key={variant} {...args} variant={variant}>
           {variant}
         </Button>
@@ -46,7 +42,7 @@ export const AllVariants: Story = {
 export const AllSizes: Story = {
   render: (args) => (
     <div className="flex gap-3 items-center">
-      {sizes.map((size) => (
+      {buttonSizes.map((size) => (
         <Button key={size} size={size} {...args}>
           {size === "icon" ? <Plus /> : size}
         </Button>
