@@ -1,4 +1,5 @@
 import { type Meta, type StoryObj } from '@storybook/nextjs-vite'
+import { expect, within } from '@storybook/test'
 import { Plus } from 'lucide-react'
 import {
 	disableControls,
@@ -50,4 +51,26 @@ export const AllSizes: Story = {
 		</div>
 	),
 	...disableControls('size'),
+}
+
+export const AsLink: Story = {
+	args: {
+		variant: 'link',
+		size: 'default',
+		children: 'Button as Link',
+		asChild: true,
+	},
+	render: (args) => (
+		<Button {...args}>
+			<a href="https://example.com" target="_blank" rel="noreferrer">
+				{args.children}
+			</a>
+		</Button>
+	),
+	play: async ({ canvasElement, args }) => {
+		const canvas = within(canvasElement)
+		const link = canvas.getByRole('link', { name: args.children as string })
+		await expect(link).toBeVisible()
+	},
+	...disableControls<typeof Button>('asChild', 'variant', 'size', 'children'),
 }
