@@ -65,6 +65,9 @@ jobs:
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
 
+      - name: 📥 Install Playwright Browsers
+        run: npm run test:e2e:install
+
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
 
