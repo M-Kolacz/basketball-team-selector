@@ -12,13 +12,17 @@
     "format": "prettier --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "test:e2e:install": "npx playwright install --with-deps chromium",
+    "test:e2e:run": "cross-env CI=true playwright test",
+    "test:e2e:dev": "playwright test --ui"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-slot": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "lucide-react": "^0.544.0",
     "next": "15.5.4",
     "react": "19.1.0",
@@ -29,6 +33,7 @@
     "@chromatic-com/storybook": "^4.1.1",
     "@epic-web/config": "^1.21.3",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.56.0",
     "@storybook/addon-a11y": "^9.1.10",
     "@storybook/addon-docs": "^9.1.10",
     "@storybook/addon-onboarding": "^9.1.10",
