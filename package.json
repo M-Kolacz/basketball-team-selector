@@ -67,11 +67,11 @@
     "*.{ts,tsx,js,jsx}": [
       "npm run format:fix",
       "npm run lint:fix",
-      "git add"
+      "git add ."
     ],
     "*.{json,md,css}": [
       "npm run format:fix",
-      "git add"
+      "git add ."
     ]
   }
 }
