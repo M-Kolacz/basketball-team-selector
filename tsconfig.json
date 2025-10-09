@@ -1,39 +1,29 @@
 {
-  "extends": [
-    "@epic-web/config/typescript"
-  ],
-  "compilerOptions": {
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "paths": {
-      "#app/*": [
-        "./src/*"
-      ]
-    },
-    "allowJs": true,
-    "incremental": true,
-    "jsx": "preserve"
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".storybook/**/*.{ts,tsx}"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"extends": ["@epic-web/config/typescript"],
+	"compilerOptions": {
+		"lib": ["dom", "dom.iterable", "esnext"],
+		"esModuleInterop": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"resolveJsonModule": true,
+		"plugins": [
+			{
+				"name": "next"
+			}
+		],
+		"paths": {
+			"#app/*": ["./src/*"]
+		},
+		"allowJs": true,
+		"incremental": true,
+		"jsx": "preserve"
+	},
+	"include": [
+		"next-env.d.ts",
+		"**/*.ts",
+		"**/*.tsx",
+		".next/types/**/*.ts",
+		".storybook/**/*.{ts,tsx}"
+	],
+	"exclude": ["node_modules"]
 }
