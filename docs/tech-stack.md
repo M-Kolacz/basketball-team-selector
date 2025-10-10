@@ -11,8 +11,7 @@
 # Backend
 
 - Next.js provide API routes or server actions for backend logic
-- Drizzle ORM with Supabase
-- PostgreSQL database hosted on Supabase
+- Drizzle ORM with Postgres (neon.com)
 - AI SDK v5 for interaction with AI models
 
 # Testing

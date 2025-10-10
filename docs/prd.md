@@ -11,10 +11,9 @@ compositions quickly and efficiently for weekly basketball games.
 
 The application serves a single basketball group of approximately 20 players,
 providing an intuitive interface for administrator to generate multiple team
-propositions using AI, make manual adjustments as needed, and track basic game
-statistics. The solution prioritizes speed and simplicity, enabling team
-selection in under 5 minutes while ensuring competitive balance through a
-tier-based skill rating system.
+propositions using AI, make manual adjustments as needed. The solution
+prioritizes speed and simplicity, enabling team selection in under 5 minutes
+while ensuring competitive balance through a tier-based skill rating system.
 
 Key stakeholders include:
 
@@ -97,15 +96,6 @@ organizer.
 - Post-game result entry (winning team, final score)
 - Historical game viewing with team compositions and results
 
-### 3.5 Statistics Tracking
-
-- Individual player statistics: games played, games won, win percentage
-- Simple dashboard showing player participation rates
-- Historical game log with dates, teams, and results
-- Data export capability for future analysis
-- Storage of all team propositions (selected and unselected) for future AI
-  training
-
 ### 3.6 User Interface
 
 - Responsive web design
@@ -122,7 +112,6 @@ organizer.
 - Web-based application accessible via modern browsers
 - AI-powered team generation with three propositions per game
 - Manual override and adjustment capabilities
-- Basic player and game statistics
 - Two-tier user role system (Admin and User)
 - Historical data storage for games and team compositions
 - Simple skill rating system (S-D tiers)
@@ -177,7 +166,7 @@ organizer.
 
 - Title: User Login
 - Description: As a user, I want to log into the system so that I can view team
-  compositions and statistics
+  compositions
 - Acceptance Criteria:
   - Login form accepts username and password
   - Successful login redirects to games dashboard
@@ -329,26 +318,11 @@ organizer.
 #### US-019
 
 - Title: Enter Game Results
-- Description: As an admin, I want to record game results so that player
-  statistics are updated
+- Description: As an admin, I want to record game results
 - Acceptance Criteria:
   - Provide games results (scores from both of the teams)
   - Optional score entry fields
   - Confirmation before saving results
-  - Statistics automatically updated after saving
-
-### Statistics & Reporting
-
-#### US-022
-
-- Title: View Player Statistics
-- Description: As a user, I want to view individual player statistics so that I
-  can see performance metrics
-- Acceptance Criteria:
-  - Display games played count
-  - Show games won count
-  - Calculate and display win percentage
-  - Sort players by any statistic column
 
 ## 6. Success Metrics
 
