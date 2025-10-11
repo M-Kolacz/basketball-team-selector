@@ -31,7 +31,7 @@ import {
 	timestamp,
 	index,
 } from 'drizzle-orm/pg-core'
-import { propositionTypeEnum, type Position, type SkillTier  } from './enums'
+import { propositionTypeEnum, type Position, type SkillTier } from './enums'
 
 /**
  * Individual player information within a team composition
