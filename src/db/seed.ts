@@ -3,12 +3,14 @@ import { db } from '#app/db'
 import {
 	players,
 	type Player,
-	type User,
 	type Proposition,
 	users,
+	type User,
 	propositions,
 	gameSessions,
 	type GameSession,
+	type Team,
+	teams,
 } from '#app/db/schema'
 
 async function seed() {
@@ -55,53 +57,25 @@ async function seed() {
 			passwordHash: faker.internet.password(),
 		}
 
+		const newTeams: Team[] = Array.from({ length: 2 }, () => ({
+			id: faker.string.uuid(),
+			players: faker.helpers.arrayElements(
+				teamPlayers.map((p) => p.id),
+				{ min: 5, max: 5 },
+			),
+			createdAt: faker.date.recent({ days: 10 }),
+			updatedAt: faker.date.recent({ days: 5 }),
+		}))
+
 		const gameSessionId = faker.string.uuid()
 		const propositionId = faker.string.uuid()
 
 		const proposition: Proposition = {
 			id: propositionId,
 			createdAt: faker.date.recent({ days: 10 }),
-			isSelected: true,
 			gameSessionId: gameSessionId,
 			type: 'general',
-			version: 1,
-			skillDifferential: '0.5',
-			positionCoverageScore: '1',
-			regenerationCount: 1,
-			teamComposition: {
-				team_a: {
-					players: teamPlayers.slice(0, 5).map((player) => ({
-						id: player.id,
-						name: player.name,
-						skill_tier: player.skillTier,
-						positions: player.positions,
-					})),
-					position_coverage: {
-						C: true,
-						PG: true,
-						SG: true,
-						SF: true,
-						PF: true,
-					},
-					total_skill_points: 10,
-				},
-				team_b: {
-					players: teamPlayers.slice(5).map((player) => ({
-						id: player.id,
-						name: player.name,
-						skill_tier: player.skillTier,
-						positions: player.positions,
-					})),
-					position_coverage: {
-						C: true,
-						PG: true,
-						SG: true,
-						SF: true,
-						PF: true,
-					},
-					total_skill_points: 10,
-				},
-			},
+			teams: [newTeams[0]!.id, newTeams[1]!.id],
 		}
 
 		const gameSession: GameSession = {
@@ -110,14 +84,26 @@ async function seed() {
 			updatedAt: faker.date.recent({ days: 5 }),
 			description: 'Casual Friday Game',
 			gameDateTime: faker.date.soon({ days: 5 }),
-			games: [{ team_a_score: 32, team_b_score: 28 }],
+			games: [
+				[
+					{ score: 32, teamId: newTeams[0]!.id },
+					{ score: 28, teamId: newTeams[1]!.id },
+				],
+				[
+					{ score: 29, teamId: newTeams[0]!.id },
+					{ score: 32, teamId: newTeams[1]!.id },
+				],
+			],
 			selectedPropositionId: propositionId,
+			teamPropositions: [propositionId],
 		}
 
 		console.log('📝 Inserting seed players data...')
 		await db.insert(players).values(teamPlayers)
 		console.log('📝 Inserting seed users data...')
 		await db.insert(users).values([adminUser, regularUser])
+		console.log('📝 Inserting seed teams data...')
+		await db.insert(teams).values(newTeams)
 		console.log('📝 Inserting seed propositions data...')
 		await db.insert(propositions).values([proposition])
 		console.log('📝 Inserting seed game sessions data...')
