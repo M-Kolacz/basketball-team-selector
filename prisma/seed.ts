@@ -1,9 +1,8 @@
 import { faker } from '@faker-js/faker'
 import {
 	prisma,
-	type Player,
-	type GameSession,
 	type Proposition,
+	type Player,
 	type Team,
 	type User,
 } from '#app/lib/db.server'
@@ -12,7 +11,6 @@ async function seed() {
 	console.log('🌱 Seeding database...')
 
 	try {
-		// Clear existing data
 		console.log('🗑️  Clearing existing players...')
 		await prisma.player.deleteMany()
 		console.log('🗑️  Clearing existing propositions...')
@@ -21,8 +19,30 @@ async function seed() {
 		await prisma.gameSession.deleteMany()
 		console.log('🗑️  Clearing existing users...')
 		await prisma.user.deleteMany()
+		console.log('🗑️  Clearing existing teams...')
+		await prisma.team.deleteMany()
 
-		const teamPlayers: Player[] = Array.from({ length: 10 }, () => ({
+		console.log('📝 Inserting seed users data...')
+		const adminUser: User = {
+			id: faker.string.uuid(),
+			username: faker.internet.username(),
+			createdAt: faker.date.past({ years: 1 }),
+			updatedAt: faker.date.recent({ days: 10 }),
+			role: 'admin',
+		}
+		await prisma.user.create({ data: adminUser })
+
+		const regularUser: User = {
+			id: faker.string.uuid(),
+			username: faker.internet.username(),
+			createdAt: faker.date.past({ years: 1 }),
+			updatedAt: faker.date.recent({ days: 10 }),
+			role: 'user',
+		}
+		await prisma.user.create({ data: regularUser })
+
+		console.log('📝 Inserting seed players data...')
+		const players: Player[] = Array.from({ length: 10 }, () => ({
 			id: faker.string.uuid(),
 			name: faker.person.fullName(),
 			skillTier: faker.helpers.arrayElement(['S', 'A', 'B', 'C', 'D']),
@@ -34,67 +54,76 @@ async function seed() {
 			updatedAt: faker.date.recent({ days: 10 }),
 		}))
 
-		const adminUser: User = {
-			id: faker.string.uuid(),
-			username: faker.internet.username(),
-			createdAt: faker.date.past({ years: 1 }),
-			updatedAt: faker.date.recent({ days: 10 }),
-			role: 'admin',
-		}
-		const regularUser: User = {
-			id: faker.string.uuid(),
-			username: faker.internet.username(),
-			createdAt: faker.date.past({ years: 1 }),
-			updatedAt: faker.date.recent({ days: 10 }),
-			role: 'user',
+		for (const player of players) {
+			await prisma.player.create({ data: player })
 		}
 
-		const newTeams: Team[] = Array.from({ length: 2 }, () => ({
+		console.log('📝 Inserting seed game sessions data...')
+		const gameSession = await prisma.gameSession.create({
+			data: {
+				id: faker.string.uuid(),
+				createdAt: faker.date.recent({ days: 10 }),
+				updatedAt: faker.date.recent({ days: 5 }),
+				description: 'Casual Friday Game',
+				gameDatetime: faker.date.soon({ days: 5 }),
+				games: [],
+			},
+		})
+
+		console.log('📝 Inserting seed teams data...')
+		const teams: Team[] = Array.from({ length: 6 }, () => ({
 			id: faker.string.uuid(),
 			createdAt: faker.date.recent({ days: 10 }),
 			updatedAt: faker.date.recent({ days: 5 }),
 		}))
-
-		const gameSessionId = faker.string.uuid()
-		const propositionId = faker.string.uuid()
-
-		const proposition: Proposition = {
-			id: propositionId,
-			createdAt: faker.date.recent({ days: 10 }),
-			gameSessionId: gameSessionId,
-			type: 'general',
+		for (const team of teams) {
+			await prisma.team.create({
+				data: {
+					...team,
+					players: {
+						connect: faker.helpers
+							.arrayElements(players, { min: 5, max: 5 })
+							.map((player) => ({ id: player.id })),
+					},
+				},
+			})
 		}
 
-		const gameSession: GameSession = {
-			id: gameSessionId,
-			createdAt: faker.date.recent({ days: 10 }),
-			updatedAt: faker.date.recent({ days: 5 }),
-			description: 'Casual Friday Game',
-			gameDatetime: faker.date.soon({ days: 5 }),
-			games: [
-				[
-					{ score: 32, teamId: newTeams[0]!.id },
-					{ score: 28, teamId: newTeams[1]!.id },
-				],
-				[
-					{ score: 29, teamId: newTeams[0]!.id },
-					{ score: 32, teamId: newTeams[1]!.id },
-				],
-			],
-			selectedPropositionId: null,
-		}
-
-		console.log('📝 Inserting seed players data...')
-		await prisma.player.createMany({ data: teamPlayers })
-
-		console.log('📝 Inserting seed users data...')
-		await prisma.user.createMany({ data: [adminUser, regularUser] })
-		console.log('📝 Inserting seed teams data...')
-		await prisma.team.createMany({ data: newTeams })
-		console.log('📝 Inserting seed game sessions data...')
-		await prisma.gameSession.create({ data: gameSession })
 		console.log('📝 Inserting seed propositions data...')
-		await prisma.proposition.create({ data: proposition })
+		const numberOfPropositions: Pick<Proposition, 'id'>[] = Array.from(
+			{ length: 3 },
+			() => ({
+				id: faker.string.uuid(),
+			}),
+		)
+		for (const proposition of numberOfPropositions) {
+			await prisma.proposition.create({
+				data: {
+					id: proposition.id,
+					createdAt: faker.date.recent({ days: 10 }),
+					gameSession: { connect: { id: gameSession.id } },
+					type: 'general',
+					teams: {
+						connect: faker.helpers
+							.arrayElements(teams, { min: 2, max: 2 })
+							.map((team) => ({ id: team.id })),
+					},
+				},
+			})
+		}
+
+		console.log('📝 Updating seed game sessions data with propositions...')
+		await prisma.gameSession.update({
+			where: { id: gameSession.id },
+			data: {
+				propositions: {
+					connect: numberOfPropositions.map((proposition) => ({
+						id: proposition.id,
+					})),
+				},
+				selectedProposition: { connect: { id: numberOfPropositions[0]!.id } },
+			},
+		})
 
 		console.log(`✅ Successfully seeded database!`)
 		console.log('🎉 Database seeding completed!')
@@ -104,7 +133,6 @@ async function seed() {
 	}
 }
 
-// Run the seed function if this file is executed directly
 if (require.main === module) {
 	seed()
 		.then(() => {
