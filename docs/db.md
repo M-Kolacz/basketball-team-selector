@@ -24,6 +24,15 @@
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 ```
 
+### teams
+
+```sql
+- id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
+- players: UUID[] (NOT NULL, DEFAULT '{}')
+- created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+- updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+```
+
 ### game_sessions
 
 ```sql
@@ -31,6 +40,7 @@
 - game_datetime: TIMESTAMP WITH TIME ZONE (NOT NULL)
 - description: TEXT (NULLABLE)
 - games: JSONB (DEFAULT '[]', NOT NULL)
+- team_propositions: UUID[] (NOT NULL, DEFAULT '{}')
 - selected_proposition_id: UUID (NULLABLE, FOREIGN KEY → propositions.id)
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
@@ -42,12 +52,7 @@
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
 - game_session_id: UUID (NOT NULL, FOREIGN KEY → game_sessions.id)
 - type: proposition_type_enum (NOT NULL)
-- version: INTEGER (NOT NULL, DEFAULT 1)
-- team_composition: JSONB (NOT NULL)
-- skill_differential: DECIMAL(5,2) (NOT NULL)
-- position_coverage_score: DECIMAL(5,2) (NOT NULL)
-- is_selected: BOOLEAN (DEFAULT FALSE)
-- regeneration_count: INTEGER (DEFAULT 0)
+- teams: UUID[] (NOT NULL, DEFAULT '{}')
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 ```
 
@@ -62,6 +67,13 @@
 
 - game_sessions → selected_proposition (nullable foreign key)
 
+### Many-to-Many Relationships (via UUID arrays)
+
+- teams ↔ players (teams.players[] contains player UUIDs)
+- propositions ↔ teams (propositions.teams[] contains team UUIDs)
+- game_sessions ↔ propositions (game_sessions.team_propositions[] contains
+  proposition UUIDs)
+
 ## 3. Indexes
 
 ```sql
@@ -70,13 +82,14 @@ CREATE INDEX idx_game_sessions_game_datetime ON game_sessions(game_datetime DESC
 CREATE INDEX idx_game_sessions_selected_proposition ON game_sessions(selected_proposition_id);
 CREATE INDEX idx_propositions_game_session_id ON propositions(game_session_id);
 CREATE INDEX idx_propositions_type ON propositions(type);
-CREATE INDEX idx_propositions_is_selected ON propositions(is_selected);
 CREATE INDEX idx_players_skill_tier ON players(skill_tier);
 CREATE INDEX idx_players_name ON players(name);
 CREATE INDEX idx_players_positions ON players USING GIN(positions);
 
--- Composite indexes
-CREATE INDEX idx_propositions_game_session_version ON propositions(game_session_id, version);
+-- Array indexes
+CREATE INDEX idx_teams_players ON teams USING GIN(players);
+CREATE INDEX idx_propositions_teams ON propositions USING GIN(teams);
+CREATE INDEX idx_game_sessions_team_propositions ON game_sessions USING GIN(team_propositions);
 ```
 
 ## 4. PostgreSQL Policies
@@ -116,48 +129,23 @@ CREATE TYPE position_enum AS ENUM ('PG', 'SG', 'SF', 'PF', 'C');
 
 ### JSONB Structure for games array (in game_sessions table)
 
+Each game is represented as an array containing score objects for each team:
+
 ```json
 [
-	{
-		"team_a_score": 32,
-		"team_b_score": 28
-	},
-	{
-		"team_a_score": 32,
-		"team_b_score": 30
-	}
+	[
+		{ "score": 32, "teamId": "uuid-of-team-1" },
+		{ "score": 28, "teamId": "uuid-of-team-2" }
+	],
+	[
+		{ "score": 29, "teamId": "uuid-of-team-1" },
+		{ "score": 32, "teamId": "uuid-of-team-2" }
+	]
 ]
 ```
 
-### JSONB Structure for team_composition (in propositions table)
-
-```json
-{
-  "team_a": {
-    "players": [
-      {
-        "id": "uuid",
-        "name": "string",
-        "skill_tier": "S|A|B|C|D",
-        "positions": ["PG", "SG"]
-      }
-    ],
-    "total_skill_points": 20,
-    "position_coverage": {
-      "PG": true,
-      "SG": true,
-      "SF": true,
-      "PF": true,
-      "C": true
-    }
-  },
-  "team_b": {
-    "players": [...],
-    "total_skill_points": 19,
-    "position_coverage": {...}
-  }
-}
-```
+Each inner array represents a single game, with score objects indicating the
+score and team ID for each participating team.
 
 ### Database Triggers
 
@@ -175,6 +163,9 @@ CREATE TRIGGER set_updated_at_users BEFORE UPDATE ON users
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER set_updated_at_players BEFORE UPDATE ON players
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER set_updated_at_teams BEFORE UPDATE ON teams
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER set_updated_at_game_sessions BEFORE UPDATE ON game_sessions

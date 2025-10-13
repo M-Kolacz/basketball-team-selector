@@ -7,7 +7,7 @@ import {
 	index,
 } from 'drizzle-orm/pg-core'
 
-export type Game = { score: number; teamId: string }[]
+export type Game = { score: number; teamId: string }[][]
 
 export const gameSessions = pgTable(
 	'game_sessions',
