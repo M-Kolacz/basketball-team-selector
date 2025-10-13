@@ -87,8 +87,5 @@
       "npm run format:fix",
       "git add ."
     ]
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }
