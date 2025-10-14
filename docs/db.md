@@ -7,10 +7,16 @@
 ```sql
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
 - username: VARCHAR(50) (UNIQUE, NOT NULL)
-- password_hash: VARCHAR(255) (NOT NULL, CHECK length >= 8)
 - role: user_role_enum (NOT NULL, DEFAULT 'user')
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+```
+
+### passwords
+
+```sql
+- hash: VARCHAR(255) (NOT NULL)
+- user_id: UUID (UNIQUE, NOT NULL, FOREIGN KEY → users.id)
 ```
 
 ### players
@@ -28,10 +34,12 @@
 
 ```sql
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
-- players: UUID[] (NOT NULL, DEFAULT '{}')
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 ```
+
+_Note: The many-to-many relationship between teams and players is managed by
+Prisma through an implicit join table `_PlayerToTeam` (player_id, team_id)._
 
 ### game_sessions
 
@@ -40,8 +48,7 @@
 - game_datetime: TIMESTAMP WITH TIME ZONE (NOT NULL)
 - description: TEXT (NULLABLE)
 - games: JSONB (DEFAULT '[]', NOT NULL)
-- team_propositions: UUID[] (NOT NULL, DEFAULT '{}')
-- selected_proposition_id: UUID (NULLABLE, FOREIGN KEY → propositions.id)
+- selected_proposition_id: UUID (NULLABLE, UNIQUE, FOREIGN KEY → propositions.id)
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 ```
@@ -52,44 +59,51 @@
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
 - game_session_id: UUID (NOT NULL, FOREIGN KEY → game_sessions.id)
 - type: proposition_type_enum (NOT NULL)
-- teams: UUID[] (NOT NULL, DEFAULT '{}')
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 ```
+
+_Note: The many-to-many relationship between propositions and teams is managed
+by Prisma through an implicit join table `_PropositionToTeam` (proposition_id,
+team_id)._
 
 ## 2. Relationships Between Tables
 
 ### One-to-Many Relationships
 
-- users → many game_sessions (created_by relationship - optional for MVP)
-- game_sessions → many propositions
+- game_sessions → many propositions (via propositions.game_session_id)
 
 ### One-to-One Relationships
 
-- game_sessions → selected_proposition (nullable foreign key)
+- users → password (via passwords.user_id, nullable on User side)
+- game_sessions → selected_proposition (via
+  game_sessions.selected_proposition_id, nullable)
 
-### Many-to-Many Relationships (via UUID arrays)
+### Many-to-Many Relationships (via Prisma implicit join tables)
 
-- teams ↔ players (teams.players[] contains player UUIDs)
-- propositions ↔ teams (propositions.teams[] contains team UUIDs)
-- game_sessions ↔ propositions (game_sessions.team_propositions[] contains
-  proposition UUIDs)
+- teams ↔ players (managed via `_PlayerToTeam` join table with player_id and
+  team_id)
+- propositions ↔ teams (managed via `_PropositionToTeam` join table with
+  proposition_id and team_id)
 
 ## 3. Indexes
 
+_Note: Prisma automatically creates indexes for the following:_
+
+- Primary keys (all `id` fields)
+- Unique constraints (`users.username`, `passwords.user_id`, `players.name`,
+  `game_sessions.selected_proposition_id`)
+- Foreign key fields (`passwords.user_id`, `propositions.game_session_id`,
+  `game_sessions.selected_proposition_id`)
+- Join table columns (indexes on `_PlayerToTeam` and `_PropositionToTeam`)
+
+_Additional performance indexes can be added manually if needed:_
+
 ```sql
--- Performance indexes
+-- Recommended performance indexes (to be added manually if needed)
 CREATE INDEX idx_game_sessions_game_datetime ON game_sessions(game_datetime DESC);
-CREATE INDEX idx_game_sessions_selected_proposition ON game_sessions(selected_proposition_id);
-CREATE INDEX idx_propositions_game_session_id ON propositions(game_session_id);
 CREATE INDEX idx_propositions_type ON propositions(type);
 CREATE INDEX idx_players_skill_tier ON players(skill_tier);
-CREATE INDEX idx_players_name ON players(name);
 CREATE INDEX idx_players_positions ON players USING GIN(positions);
-
--- Array indexes
-CREATE INDEX idx_teams_players ON teams USING GIN(players);
-CREATE INDEX idx_propositions_teams ON propositions USING GIN(teams);
-CREATE INDEX idx_game_sessions_team_propositions ON game_sessions USING GIN(team_propositions);
 ```
 
 ## 4. PostgreSQL Policies
@@ -174,5 +188,8 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 ### Cascade Behaviors
 
-- propositions.game_session_id → ON DELETE CASCADE
-- game_sessions.selected_proposition_id → ON DELETE SET NULL
+- passwords.user_id → ON DELETE CASCADE, ON UPDATE CASCADE
+- propositions.game_session_id → ON DELETE CASCADE (deleting a game session
+  deletes all its propositions)
+- game_sessions.selected_proposition_id → ON DELETE SET NULL (deleting a
+  proposition doesn't delete the game session)
