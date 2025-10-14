@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(uuid())
+  username String   @unique
+  role     UserRole @default(user)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password Password?
+}
+
+model Password {
+  hash String
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId String @unique
+}
+
+model Player {
+  id        String     @id @default(uuid())
+  name      String     @unique
+  skillTier SkillTier  @default(B)
+  positions Position[] @default([])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  teams Team[]
+}
+
+model Team {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  players      Player[]
+  propositions Proposition[]
+}
+
+model GameSession {
+  id           String   @id @default(uuid())
+  gameDatetime DateTime
+  description  String?
+  games        Json     @default("[]")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  propositions          Proposition[]
+  selectedProposition   Proposition?  @relation("SelectedProposition", fields: [selectedPropositionId], references: [id], onDelete: SetNull)
+  selectedPropositionId String?       @unique
+}
+
+model Proposition {
+  id   String          @id @default(uuid())
+  type PropositionType
+
+  createdAt DateTime @default(now())
+
+  gameSession           GameSession  @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  gameSessionId         String
+  selectedByGameSession GameSession? @relation("SelectedProposition")
+  teams                 Team[]
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum SkillTier {
+  S
+  A
+  B
+  C
+  D
+}
+
+enum PropositionType {
+  position_focused
+  skill_balanced
+  general
+}
+
+enum Position {
+  PG
+  SG
+  SF
+  PF
+  C
+}
