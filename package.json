@@ -17,6 +17,7 @@
     "test:e2e:run": "cross-env CI=true playwright test",
     "test:e2e:dev": "playwright test --ui",
     "test": "vitest",
+    "postinstall": "prisma generate",
     "prepare": "husky",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
