@@ -59,3 +59,32 @@ export async function verifyCredentials(
 export async function hashPassword(plainTextPassword: string): Promise<string> {
 	return bcrypt.hash(plainTextPassword, 10)
 }
+
+export async function registerUser(
+	username: string,
+	password: string,
+): Promise<AuthenticatedUser> {
+	const hashedPassword = await hashPassword(password)
+
+	try {
+		const user = await prisma.user.create({
+			data: {
+				username,
+				role: 'user',
+				password: {
+					create: { hash: hashedPassword },
+				},
+			},
+		})
+
+		return {
+			id: user.id,
+			username: user.username,
+			role: user.role,
+			createdAt: user.createdAt,
+			updatedAt: user.updatedAt,
+		}
+	} catch (error) {
+		throw error
+	}
+}

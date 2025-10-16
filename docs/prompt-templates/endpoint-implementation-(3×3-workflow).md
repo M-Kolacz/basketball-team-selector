@@ -5,12 +5,10 @@ all logical steps described in the plan.
 
 First, carefully review the provided implementation plan:
 
-<implementation_plan> {{endpoint-implementation-plan}} <- add reference to
-endpoint implementation plan (e.g.,
-@generations-endpoint-implementation-plan.md) </implementation_plan>
+<implementation_plan> @docs/endpoints/user-register.md </implementation_plan>
 
 <types>
-{{types}} <- add reference to type definitions (e.g., @types)
+@src/types/dto.ts
 </types>
 
 <implementation_approach> Implement a maximum of 3 steps from the implementation

@@ -6,17 +6,16 @@ Before we begin, review the following information:
 
 1. Route API specification: <route_api_specification>
 
-### Authentication
+#### POST /api/auth/register
 
-#### POST /api/auth/login
-
-- **Description:** Authenticate user and create session
+- **Description:** Register new user account (public endpoint)
 - **Request Payload:**
 
 ```json
 {
-	"username": "string",
-	"password": "string"
+	"username": "string (max 50 chars)",
+	"password": "string (min 8 chars)",
+	"confirmPassword": "string (must match password)"
 }
 ```
 
@@ -27,15 +26,17 @@ Before we begin, review the following information:
 	"user": {
 		"id": "uuid",
 		"username": "string",
-		"role": "admin|user"
+		"role": "user"
 	}
 }
 ```
 
-- **Success:** 200 OK - JWT token saved in the cookie
+- **Success:** 201 Created - JWT token saved in the cookie
 - **Errors:**
-  - 401 Unauthorized - Invalid credentials
-  - 422 Unprocessable Entity - Missing required fields
+  - 409 Conflict - Username already exists
+  - 422 Unprocessable Entity - Validation errors (password mismatch, invalid
+    format, missing fields)
+
     </route_api_specification>
 
 2. Related database resources: <related_db_resources> @docs/db.md
@@ -140,5 +141,5 @@ databases]
 
 The final output should consist solely of the implementation plan in markdown format and should not duplicate or repeat any work done in the analysis section.
 
-Remember to save your implementation plan as @docs/endpoints/user-login.md. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
+Remember to save your implementation plan as @docs/endpoints/user-register.md. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
 ```

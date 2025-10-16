@@ -28,6 +28,16 @@ export type LoginResponseDto = {
 	user: UserDto
 }
 
+export type RegisterCommandDto = {
+	username: string
+	password: string
+	confirmPassword: string
+}
+
+export type RegisterResponseDto = {
+	user: UserDto
+}
+
 export type UserWithTimestampsDto = Omit<User, 'password'>
 
 export type UsersListResponseDto = {
