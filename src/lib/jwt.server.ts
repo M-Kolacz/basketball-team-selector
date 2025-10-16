@@ -1,20 +1,15 @@
 import jwt from 'jsonwebtoken'
+import { env } from '#app/lib/env.mjs'
 
 export interface TokenPayload {
 	userId: string
 }
 
 export function generateToken(payload: TokenPayload): string {
-	const secret = process.env.JWT_SECRET
-
-	if (!secret) {
-		throw new Error('JWT_SECRET environment variable is not configured')
-	}
-
 	const expiresIn = '7d'
 
 	try {
-		return jwt.sign(payload, secret, {
+		return jwt.sign(payload, env.JWT_SECRET, {
 			algorithm: 'HS256',
 			expiresIn,
 		})
@@ -26,14 +21,8 @@ export function generateToken(payload: TokenPayload): string {
 }
 
 export function verifyToken(token: string): TokenPayload {
-	const secret = process.env.JWT_SECRET
-
-	if (!secret) {
-		throw new Error('JWT_SECRET environment variable is not configured')
-	}
-
 	try {
-		const decoded = jwt.verify(token, secret, {
+		const decoded = jwt.verify(token, env.JWT_SECRET, {
 			algorithms: ['HS256'],
 		}) as TokenPayload
 
