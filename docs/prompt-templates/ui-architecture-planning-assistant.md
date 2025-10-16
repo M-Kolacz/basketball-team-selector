@@ -6,11 +6,11 @@ user journey maps, and navigation structure.
 
 Please carefully review the following information:
 
-<product_requirements> @docs/prd.md </product_requirements>
+<product_requirements> @prd.md </product_requirements>
 
-<tech_stack> @docs/tech-stack.md </tech_stack>
+<tech_stack> @tech-stack.md </tech_stack>
 
-<api_plan> @docs/rest-api-plan.md </api_plan>
+<api_plan> @rest-api-plan.md </api_plan>
 
 Analyze the provided information, focusing on aspects relevant to user interface
 design. Consider the following issues:
