@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker'
+import bcryptjs from 'bcryptjs'
 import {
 	prisma,
 	type Proposition,
@@ -23,23 +24,29 @@ async function seed() {
 		await prisma.team.deleteMany()
 
 		console.log('📝 Inserting seed users data...')
-		const adminUser: User = {
-			id: faker.string.uuid(),
-			username: faker.internet.username(),
-			createdAt: faker.date.past({ years: 1 }),
-			updatedAt: faker.date.recent({ days: 10 }),
-			role: 'admin',
-		}
-		await prisma.user.create({ data: adminUser })
-
-		const regularUser: User = {
-			id: faker.string.uuid(),
-			username: faker.internet.username(),
-			createdAt: faker.date.past({ years: 1 }),
-			updatedAt: faker.date.recent({ days: 10 }),
-			role: 'user',
-		}
-		await prisma.user.create({ data: regularUser })
+		await prisma.user.create({
+			data: {
+				id: faker.string.uuid(),
+				username: 'kody',
+				createdAt: faker.date.past({ years: 1 }),
+				updatedAt: faker.date.recent({ days: 10 }),
+				role: 'admin',
+				password: {
+					create: {
+						hash: await bcryptjs.hash('kodylovesyou', 12),
+					},
+				},
+			},
+		})
+		await prisma.user.create({
+			data: {
+				id: faker.string.uuid(),
+				username: faker.internet.username(),
+				createdAt: faker.date.past({ years: 1 }),
+				updatedAt: faker.date.recent({ days: 10 }),
+				role: 'user',
+			},
+		})
 
 		console.log('📝 Inserting seed players data...')
 		const players: Player[] = Array.from({ length: 10 }, () => ({

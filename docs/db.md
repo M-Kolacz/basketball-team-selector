@@ -1,3 +1,5 @@
+<!-- Claude session: https://claude.ai/share/2734d8d8-fdcd-45d6-8925-f22244336f46 -->
+
 # Basketball Team Selector Database Schema
 
 ## 1. Tables with Columns, Data Types, and Constraints

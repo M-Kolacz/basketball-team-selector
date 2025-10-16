@@ -57,3 +57,8 @@ are defined in [globals.css:8-13](src/app/globals.css#L8-L13) using
 
 Uses Geist and Geist Mono fonts from Google Fonts, configured in
 [layout.tsx:5-13](src/app/layout.tsx#L5-L13) with CSS variables.
+
+## Rules to follow
+
+- Do not include comments in generated code. Write self-documenting code with
+  clear names.
