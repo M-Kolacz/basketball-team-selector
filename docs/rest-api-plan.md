@@ -1,3 +1,5 @@
+<!-- Claude session: https://claude.ai/share/b1c8e0ee-bd86-4bb5-9446-0cc987bb83f3 -->
+
 # REST API Plan
 
 ## 1. Resources
@@ -47,6 +49,37 @@
 - **Description:** Terminate user session - remove cookie
 - **Success:** 204 No Content
 - **Errors:** 401 Unauthorized - Not authenticated
+
+#### POST /api/auth/register
+
+- **Description:** Register new user account (public endpoint)
+- **Request Payload:**
+
+```json
+{
+	"username": "string (max 50 chars)",
+	"password": "string (min 8 chars)",
+	"confirmPassword": "string (must match password)"
+}
+```
+
+- **Response Payload:**
+
+```json
+{
+	"user": {
+		"id": "uuid",
+		"username": "string",
+		"role": "user"
+	}
+}
+```
+
+- **Success:** 201 Created - JWT token saved in the cookie
+- **Errors:**
+  - 409 Conflict - Username already exists
+  - 422 Unprocessable Entity - Validation errors (password mismatch, invalid
+    format, missing fields)
 
 ### Users
 
@@ -449,7 +482,7 @@
 
 ### Authorization Rules
 
-- **Public Endpoints:** POST /api/auth/login only
+- **Public Endpoints:** POST /api/auth/login, POST /api/auth/register
 - **User-level Access (authenticated users):**
   - GET endpoints for players (limited fields), game sessions, propositions
   - Cannot access skill_tier and positions fields for players
@@ -466,6 +499,7 @@
 - Username: Required, unique, max 50 characters, alphanumeric with underscores
 - Password: Required for creation, min 8 characters, at least one uppercase, one
   lowercase, one number
+- Confirm Password: Required for registration, must match password field
 - Role: Must be either 'admin' or 'user'
 
 ### Player Validation
