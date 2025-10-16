@@ -1,15 +1,13 @@
 import { type NextRequest, NextResponse } from 'next/server'
 import { AuthenticationError, AuthorizationError } from '#app/lib/auth.server'
-import { usersListQuerySchema } from '#app/lib/validators/user.validators'
+import { usersListQuerySchema } from '#app/lib/validations/user.validators'
 import { listUsers } from '#app/services/user.service'
 
 export async function GET(request: NextRequest) {
 	try {
-		// Step 1: Authenticate user
 		// const user = await getCurrentUser(request)
 		// requireAuth(user)
 
-		// Step 2: Authorize admin access
 		// requireAdmin(user)
 
 		const { searchParams } = new URL(request.url)

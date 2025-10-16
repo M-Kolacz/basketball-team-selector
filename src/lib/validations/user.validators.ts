@@ -1,13 +1,5 @@
 import { z } from 'zod'
 
-/**
- * Validation schema for GET /api/users query parameters.
- *
- * Validates and transforms query string parameters:
- * - page: Positive integer >= 1 (default: 1)
- * - limit: Positive integer between 1-100 (default: 20)
- * - sort: Either 'username' or 'created_at' (default: 'username')
- */
 export const usersListQuerySchema = z.object({
 	page: z
 		.string()
@@ -29,7 +21,7 @@ export const usersListQuerySchema = z.object({
 		),
 	sort: z
 		.enum(['username', 'created_at'], {
-			errorMap: () => ({
+			error: () => ({
 				message: "Sort field must be either 'username' or 'created_at'",
 			}),
 		})

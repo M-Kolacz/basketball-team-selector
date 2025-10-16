@@ -5,21 +5,45 @@ development team in effectively and correctly implementing this endpoint.
 Before we begin, review the following information:
 
 1. Route API specification: <route_api_specification>
-   {{route-api-specification}} <- copy endpoint description from api-plan.md
-   </route_api_specification>
 
-2. Related database resources: <related_db_resources> {{db-resources}} <- copy
-   tables and relationships from db-plan.md </related_db_resources>
+### Authentication
 
-3. Type definitions: <type_definitions> {{types}} <- replace with reference to
-   type definitions (e.g., @types) </type_definitions>
+#### POST /api/auth/login
 
-4. Tech stack: <tech_stack> {{tech-stack}} <- replace with reference to
-   @tech-stack.md </tech_stack>
+- **Description:** Authenticate user and create session
+- **Request Payload:**
 
-5. Implementation rules: <implementation_rules> {{backend-rules}} <- replace
-   with reference to Rules for AI for backend (e.g., @shared.mdc, @backend.mdc,
-   @astro.mdc) </implementation_rules>
+```json
+{
+	"username": "string",
+	"password": "string"
+}
+```
+
+- **Response Payload:**
+
+```json
+{
+	"user": {
+		"id": "uuid",
+		"username": "string",
+		"role": "admin|user"
+	}
+}
+```
+
+- **Success:** 200 OK - JWT token saved in the cookie
+- **Errors:**
+  - 401 Unauthorized - Invalid credentials
+  - 422 Unprocessable Entity - Missing required fields
+    </route_api_specification>
+
+2. Related database resources: <related_db_resources> @docs/db.md
+   </related_db_resources>
+
+3. Type definitions: <type_definitions> @src/types/dto.ts</type_definitions>
+
+4. Tech stack: <tech_stack>@docs/tech-stack.md</tech_stack>
 
 Your task is to create a comprehensive implementation plan for the REST API
 endpoint. Before delivering the final plan, use <analysis> tags to analyze the
@@ -116,5 +140,5 @@ databases]
 
 The final output should consist solely of the implementation plan in markdown format and should not duplicate or repeat any work done in the analysis section.
 
-Remember to save your implementation plan as .ai/view-implementation-plan.md. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
+Remember to save your implementation plan as @docs/endpoints/user-login.md. Ensure the plan is detailed, clear, and provides comprehensive guidance for the development team.
 ```
