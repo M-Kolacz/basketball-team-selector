@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 			userId: user.id,
 		})
 
-		const expiresIn = process.env.JWT_EXPIRES_IN || '7d'
+		const expiresIn = '7d'
 		await setAuthCookie(token, expiresIn)
 
 		return NextResponse.json(
