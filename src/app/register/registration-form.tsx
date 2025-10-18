@@ -82,13 +82,12 @@ export function RegistrationForm() {
 								/>
 								<FieldError errors={fields.confirmPassword.errors} />
 							</Field>
+							<FieldError errors={form.errors} />
+
+							<Button type="submit" className="w-full" disabled={isSubmitting}>
+								{isSubmitting ? 'Creating account...' : 'Create account'}
+							</Button>
 						</FieldGroup>
-
-						<FieldError errors={form.errors} />
-
-						<Button type="submit" className="w-full" disabled={isSubmitting}>
-							{isSubmitting ? 'Creating account...' : 'Create account'}
-						</Button>
 
 						<p className="text-center text-sm text-muted-foreground">
 							Already have an account?{' '}

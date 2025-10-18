@@ -1,15 +1,14 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import z from 'zod'
-import { login } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import { LoginSchema, RegisterSchema } from '#app/lib/validations/auth'
-import { registerUser } from '#app/services/auth.server'
 
 export const loginAction = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
@@ -17,30 +16,42 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 			LoginSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data, user: null }
 
-				const user = await login({
-					username: data.username,
-					password: data.password,
+				const userWithPassword = await prisma.user.findUnique({
+					where: {
+						username: data.username,
+					},
+					select: {
+						id: true,
+						password: {
+							select: { hash: true },
+						},
+					},
 				})
 
-				if (!user) {
+				const isValidPassword = await bcrypt.compare(
+					data.password,
+					userWithPassword?.password?.hash || '',
+				)
+
+				if (!userWithPassword || !isValidPassword) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: 'Invalid username or password',
 					})
 					return z.NEVER
 				}
-				return { user }
+				return { userId: userWithPassword.id }
 			}),
 		async: true,
 	})
 
-	if (submission.status !== 'success' || !submission.value.user) {
+	if (submission.status !== 'success' || !submission.value.userId) {
 		return submission.reply({ hideFields: ['password'] })
 	}
 
-	const { user } = submission.value
+	const { userId } = submission.value
 
-	const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
+	const token = jwt.sign({ userId }, env.JWT_SECRET, {
 		algorithm: 'HS256',
 		expiresIn: '7d',
 	})
@@ -83,7 +94,32 @@ export const register = async (_prevState: unknown, formData: FormData) => {
 
 	const { username, password } = submission.value
 
-	await registerUser(username, password)
+	const hashedPassword = await bcrypt.hash(password, 10)
 
-	redirect('/')
+	const user = await prisma.user.create({
+		data: {
+			username,
+			role: 'user',
+			password: {
+				create: { hash: hashedPassword },
+			},
+		},
+		select: { id: true },
+	})
+
+	const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
+		algorithm: 'HS256',
+		expiresIn: '7d',
+	})
+
+	const cookieStore = await cookies()
+	cookieStore.set('bts-session', token, {
+		sameSite: 'lax',
+		path: '/',
+		httpOnly: true,
+		secure: env.NODE_ENV === 'production',
+		maxAge: 7 * 24 * 60 * 60,
+	})
+
+	redirect('/games')
 }

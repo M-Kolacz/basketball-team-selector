@@ -21,9 +21,7 @@ export const usersListQuerySchema = z.object({
 		),
 	sort: z
 		.enum(['username', 'created_at'], {
-			error: () => ({
-				message: "Sort field must be either 'username' or 'created_at'",
-			}),
+			message: "Sort field must be either 'username' or 'created_at'",
 		})
 		.optional()
 		.default('username'),
