@@ -60,5 +60,4 @@ Uses Geist and Geist Mono fonts from Google Fonts, configured in
 
 ## Rules to follow
 
-- Do not include comments in generated code. Write self-documenting code with
-  clear names.
+- Be extremely concise, sacrifice grammar for the sake of concision

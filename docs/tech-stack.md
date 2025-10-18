@@ -10,8 +10,8 @@
 
 # Backend
 
-- Next.js provide API routes or server actions for backend logic
-- Drizzle ORM with Postgres (neon.com)
+- Next.js with Server Actions
+- Prisma ORM with PostgreSQL (neon)
 - AI SDK v5 for interaction with AI models
 
 # Testing

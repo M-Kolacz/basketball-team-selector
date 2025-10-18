@@ -26,7 +26,7 @@
 ```sql
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
 - name: VARCHAR(100) (UNIQUE, NOT NULL)
-- skill_tier: skill_tier_enum (NOT NULL)
+- skill_tier: skill_tier_enum (NOT NULL, DEFAULT 'B')
 - positions: position_enum[] (NOT NULL, DEFAULT '{}')
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
@@ -117,6 +117,10 @@ iterations if needed._
 
 ## 5. Additional Notes and Design Decisions
 
+### Prisma Schema Mapping
+
+_Note: The Prisma schema uses camelCase for field names (e.g., `skillTier`, `gameDatetime`, `gameSessionId`), which automatically maps to snake_case in the PostgreSQL database (e.g., `skill_tier`, `game_datetime`, `game_session_id`). The SQL examples above reflect the actual database column names._
+
 ### Enum Types
 
 ```sql
@@ -195,3 +199,7 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
   deletes all its propositions)
 - game_sessions.selected_proposition_id → ON DELETE SET NULL (deleting a
   proposition doesn't delete the game session)
+- `_PlayerToTeam` join table → ON DELETE CASCADE for both player_id and team_id
+- `_PropositionToTeam` join table → ON DELETE CASCADE for both proposition_id and team_id
+
+_Note: The `propositions` table intentionally does not have an `updated_at` field, as propositions are considered immutable once created._
