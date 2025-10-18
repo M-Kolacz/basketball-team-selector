@@ -1,4 +1,4 @@
-import  { type PasswordRequirementCheck } from '#app/types/registration'
+import { type PasswordRequirementCheck } from '#app/types/registration'
 
 type PasswordRequirementsProps = {
 	requirements: PasswordRequirementCheck

@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers'
+import { env } from '#app/lib/env.mjs'
 
 const AUTH_COOKIE_NAME = 'auth-token'
 
@@ -11,7 +12,7 @@ interface CookieOptions {
 }
 
 function getCookieOptions(maxAge: number): CookieOptions {
-	const isProduction = process.env.NODE_ENV === 'production'
+	const isProduction = env.NODE_ENV === 'production'
 
 	return {
 		httpOnly: true,

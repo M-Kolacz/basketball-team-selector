@@ -18,7 +18,7 @@ import {
 	calculatePasswordStrength,
 	checkPasswordRequirements,
 } from '#app/lib/password-strength'
-import  {
+import {
 	type RegistrationFormState,
 	type RegistrationFormProps,
 } from '#app/types/registration'
