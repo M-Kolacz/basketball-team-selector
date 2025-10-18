@@ -1,16 +1,13 @@
-import { error } from 'console'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
-import { RegisterCommandSchema } from '#app/lib/validations/auth'
+import { RegisterSchema } from '#app/lib/validations/auth'
 import { registerUser } from '#app/services/auth.server'
 
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
 		console.log({ body })
-		const validatedData = RegisterCommandSchema.parse(body)
-
-		await registerUser(validatedData.username, validatedData.password)
+		const validatedData = RegisterSchema.parse(body)
 
 		const loginUrl = new URL('/', request.url)
 		return NextResponse.json(

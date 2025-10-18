@@ -10,7 +10,7 @@ export const LoginSchema = z.object({
 
 export type Login = z.infer<typeof LoginSchema>
 
-export const RegisterCommandSchema = z
+export const RegisterSchema = z
 	.object({
 		username: z
 			.string()
@@ -28,4 +28,4 @@ export const RegisterCommandSchema = z
 		path: ['confirmPassword'],
 	})
 
-export type RegisterCommand = z.infer<typeof RegisterCommandSchema>
+export type RegisterCommand = z.infer<typeof RegisterSchema>

@@ -71,13 +71,13 @@ export function LoginForm() {
 							/>
 							<FieldError errors={fields.password.errors} />
 						</Field>
-
-						<FieldError errors={form.errors} />
-
-						<Button type="submit" disabled={isSubmitting} className="w-full">
-							{isSubmitting ? 'Logging in...' : 'Login'}
-						</Button>
 					</FieldGroup>
+
+					<FieldError errors={form.errors} />
+
+					<Button type="submit" disabled={isSubmitting} className="w-full">
+						{isSubmitting ? 'Logging in...' : 'Login'}
+					</Button>
 
 					<div className="text-center text-sm text-muted-foreground">
 						Don't have an account?{' '}
