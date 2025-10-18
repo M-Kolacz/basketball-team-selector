@@ -1,4 +1,4 @@
-import type { UserDto } from '#app/types/dto'
+import { type UserDto } from '#app/types/dto'
 
 export type RegistrationFormState = {
 	username: string

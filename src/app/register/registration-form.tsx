@@ -1,9 +1,9 @@
 'use client'
 
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Alert, AlertDescription } from '#app/components/ui/alert'
+import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
 	Card,
@@ -12,191 +12,29 @@ import {
 	CardTitle,
 	CardDescription,
 } from '#app/components/ui/card'
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { Label } from '#app/components/ui/label'
-import {
-	calculatePasswordStrength,
-	checkPasswordRequirements,
-} from '#app/lib/password-strength'
-import {
-	type RegistrationFormState,
-	type RegistrationFormProps,
-} from '#app/types/registration'
-import { PasswordRequirements } from './password-requirements'
-import { PasswordStrengthIndicator } from './password-strength-indicator'
+import { register } from '#app/lib/actions'
+import { RegisterSchema } from '#app/lib/validations/auth'
 
-const initialFormState: RegistrationFormState = {
-	username: '',
-	password: '',
-	confirmPassword: '',
-	isSubmitting: false,
-	errors: {},
-	passwordStrength: {
-		score: 0,
-		label: 'Very Weak',
-		color: 'red',
-		percentage: 20,
-	},
-}
-
-export function RegistrationForm({
-	onSuccess,
-	redirectUrl = '/',
-}: RegistrationFormProps) {
-	const router = useRouter()
-	const [formState, setFormState] =
-		useState<RegistrationFormState>(initialFormState)
-
-	const passwordRequirements = checkPasswordRequirements(formState.password)
-
-	const validateUsername = (username: string): string | undefined => {
-		if (!username) {
-			return 'Username is required'
-		}
-		if (username.length < 3) {
-			return 'Username must be at least 3 characters'
-		}
-		if (username.length > 20) {
-			return 'Username must be less than 20 characters'
-		}
-		if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-			return 'Username can only contain letters, numbers, and underscores'
-		}
-		return undefined
-	}
-
-	const validatePassword = (password: string): string | undefined => {
-		if (!password) {
-			return 'Password is required'
-		}
-		const requirements = checkPasswordRequirements(password)
-		if (!requirements.minLength) {
-			return 'Password must be at least 8 characters'
-		}
-		if (
-			!requirements.hasUpperCase ||
-			!requirements.hasLowerCase ||
-			!requirements.hasNumber ||
-			!requirements.hasSpecialChar
-		) {
-			return 'Password must meet all requirements'
-		}
-		return undefined
-	}
-
-	const validateConfirmPassword = (
-		password: string,
-		confirmPassword: string,
-	): string | undefined => {
-		if (!confirmPassword) {
-			return 'Please confirm your password'
-		}
-		if (password !== confirmPassword) {
-			return 'Passwords do not match'
-		}
-		return undefined
-	}
-
-	const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const username = e.target.value
-		setFormState((prev) => ({
-			...prev,
-			username,
-			errors: {
-				...prev.errors,
-				username: undefined,
-			},
-		}))
-	}
-
-	const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const password = e.target.value
-		const strength = calculatePasswordStrength(password)
-		setFormState((prev) => ({
-			...prev,
-			password,
-			passwordStrength: strength,
-			errors: {
-				...prev.errors,
-				password: undefined,
-			},
-		}))
-	}
-
-	const handleConfirmPasswordChange = (
-		e: React.ChangeEvent<HTMLInputElement>,
-	) => {
-		const confirmPassword = e.target.value
-		setFormState((prev) => ({
-			...prev,
-			confirmPassword,
-			errors: {
-				...prev.errors,
-				confirmPassword: undefined,
-			},
-		}))
-	}
-
-	const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault()
-
-		const usernameError = validateUsername(formState.username)
-		const passwordError = validatePassword(formState.password)
-		const confirmPasswordError = validateConfirmPassword(
-			formState.password,
-			formState.confirmPassword,
-		)
-
-		if (usernameError || passwordError || confirmPasswordError) {
-			setFormState((prev) => ({
-				...prev,
-				errors: {
-					username: usernameError,
-					password: passwordError,
-					confirmPassword: confirmPasswordError,
-				},
-			}))
-			return
-		}
-
-		setFormState((prev) => ({
-			...prev,
-			isSubmitting: true,
-			errors: {},
-		}))
-
-		try {
-			const response = await fetch('/api/auth/register', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					username: formState.username,
-					password: formState.password,
-					confirmPassword: formState.confirmPassword,
-				}),
-			})
-
-			if (!response.ok) {
-				const error = await response.json()
-				throw new Error(error.message || 'Registration failed')
-			}
-
-			router.push('/')
-		} catch (error) {
-			setFormState((prev) => ({
-				...prev,
-				isSubmitting: false,
-				errors: {
-					form:
-						error instanceof Error
-							? error.message
-							: 'An unexpected error occurred',
-				},
-			}))
-		}
-	}
+export function RegistrationForm() {
+	const [lastResult, formAction, isSubmitting] = useActionState(
+		register,
+		undefined,
+	)
+	const [form, fields] = useForm({
+		lastResult,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: RegisterSchema })
+		},
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+	})
 
 	return (
 		<div className="flex min-h-screen items-center justify-center p-4">
@@ -208,84 +46,48 @@ export function RegistrationForm({
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="username">Username</Label>
-							<Input
-								id="username"
-								type="text"
-								value={formState.username}
-								onChange={handleUsernameChange}
-								autoComplete="username"
-								aria-invalid={!!formState.errors.username}
-								disabled={formState.isSubmitting}
-							/>
-							{formState.errors.username && (
-								<p className="text-sm text-destructive">
-									{formState.errors.username}
-								</p>
-							)}
-						</div>
+					<form action={formAction} {...getFormProps(form)}>
+						<FieldGroup className="space-y-2">
+							<Field>
+								<FieldLabel htmlFor={fields.username.id}>Username</FieldLabel>
+								<Input
+									{...getInputProps(fields.username, { type: 'text' })}
+									defaultValue={fields.username.defaultValue}
+									disabled={isSubmitting}
+									autoFocus
+								/>
+								<FieldError errors={fields.username.errors} />
+							</Field>
 
-						<div className="space-y-2">
-							<Label htmlFor="password">Password</Label>
-							<Input
-								id="password"
-								type="password"
-								value={formState.password}
-								onChange={handlePasswordChange}
-								autoComplete="new-password"
-								aria-invalid={!!formState.errors.password}
-								disabled={formState.isSubmitting}
-							/>
-							{formState.errors.password && (
-								<p className="text-sm text-destructive">
-									{formState.errors.password}
-								</p>
-							)}
-							{formState.password && (
-								<>
-									<PasswordStrengthIndicator
-										strength={formState.passwordStrength}
-									/>
-									<PasswordRequirements requirements={passwordRequirements} />
-								</>
-							)}
-						</div>
+							<Field>
+								<FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
+								<Input
+									{...getInputProps(fields.password, { type: 'password' })}
+									defaultValue={fields.password.defaultValue}
+									disabled={isSubmitting}
+								/>
+								<FieldError errors={fields.password.errors} />
+							</Field>
 
-						<div className="space-y-2">
-							<Label htmlFor="confirmPassword">Confirm Password</Label>
-							<Input
-								id="confirmPassword"
-								type="password"
-								value={formState.confirmPassword}
-								onChange={handleConfirmPasswordChange}
-								autoComplete="new-password"
-								aria-invalid={!!formState.errors.confirmPassword}
-								disabled={formState.isSubmitting}
-							/>
-							{formState.errors.confirmPassword && (
-								<p className="text-sm text-destructive">
-									{formState.errors.confirmPassword}
-								</p>
-							)}
-						</div>
+							<Field>
+								<FieldLabel htmlFor={fields.confirmPassword.id}>
+									Confirm Password
+								</FieldLabel>
+								<Input
+									{...getInputProps(fields.confirmPassword, {
+										type: 'password',
+									})}
+									defaultValue={fields.confirmPassword.defaultValue}
+									disabled={isSubmitting}
+								/>
+								<FieldError errors={fields.confirmPassword.errors} />
+							</Field>
+							<FieldError errors={form.errors} />
 
-						{formState.errors.form && (
-							<Alert variant="destructive">
-								<AlertDescription>{formState.errors.form}</AlertDescription>
-							</Alert>
-						)}
-
-						<Button
-							type="submit"
-							className="w-full"
-							disabled={formState.isSubmitting}
-						>
-							{formState.isSubmitting
-								? 'Creating account...'
-								: 'Create account'}
-						</Button>
+							<Button type="submit" className="w-full" disabled={isSubmitting}>
+								{isSubmitting ? 'Creating account...' : 'Create account'}
+							</Button>
+						</FieldGroup>
 
 						<p className="text-center text-sm text-muted-foreground">
 							Already have an account?{' '}

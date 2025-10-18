@@ -1,16 +1,16 @@
 import { z } from 'zod'
 
-export const LoginCommandSchema = z.object({
+export const LoginSchema = z.object({
 	username: z
 		.string()
-		.min(1, 'Username is required')
+		.min(3, 'Username is required')
 		.max(50, 'Username must be at most 50 characters'),
-	password: z.string().min(1, 'Password is required'),
+	password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
-export type LoginCommand = z.infer<typeof LoginCommandSchema>
+export type Login = z.infer<typeof LoginSchema>
 
-export const RegisterCommandSchema = z
+export const RegisterSchema = z
 	.object({
 		username: z
 			.string()
@@ -28,4 +28,4 @@ export const RegisterCommandSchema = z
 		path: ['confirmPassword'],
 	})
 
-export type RegisterCommand = z.infer<typeof RegisterCommandSchema>
+export type RegisterCommand = z.infer<typeof RegisterSchema>

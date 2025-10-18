@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { LoginForm } from './login-form'
+import { LoginForm } from '#app/app/login-form'
 
 export const metadata: Metadata = {
 	title: 'Login - Basketball Team Selector',
