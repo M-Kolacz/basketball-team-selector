@@ -39,41 +39,14 @@ First, review the following information:
    - Enters credentials and submits form
    - System validates and redirects to games list (/games) </user_stories>
 
-1. Endpoint Description: <endpoint_description> {{endpoint-description}} <-
-   paste endpoint descriptions from api-plan.md that the view will use
-   </endpoint_description>
+1. Server Action Description: <server_action_description>
+   {{server-action-description}} <- paste server action descriptions from
+   server-actions-plan.md that the view will use
+   </server_action_description>
 
-1. Endpoint Implementation: <endpoint_implementation>
+1. Server Action Implementation: <server_action_implementation>
 
-#### POST /api/auth/login
-
-- **Description:** Authenticate user and create session
-- **Request Payload:**
-
-```json
-{
-	"username": "string",
-	"password": "string"
-}
-```
-
-- **Response Payload:**
-
-```json
-{
-	"user": {
-		"id": "uuid",
-		"username": "string",
-		"role": "admin|user"
-	}
-}
-```
-
-- **Success:** 200 OK - JWT token saved in the cookie
-- **Errors:**
-  - 401 Unauthorized - Invalid credentials
-  - 422 Unprocessable Entity - Missing required fields
-    </endpoint_implementation>
+   </server_action_implementation>
 
 1. Type Definitions: <type_definitions>@src/types/dto.ts </type_definitions>
 
@@ -85,8 +58,8 @@ be quite long, as it's important to be thorough.
 
 In your implementation breakdown, execute the following steps:
 
-1. For each input section (PRD, User Stories, Endpoint Description, Endpoint
-   Implementation, Type Definitions, Tech Stack):
+1. For each input section (PRD, User Stories, Server Action Description, Server
+   Action Implementation, Type Definitions, Tech Stack):
 
 - Summarize key points
 - List any requirements or constraints
@@ -101,12 +74,12 @@ In your implementation breakdown, execute the following steps:
    types.
 6. Identify potential state variables and custom hooks, explaining their purpose
    and how they'll be used
-7. List required API calls and corresponding frontend actions
+7. List required server actions and corresponding frontend integrations
 8. Map each user story to specific implementation details, components, or
    functions
 9. List user interactions and their expected outcomes
-10. List conditions required by the API and how to verify them at the component
-    level
+10. List conditions required by server actions and how to verify them at the
+    component level
 11. Identify potential error scenarios and suggest how to handle them
 12. List potential challenges related to implementing this view and suggest
     possible solutions
@@ -122,7 +95,7 @@ with the following sections:
 - Component description, its purpose and what it consists of
 - Main HTML elements and child components that build the component
 - Handled events
-- Validation conditions (detailed conditions, according to API)
+- Validation conditions (detailed conditions, according to server action requirements)
 - Types (DTO and ViewModel) required by the component
 - Props that the component accepts from parent (component interface)
 
@@ -131,14 +104,15 @@ with the following sections:
    types.
 6. State Management: Detailed description of how state is managed in the view,
    specifying whether a custom hook is required.
-7. API Integration: Explanation of how to integrate with the provided endpoint.
-   Precisely indicate request and response types.
+7. Server Action Integration: Explanation of how to integrate with the provided
+   server actions. Precisely indicate input parameters and return types.
 8. User Interactions: Detailed description of user interactions and how to
    handle them.
 9. Conditions and Validation: Describe what conditions are verified by the
    interface, which components they concern, and how they affect the interface
    state
-10. Error Handling: Description of how to handle potential errors or edge cases.
+10. Error Handling: Description of how to handle potential errors or edge cases
+    from server actions.
 11. Implementation Steps: Step-by-step guide for implementing the view.
 
 Ensure your plan is consistent with the PRD, user stories, and includes the
@@ -189,10 +163,10 @@ replaced):
 
 [Description of state management in the view]
 
-## 7. API Integration
+## 7. Server Action Integration
 
-[Explanation of integration with provided endpoint, indication of request and
-response types]
+[Explanation of integration with provided server actions, indication of input
+parameters and return types]
 
 ## 8. User Interactions
 

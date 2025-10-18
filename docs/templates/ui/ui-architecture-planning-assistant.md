@@ -10,39 +10,39 @@ Please carefully review the following information:
 
 <tech_stack> @tech-stack.md </tech_stack>
 
-<api_plan> @rest-api-plan.md </api_plan>
+<server_actions_plan> @server-actions-plan.md </server_actions_plan>
 
 Analyze the provided information, focusing on aspects relevant to user interface
 design. Consider the following issues:
 
 1. Identify key views and screens based on product requirements and available
-   API endpoints.
+   server actions.
 2. Determine potential user flows and navigation between views, taking into
-   account API capabilities.
+   account server action capabilities.
 3. Consider UI components and interaction patterns that may be necessary for
-   effective API communication.
+   effective server action integration.
 4. Think about interface responsiveness and accessibility.
-5. Assess security and authentication requirements in the context of API
-   integration.
+5. Assess security and authentication requirements in the context of server
+   action execution.
 6. Consider any specific UI libraries or frameworks that might be beneficial for
    the project.
-7. Analyze how the API structure impacts UI design and data flows in the
-   application.
+7. Analyze how the server action structure impacts UI design and data flows in
+   the application.
 
 Based on your analysis, generate a list of 10 questions and recommendations in a
 combined form (question + recommendation). These should address any ambiguities,
 potential issues, or areas where more information is needed to create an
 effective UI architecture. Consider questions regarding:
 
-1. View hierarchy and organization in relation to API structure
-2. User flows and navigation supported by available endpoints
+1. View hierarchy and organization in relation to server action structure
+2. User flows and navigation supported by available server actions
 3. Responsiveness and adaptation to different devices
 4. Accessibility and inclusiveness
-5. Security and authorization at the UI level in connection with API mechanisms
+5. Security and authorization at the UI level in connection with server action validation
 6. Design consistency and user experience
-7. Application state management strategy and synchronization with API
-8. Handling error states and exceptions returned by API
-9. Caching strategies and performance optimization in API communication
+7. Application state management strategy and synchronization with server actions
+8. Handling error states and exceptions returned by server actions
+9. Caching strategies and performance optimization with server action execution
 
 The output should have the following structure:
 
