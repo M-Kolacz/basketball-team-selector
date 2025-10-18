@@ -62,13 +62,11 @@ organizer.
 
 - Two-tier role system: Admin (full access) and User (view-only permissions)
 - Basic authentication with username/password
-- Single admin account with ability to create multiple user accounts
 
 ### 3.2 Player Management
 
 - Player profile creation with name, skill tier (S/A/B/C/D), and position(s)
 - Skill tier and position should not be visibile to regular users
-- Skill tier point values: S=5, A=4, B=3, C=2, D=1
 - Support for multiple positions per player
 - Five standard positions: Point Guard, Shooting Guard, Small Forward, Power
   Forward, Center
@@ -172,6 +170,17 @@ organizer.
   - Successful login redirects to games dashboard
   - View-only access enforced throughout the application
   - Cannot access admin functions or edit capabilities
+
+#### US-003
+
+- Title: User Registration
+- Description: As a new user, I want to register an account so that I can log in
+  and access the application
+- Acceptance Criteria:
+  - Registration form captures username, password
+  - Username uniqueness validation prevents duplicates
+  - Successful registration creates account and redirects games dashboard
+  - Error messages display for validation failures
 
 #### US-004
 
