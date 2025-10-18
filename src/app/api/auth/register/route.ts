@@ -1,3 +1,4 @@
+import { error } from 'console'
 import { type NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { RegisterCommandSchema } from '#app/lib/validations/auth'
@@ -6,13 +7,18 @@ import { registerUser } from '#app/services/auth.server'
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
+		console.log({ body })
 		const validatedData = RegisterCommandSchema.parse(body)
 
 		await registerUser(validatedData.username, validatedData.password)
 
-		const loginUrl = new URL('/login', request.url)
-		return NextResponse.redirect(loginUrl, { status: 303 })
+		const loginUrl = new URL('/', request.url)
+		return NextResponse.json(
+			{ message: 'Registration successful' },
+			{ status: 200 },
+		)
 	} catch (error) {
+		console.error(error)
 		if (error instanceof ZodError) {
 			return NextResponse.json(
 				{

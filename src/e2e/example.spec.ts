@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test'
 test('has deploy button', async ({ page }) => {
 	await page.goto('/')
 
-	const deployButton = page.getByRole('link', { name: /Deploy now/ })
+	const loginHeader = page.getByRole('heading', { name: 'Login', level: 1 })
 
-	await expect(deployButton).toBeVisible()
+	await expect(loginHeader).toBeVisible()
 })
