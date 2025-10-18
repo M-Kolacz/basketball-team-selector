@@ -1,14 +1,14 @@
 You are a qualified frontend architect whose task is to create a comprehensive
 user interface architecture based on the Product Requirements Document (PRD),
-API plan, and planning session notes. Your goal is to design a user interface
-structure that effectively meets product requirements, is compatible with API
+server actions plan, and planning session notes. Your goal is to design a user interface
+structure that effectively meets product requirements, is compatible with server actions
 capabilities, and incorporates insights from the planning session.
 
 First, carefully review the following documents:
 
 Product Requirements Document (PRD): <prd> @prd.md </prd>
 
-API Plan: <api_plan> @rest-api-plan.md </api_plan>
+Server Actions Plan: <server_actions_plan> @server-actions-plan.md </server_actions_plan>
 
 Session Notes: <session_notes> # UI Architecture Plan - Basketball Team Selector
 MVP
@@ -128,9 +128,9 @@ MVP
 ## 5. Error Handling
 
 - Inline error messages below form fields
-- API validation errors (422) mapped to specific fields
-- 401 errors redirect to login page
-- 403 errors show "Insufficient permissions" inline
+- Server action validation errors mapped to specific fields
+- Authentication failures redirect to login page
+- Authorization failures show "Insufficient permissions" inline
 - No toast notifications or error modals
 
 ## 6. Loading States
@@ -138,11 +138,14 @@ MVP
 - Route-level: Next.js `loading.tsx` with centered spinner
 - Component-level: Simple inline "Loading..." text
 - AI generation: Inline message "Generating teams..."
+- Form submission: `useFormStatus` for pending state
 
 ## 7. Form Patterns
 
-- Basic HTML form elements
-- Inline validation on submit
+- Server Actions with `action` attribute
+- `useActionState` for form state management
+- `useFormStatus` for submit button pending state
+- Inline validation on submit via server actions
 - Red text for error messages
 - No real-time validation
 - No optimistic updates
@@ -158,7 +161,7 @@ MVP
 
 - All auth handled by httpOnly cookies
 - No client-side token management
-- 401 responses trigger redirect to login
+- Authentication checks in server actions
 - No refresh token logic
 - No "Remember me" functionality
 
@@ -167,7 +170,8 @@ MVP
 - Server Components where possible (Next.js 15)
 - Client Components only for interactivity
 - No client-side caching strategies
-- Direct API calls using fetch
+- Direct server action calls from Server Components
+- Server action invocations from Client Components with useActionState
 - No optimistic updates
 
 ## 11. User Flows
@@ -186,35 +190,35 @@ MVP
 2. View Game → See team compositions
 3. View Players → See roster (no skill info)
 
-## 12. API Integration Points
+## 12. Server Actions Integration Points
 
 ### Authentication
 
-- `POST /api/auth/login` - Login form
-- `POST /api/auth/logout` - Logout button
-- `POST /api/auth/register` - Registration (if needed)
+- `login(credentials)` - Login form submission
+- `logout()` - Logout action
+- `register(userData)` - Registration (if needed)
 
 ### Games
 
-- `GET /api/game-sessions` - Games list
-- `POST /api/game-sessions` - Create game (step 1)
-- `PUT /api/game-sessions/{id}/available-players` - Set players (step 2)
-- `POST /api/game-sessions/{id}/propositions/generate` - Generate teams (step 3)
-- `PUT /api/game-sessions/{id}/select-proposition` - Select final teams
-- `PUT /api/game-sessions/{id}/results` - Enter results
+- `getGameSessions()` - Load games list
+- `createGameSession(data)` - Create game (step 1)
+- `setAvailablePlayers(id, playerIds)` - Set players (step 2)
+- `generateTeamPropositions(id)` - Generate teams (step 3)
+- `selectProposition(id, propositionId)` - Select final teams
+- `updateGameResults(id, results)` - Enter results
 
 ### Players
 
-- `GET /api/players` - Players list
-- `POST /api/players` - Add player
-- `PUT /api/players/{id}` - Edit player
-- `DELETE /api/players/{id}` - Delete player
+- `getPlayers()` - Load players list
+- `createPlayer(data)` - Add player
+- `updatePlayer(id, data)` - Edit player
+- `deletePlayer(id)` - Delete player
 
 ### Users
 
-- `GET /api/users` - Users list
-- `POST /api/users` - Add user
-- `DELETE /api/users/{id}` - Delete user
+- `getUsers()` - Load users list
+- `createUser(data)` - Add user
+- `deleteUser(id)` - Delete user
 
 ## 13. Technical Decisions
 
@@ -222,7 +226,7 @@ MVP
 - **Styling**: Tailwind CSS v4
 - **Components**: Shadcn/ui for base components
 - **Drag & Drop**: @dnd-kit/sortable
-- **Forms**: Native HTML forms with React
+- **Forms**: Server Actions with useActionState/useFormStatus
 - **Modals**: Simple React portal implementation
 - **Tables**: Basic HTML tables with Tailwind styling
 - **Icons**: Lucide React for minimal icons
@@ -246,8 +250,11 @@ app/
 │   │   └── page.tsx
 │   └── users/
 │       └── page.tsx
-├── api/
-│   └── [...API routes]
+├── actions/
+│   ├── auth.ts
+│   ├── games.ts
+│   ├── players.ts
+│   └── users.ts
 └── components/
     ├── PlayerCard.tsx
     ├── TeamProposition.tsx
@@ -268,10 +275,10 @@ security.
 
 Execute the following steps to complete the task:
 
-1. Thoroughly analyze the PRD, API plan, and session notes.
+1. Thoroughly analyze the PRD, server actions plan, and session notes.
 2. Extract and list key requirements from the PRD.
-3. Identify and list main API endpoints and their purposes.
-4. Create a list of all necessary views based on the PRD, API plan, and session
+3. Identify and list main server actions and their purposes.
+4. Create a list of all necessary views based on the PRD, server actions plan, and session
    notes.
 5. Determine the main purpose and key information for each view.
 6. Plan the user journey between views, including a step-by-step breakdown for
@@ -280,7 +287,7 @@ Execute the following steps to complete the task:
 8. Propose key user interface elements for each view, considering UX,
    accessibility, and security.
 9. Consider potential edge cases or error states.
-10. Ensure the user interface architecture is compatible with the API plan.
+10. Ensure the user interface architecture is compatible with the server actions plan.
 11. Review and map all user stories from the PRD to the user interface
     architecture.
 12. Explicitly map requirements to user interface elements.

@@ -6,10 +6,10 @@ provided project files.
 Here are the project files to analyze:
 
 <prd>
-@prd.md
+@docs/prd.md
 </prd>
 
-<tech_stack> @tech-stack.md </tech_stack>
+<tech_stack> @docs/tech-stack.md </tech_stack>
 
 <dependencies>
 @package.json
@@ -22,7 +22,7 @@ Your task is to create a README.md file with the following structure:
 2. Project description
 3. Tech stack
 4. Getting started locally
-5. Available scripts
+5. The most important scripts
 6. Project scope
 7. Project status
 8. License

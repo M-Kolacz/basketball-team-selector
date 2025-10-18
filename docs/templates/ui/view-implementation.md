@@ -1,8 +1,8 @@
 Your task is to implement a frontend view based on the provided implementation
 plan and implementation rules. Your goal is to create a detailed and accurate
 implementation that conforms to the provided plan, correctly represents the
-component structure, integrates with the API, and handles all specified user
-interactions.
+component structure, integrates with server actions, and handles all specified
+user interactions.
 
 First, review the implementation plan:
 
@@ -23,8 +23,8 @@ actions - stop work at this point and wait for my feedback.
 </implementation_approach>
 
 Carefully analyze the implementation plan and rules. Pay special attention to
-component structure, API integration requirements, and user interactions
-described in the plan.
+component structure, server action integration requirements, and user
+interactions described in the plan.
 
 Execute the following steps to implement the frontend view:
 
@@ -34,16 +34,18 @@ Execute the following steps to implement the frontend view:
    - Ensure that each component's responsibilities and relationships are clearly
      defined.
 
-2. API Integration:
-   - Identify all API endpoints listed in the plan.
-   - Implement necessary API calls for each endpoint.
-   - Handle API responses and update component state accordingly.
+2. Server Action Integration:
+   - Identify all server actions listed in the plan.
+   - Import and invoke necessary server actions for each data operation.
+   - Handle server action responses and update component state accordingly.
+   - Ensure proper 'use client' directive placement for client components that
+     use hooks or interactivity.
 
 3. User Interactions:
    - List all user interactions specified in the implementation plan.
    - Implement event handlers for each interaction.
-   - Ensure that each interaction triggers the appropriate action or state
-     change.
+   - Ensure that each interaction triggers the appropriate server action or
+     state change.
 
 4. State Management:
    - Identify required state for each component.
@@ -56,17 +58,19 @@ Execute the following steps to implement the frontend view:
    - Ensure responsiveness if required by the plan.
 
 6. Error Handling and Edge Cases:
-   - Implement error handling for API calls and user interactions.
+   - Implement error handling for server action calls and user interactions.
+   - Handle server action errors and validation failures appropriately.
    - Consider and handle potential edge cases listed in the plan.
 
 7. Performance Optimization:
    - Implement any performance optimizations specified in the plan or rules.
    - Ensure efficient rendering and minimal unnecessary re-renders.
+   - Utilize React Server Components where appropriate for better performance.
 
 8. Testing:
    - If specified in the plan, implement unit tests for components and
      functions.
-   - Thoroughly test all user interactions and API integrations.
+   - Thoroughly test all user interactions and server action integrations.
 
 Throughout the implementation process, strictly adhere to the provided
 implementation rules. These rules take precedence over any general best
@@ -74,4 +78,4 @@ practices that may conflict with them.
 
 Ensure that your implementation accurately reflects the provided implementation
 plan and adheres to all specified rules. Pay special attention to component
-structure, API integration, and handling of user interactions.
+structure, server action integration, and handling of user interactions.
