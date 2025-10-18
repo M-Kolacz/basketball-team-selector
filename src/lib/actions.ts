@@ -1,20 +1,27 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import jwt from 'jsonwebtoken'
+import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import z from 'zod'
-import { registerUser, verifyCredentials } from '#app/services/auth.server'
-import { setAuthCookie } from './cookie.server'
-import { prisma } from './db.server'
-import { generateToken } from './jwt.server'
-import { LoginSchema, RegisterSchema } from './validations/auth'
+import { login } from '#app/lib/auth.server'
+import { prisma } from '#app/lib/db.server'
+import { env } from '#app/lib/env.mjs'
+import { LoginSchema, RegisterSchema } from '#app/lib/validations/auth'
+import { registerUser } from '#app/services/auth.server'
 
-export const login = async (_prevState: unknown, formData: FormData) => {
+export const loginAction = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			LoginSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data, user: null }
-				const user = await verifyCredentials(data.username, data.password)
+
+				const user = await login({
+					username: data.username,
+					password: data.password,
+				})
+
 				if (!user) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
@@ -33,12 +40,19 @@ export const login = async (_prevState: unknown, formData: FormData) => {
 
 	const { user } = submission.value
 
-	const token = generateToken({
-		userId: user.id,
+	const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
+		algorithm: 'HS256',
+		expiresIn: '7d',
 	})
 
-	const expiresIn = '7d'
-	await setAuthCookie(token, expiresIn)
+	const cookieStore = await cookies()
+	cookieStore.set('bts-session', token, {
+		sameSite: 'lax',
+		path: '/',
+		httpOnly: true,
+		secure: env.NODE_ENV === 'production',
+		maxAge: 7 * 24 * 60 * 60,
+	})
 
 	redirect('/games')
 }

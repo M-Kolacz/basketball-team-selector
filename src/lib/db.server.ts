@@ -1,4 +1,5 @@
 import { remember } from '@epic-web/remember'
+// eslint-disable-next-line import/no-relative-parent-imports
 import { PrismaClient } from '../../generated/prisma'
 
 export const prisma = remember('prisma', () => {
@@ -19,4 +20,5 @@ export type {
 	PropositionType,
 	SkillTier,
 	Team,
+	// eslint-disable-next-line import/no-relative-parent-imports
 } from '../../generated/prisma/edge'

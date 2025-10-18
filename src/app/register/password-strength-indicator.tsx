@@ -1,4 +1,4 @@
-import type { PasswordStrength } from '#app/types/registration'
+import { type PasswordStrength } from '#app/types/registration'
 
 type PasswordStrengthIndicatorProps = {
 	strength: PasswordStrength

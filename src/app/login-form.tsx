@@ -19,12 +19,12 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { login } from '#app/lib/actions'
+import { loginAction } from '#app/lib/actions'
 import { LoginSchema } from '#app/lib/validations/auth'
 
 export function LoginForm() {
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		login,
+		loginAction,
 		undefined,
 	)
 	const [form, fields] = useForm({
@@ -71,13 +71,12 @@ export function LoginForm() {
 							/>
 							<FieldError errors={fields.password.errors} />
 						</Field>
+						<FieldError errors={form.errors} />
+
+						<Button type="submit" disabled={isSubmitting} className="w-full">
+							{isSubmitting ? 'Logging in...' : 'Login'}
+						</Button>
 					</FieldGroup>
-
-					<FieldError errors={form.errors} />
-
-					<Button type="submit" disabled={isSubmitting} className="w-full">
-						{isSubmitting ? 'Logging in...' : 'Login'}
-					</Button>
 
 					<div className="text-center text-sm text-muted-foreground">
 						Don't have an account?{' '}

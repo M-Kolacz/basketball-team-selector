@@ -1,5 +1,5 @@
-import type { NextRequest } from 'next/server'
-import type { User } from '#app/lib/db.server'
+import bcrypt from 'bcryptjs'
+import { type Password, type User, prisma } from '#app/lib/db.server'
 
 /**
  * Custom error class for authentication failures.
@@ -21,30 +21,6 @@ export class AuthorizationError extends Error {
 		super(message)
 		this.name = 'AuthorizationError'
 	}
-}
-
-/**
- * Retrieves the currently authenticated user from the request.
- *
- * NOTE: This is a placeholder implementation. The actual implementation
- * should be based on your authentication strategy (session cookies, JWT, etc.).
- *
- * @param request - Next.js request object
- * @returns Promise resolving to User object or null if not authenticated
- *
- * @todo Implement actual authentication logic based on session/JWT strategy
- */
-export async function getCurrentUser(
-	request: NextRequest,
-): Promise<User | null> {
-	// TODO: Implement based on your auth strategy
-	// Examples:
-	// - Session cookies: Read session cookie and validate against database
-	// - JWT: Extract and verify JWT token from Authorization header
-	// - NextAuth: Use getServerSession from next-auth
-	throw new Error(
-		'getCurrentUser not implemented - please implement based on your auth strategy',
-	)
 }
 
 /**
@@ -73,4 +49,35 @@ export function requireAdmin(user: User): void {
 	if (user.role !== 'admin') {
 		throw new AuthorizationError('Admin access required to list users')
 	}
+}
+
+export const verifyUserPassword = async (
+	where: Pick<User, 'username'> | Pick<User, 'id'>,
+	password: Password['hash'],
+) => {
+	const userWithPassword = await prisma.user.findUnique({
+		where,
+		select: { id: true, password: { select: { hash: true } } },
+	})
+
+	if (!userWithPassword || !userWithPassword.password) return null
+
+	const isValid = await bcrypt.compare(password, userWithPassword.password.hash)
+
+	if (!isValid) return null
+
+	return { id: userWithPassword.id }
+}
+
+export const login = async ({
+	username,
+	password,
+}: {
+	username: User['username']
+	password: string
+}) => {
+	const user = await verifyUserPassword({ username }, password)
+	if (!user) return null
+
+	return user
 }

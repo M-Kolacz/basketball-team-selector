@@ -23,20 +23,14 @@ function getCookieOptions(maxAge: number): CookieOptions {
 	}
 }
 
-export async function setAuthCookie(
+export async function setCookie(
 	token: string,
 	expiresIn: string = '7d',
 ): Promise<void> {
-	try {
-		const maxAge = parseExpirationToSeconds(expiresIn)
+	const maxAge = parseExpirationToSeconds(expiresIn)
 
-		const cookieStore = await cookies()
-		cookieStore.set(AUTH_COOKIE_NAME, token, getCookieOptions(maxAge))
-	} catch (error) {
-		throw new Error(
-			`Failed to set authentication cookie: ${error instanceof Error ? error.message : 'Unknown error'}`,
-		)
-	}
+	const cookieStore = await cookies()
+	cookieStore.set(AUTH_COOKIE_NAME, token, getCookieOptions(maxAge))
 }
 
 export async function clearAuthCookie(): Promise<void> {

@@ -5,7 +5,6 @@ import {
 	type Proposition,
 	type Player,
 	type Team,
-	type User,
 } from '#app/lib/db.server'
 
 async function seed() {

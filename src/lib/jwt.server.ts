@@ -1,23 +1,15 @@
-import jwt from 'jsonwebtoken'
+import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken'
 import { env } from '#app/lib/env.mjs'
 
 export interface TokenPayload {
 	userId: string
 }
 
-export function generateToken(payload: TokenPayload): string {
-	const expiresIn = '7d'
-
-	try {
-		return jwt.sign(payload, env.JWT_SECRET, {
-			algorithm: 'HS256',
-			expiresIn,
-		})
-	} catch (error) {
-		throw new Error(
-			`Failed to generate JWT token: ${error instanceof Error ? error.message : 'Unknown error'}`,
-		)
-	}
+export function generateToken(
+	payload: JwtPayload,
+	options: SignOptions = { algorithm: 'HS256', expiresIn: '7d' },
+): string {
+	return jwt.sign(payload, env.JWT_SECRET, options)
 }
 
 export function verifyToken(token: string): TokenPayload {

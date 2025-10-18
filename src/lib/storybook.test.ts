@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { disableControls, getObjectKeys, selectControl } from './storybook'
+import {
+	disableControls,
+	getObjectKeys,
+	selectControl,
+} from '#app/lib/storybook'
 
 describe('disableControls', () => {
 	it('should return empty argTypes object when no controls are provided', () => {

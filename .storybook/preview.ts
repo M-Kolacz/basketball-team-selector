@@ -1,4 +1,5 @@
 import { type Preview } from '@storybook/nextjs-vite'
+// eslint-disable-next-line import/no-relative-parent-imports
 import '../src/app/globals.css'
 
 const preview: Preview = {
