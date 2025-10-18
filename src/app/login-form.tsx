@@ -78,7 +78,9 @@ export function LoginForm() {
 	return (
 		<Card className="w-full max-w-md">
 			<CardHeader>
-				<CardTitle className="text-2xl">Login</CardTitle>
+				<CardTitle className="text-2xl">
+					<h1>Login</h1>
+				</CardTitle>
 				<CardDescription>
 					Enter your credentials to access the Basketball Team Selector
 				</CardDescription>

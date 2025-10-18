@@ -1,6 +1,6 @@
-import type {
-	PasswordStrength,
-	PasswordRequirementCheck,
+import {
+	type PasswordStrength,
+	type PasswordRequirementCheck,
 } from '#app/types/registration'
 
 export function calculatePasswordStrength(password: string): PasswordStrength {
@@ -25,7 +25,7 @@ export function calculatePasswordStrength(password: string): PasswordStrength {
 		5: { label: 'Strong', color: 'green', percentage: 100 },
 	}
 
-	const strength = strengthMap[score]
+	const strength = strengthMap[score]!
 
 	return {
 		score: score as 0 | 1 | 2 | 3 | 4,
