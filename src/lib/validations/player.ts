@@ -25,3 +25,13 @@ export const playersListQuerySchema = z.object({
 })
 
 export type PlayersListQuery = z.infer<typeof playersListQuerySchema>
+
+export const GetPlayersOptionsSchema = z
+	.object({
+		sort: z.enum(['name', 'skill_tier', 'created_at']).optional(),
+		skill_tier: z.enum(['S', 'A', 'B', 'C', 'D']).optional(),
+		position: z.enum(['PG', 'SG', 'SF', 'PF', 'C']).optional(),
+	})
+	.optional()
+
+export type GetPlayersOptions = z.infer<typeof GetPlayersOptionsSchema>

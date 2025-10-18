@@ -144,7 +144,7 @@ options?: {
 ```typescript
 username: string // max 50 chars
 password: string // min 8 chars
-role: "admin" | "user"
+role: 'admin' | 'user'
 ```
 
 - **Return Type:**
@@ -182,11 +182,9 @@ role: "admin" | "user"
 
 ```typescript
 options?: {
-  page?: number;      // default: 1
-  limit?: number;     // default: 50
   sort?: "name" | "skill_tier" | "created_at";
-  skill_tier?: "S" | "A" | "B" | "C" | "D"; // admin only filter
-  position?: "PG" | "SG" | "SF" | "PF" | "C"; // admin only filter
+  skill_tier?: "S" | "A" | "B" | "C" | "D";
+  position?: "PG" | "SG" | "SF" | "PF" | "C";
 }
 ```
 
@@ -194,16 +192,15 @@ options?: {
 
 ```typescript
 {
-  success: true;
-  players: Array<{
-    id: string;
-    name: string;
-    skill_tier: "S" | "A" | "B" | "C" | "D";
-    positions: Array<"PG" | "SG" | "SF" | "PF" | "C">;
-    created_at: Date;
-    updated_at: Date;
-  }>;
-  pagination: {...};
+	success: true
+	players: Array<{
+		id: string
+		name: string
+		skill_tier: 'S' | 'A' | 'B' | 'C' | 'D'
+		positions: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'>
+		created_at: Date
+		updated_at: Date
+	}>
 }
 ```
 
@@ -211,13 +208,12 @@ options?: {
 
 ```typescript
 {
-  success: true;
-  players: Array<{
-    id: string;
-    name: string;
-    created_at: Date;
-  }>;
-  pagination: {...};
+	success: true
+	players: Array<{
+		id: string
+		name: string
+		created_at: Date
+	}>
 }
 ```
 
@@ -231,8 +227,8 @@ options?: {
 
 ```typescript
 name: string // max 100 chars
-skillTier: "S" | "A" | "B" | "C" | "D"
-positions: Array<"PG" | "SG" | "SF" | "PF" | "C">
+skillTier: 'S' | 'A' | 'B' | 'C' | 'D'
+positions: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'>
 ```
 
 - **Return Type:**
@@ -274,7 +270,8 @@ data: {
 }
 ```
 
-- **Return Type:** `{ success: true; player: Player } | { success: false; error: string }`
+- **Return Type:**
+  `{ success: true; player: Player } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
   - Insufficient permissions
@@ -338,7 +335,8 @@ gameDateTime: Date
 description?: string
 ```
 
-- **Return Type:** `{ success: true; gameSession: GameSession } | { success: false; error: string }`
+- **Return Type:**
+  `{ success: true; gameSession: GameSession } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
   - Insufficient permissions
@@ -512,7 +510,8 @@ team1PlayerIds: string[]
 team2PlayerIds: string[]
 ```
 
-- **Return Type:** `{ success: true; proposition: Proposition } | { success: false; error: string }`
+- **Return Type:**
+  `{ success: true; proposition: Proposition } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
   - Insufficient permissions
@@ -529,7 +528,8 @@ team2PlayerIds: string[]
 - **Implementation:**
   - Generate JWT upon successful login via `loginUser()` or `registerUser()`
   - Include user ID and role in token payload
-  - Verify cookie with token at start of each protected server action using `verifyAuth()` helper
+  - Verify cookie with token at start of each protected server action using
+    `verifyAuth()` helper
   - Refresh token not required for MVP
 
 ### Authorization Rules
@@ -555,15 +555,19 @@ Each protected server action should:
 
 ```typescript
 // Example pattern
-export async function createPlayer(name: string, skillTier: SkillTier, positions: Position[]) {
-  "use server";
+export async function createPlayer(
+	name: string,
+	skillTier: SkillTier,
+	positions: Position[],
+) {
+	'use server'
 
-  const user = await verifyAuth();
-  if (!user || user.role !== "admin") {
-    return { success: false, error: "Insufficient permissions" };
-  }
+	const user = await verifyAuth()
+	if (!user || user.role !== 'admin') {
+		return { success: false, error: 'Insufficient permissions' }
+	}
 
-  // Proceed with operation...
+	// Proceed with operation...
 }
 ```
 
@@ -636,10 +640,10 @@ All server actions should return discriminated unions:
 Client components can check `success` field and handle accordingly:
 
 ```typescript
-const result = await createPlayer(name, skillTier, positions);
+const result = await createPlayer(name, skillTier, positions)
 if (!result.success) {
-  // Handle error: result.error, result.fieldErrors
+	// Handle error: result.error, result.fieldErrors
 } else {
-  // Handle success: result.player
+	// Handle success: result.player
 }
 ```

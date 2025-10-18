@@ -1,4 +1,9 @@
-import { prisma, type SkillTier, type Position } from '#app/lib/db.server'
+import {
+	prisma,
+	type SkillTier,
+	type Position,
+	type User,
+} from '#app/lib/db.server'
 import {
 	type PlayersListAdminResponseDto,
 	type PlayersListUserResponseDto,
@@ -10,6 +15,13 @@ export type ListPlayersOptions = {
 	page: number
 	limit: number
 	sort: 'name' | 'skillTier' | 'createdAt'
+	skillTier?: SkillTier
+	position?: Position
+	isAdmin: boolean
+}
+
+export type ListAllPlayersOptions = {
+	sort?: 'name' | 'skillTier' | 'createdAt'
 	skillTier?: SkillTier
 	position?: Position
 	isAdmin: boolean
@@ -86,4 +98,30 @@ export async function listPlayers(
 			totalPages,
 		},
 	}
+}
+
+const options = {
+	user: {
+		select: { id: true, name: true, createdAt: true },
+	},
+	admin: {
+		select: {
+			id: true,
+			name: true,
+			skillTier: true,
+			positions: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	},
+} as const
+
+export async function listAllPlayers(
+	userRole: User['role'],
+): Promise<PlayerAdminDto[] | PlayerUserDto[]> {
+	const players = await prisma.player.findMany({
+		select: options[userRole].select,
+	})
+
+	return players
 }
