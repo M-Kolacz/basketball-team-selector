@@ -1,6 +1,6 @@
 <!-- Claude session: https://claude.ai/share/b1c8e0ee-bd86-4bb5-9446-0cc987bb83f3 -->
 
-# REST API Plan
+# Server Actions Plan
 
 ## 1. Resources
 
@@ -11,461 +11,513 @@
 - **Teams** → `teams` table (managed through propositions)
 - **Authentication** → `users` + `passwords` tables
 
-## 2. Endpoints
+## 2. Server Actions
 
 ### Authentication
 
-#### POST /api/auth/login
+#### `loginUser(username, password)`
 
+- **Location:** `src/actions/auth.ts`
 - **Description:** Authenticate user and create session
-- **Request Payload:**
+- **Parameters:**
 
-```json
+```typescript
+username: string
+password: string
+```
+
+- **Return Type:**
+
+```typescript
 {
-	"username": "string",
-	"password": "string"
+  success: true;
+  user: {
+    id: string;
+    username: string;
+    role: "admin" | "user";
+  };
+} | {
+  success: false;
+  error: string;
 }
 ```
 
-- **Response Payload:**
-
-```json
-{
-	"user": {
-		"id": "uuid",
-		"username": "string",
-		"role": "admin|user"
-	}
-}
-```
-
-- **Success:** 200 OK - JWT token saved in the cookie
+- **Implementation:** Sets JWT token in cookie on success
 - **Errors:**
-  - 401 Unauthorized - Invalid credentials
-  - 422 Unprocessable Entity - Missing required fields
+  - Invalid credentials
+  - Missing required fields
 
-#### POST /api/auth/logout
+#### `logoutUser()`
 
+- **Location:** `src/actions/auth.ts`
 - **Description:** Terminate user session - remove cookie
-- **Success:** 204 No Content
-- **Errors:** 401 Unauthorized - Not authenticated
+- **Return Type:** `{ success: true } | { success: false; error: string }`
+- **Errors:** Not authenticated
 
-#### POST /api/auth/register
+#### `registerUser(username, password, confirmPassword)`
 
-- **Description:** Register new user account (public endpoint)
-- **Request Payload:**
+- **Location:** `src/actions/auth.ts`
+- **Description:** Register new user account (public action)
+- **Parameters:**
 
-```json
+```typescript
+username: string // max 50 chars
+password: string // min 8 chars
+confirmPassword: string // must match password
+```
+
+- **Return Type:**
+
+```typescript
 {
-	"username": "string (max 50 chars)",
-	"password": "string (min 8 chars)",
-	"confirmPassword": "string (must match password)"
+  success: true;
+  user: {
+    id: string;
+    username: string;
+    role: "user";
+  };
+} | {
+  success: false;
+  error: string;
+  fieldErrors?: {
+    username?: string;
+    password?: string;
+    confirmPassword?: string;
+  };
 }
 ```
 
-- **Response Payload:**
-
-```json
-{
-	"user": {
-		"id": "uuid",
-		"username": "string",
-		"role": "user"
-	}
-}
-```
-
-- **Success:** 201 Created - JWT token saved in the cookie
+- **Implementation:** Creates user, sets JWT token in cookie on success
 - **Errors:**
-  - 409 Conflict - Username already exists
-  - 422 Unprocessable Entity - Validation errors (password mismatch, invalid
-    format, missing fields)
+  - Username already exists
+  - Validation errors (password mismatch, invalid format, missing fields)
 
 ### Users
 
-#### GET /api/users
+#### `getUsers(options?)`
 
+- **Location:** `src/actions/users.ts`
 - **Description:** List all users (admin only)
-- **Query Parameters:**
-  - `page` (default: 1)
-  - `limit` (default: 20)
-  - `sort` (username|created_at, default: username)
-- **Response Payload:**
+- **Parameters:**
 
-```json
-{
-	"users": [
-		{
-			"id": "uuid",
-			"username": "string",
-			"role": "admin|user",
-			"created_at": "datetime",
-			"updated_at": "datetime"
-		}
-	],
-	"pagination": {
-		"page": 1,
-		"limit": 20,
-		"total": 50,
-		"totalPages": 3
-	}
+```typescript
+options?: {
+  page?: number;      // default: 1
+  limit?: number;     // default: 20
+  sort?: "username" | "created_at"; // default: username
 }
 ```
 
-- **Success:** 200 OK
-- **Errors:** 403 Forbidden - Insufficient permissions
+- **Return Type:**
 
-#### POST /api/users
+```typescript
+{
+  success: true;
+  users: Array<{
+    id: string;
+    username: string;
+    role: "admin" | "user";
+    created_at: Date;
+    updated_at: Date;
+  }>;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+} | {
+  success: false;
+  error: string;
+}
+```
 
+- **Auth Check:** Requires admin role
+- **Errors:** Insufficient permissions
+
+#### `createUser(username, password, role)`
+
+- **Location:** `src/actions/users.ts`
 - **Description:** Create new user (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
+```typescript
+username: string // max 50 chars
+password: string // min 8 chars
+role: "admin" | "user"
+```
+
+- **Return Type:**
+
+```typescript
 {
-	"username": "string (max 50 chars)",
-	"password": "string (min 8 chars)",
-	"role": "admin|user"
+  success: true;
+  user: {
+    id: string;
+    username: string;
+    role: "admin" | "user";
+    created_at: Date;
+  };
+} | {
+  success: false;
+  error: string;
+  fieldErrors?: Record<string, string>;
 }
 ```
 
-- **Response Payload:**
-
-```json
-{
-	"id": "uuid",
-	"username": "string",
-	"role": "admin|user",
-	"created_at": "datetime"
-}
-```
-
-- **Success:** 201 Created
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 409 Conflict - Username already exists
-  - 422 Unprocessable Entity - Validation errors
+  - Insufficient permissions
+  - Username already exists
+  - Validation errors
 
 ### Players
 
-#### GET /api/players
+#### `getPlayers(options?)`
 
+- **Location:** `src/actions/players.ts`
 - **Description:** List all players (skill_tier and positions hidden for
   non-admins)
-- **Query Parameters:**
-  - `page` (default: 1)
-  - `limit` (default: 50)
-  - `sort` (name|skill_tier|created_at)
-  - `skill_tier` (S|A|B|C|D) - admin only
-  - `position` (PG|SG|SF|PF|C) - admin only
-- **Response Payload (Admin):**
+- **Parameters:**
 
-```json
-{
-  "players": [
-    {
-      "id": "uuid",
-      "name": "string",
-      "skill_tier": "S|A|B|C|D",
-      "positions": ["PG", "SG"],
-      "created_at": "datetime",
-      "updated_at": "datetime"
-    }
-  ],
-  "pagination": {...}
+```typescript
+options?: {
+  page?: number;      // default: 1
+  limit?: number;     // default: 50
+  sort?: "name" | "skill_tier" | "created_at";
+  skill_tier?: "S" | "A" | "B" | "C" | "D"; // admin only filter
+  position?: "PG" | "SG" | "SF" | "PF" | "C"; // admin only filter
 }
 ```
 
-- **Response Payload (User):**
+- **Return Type (Admin):**
 
-```json
+```typescript
 {
-  "players": [
-    {
-      "id": "uuid",
-      "name": "string",
-      "created_at": "datetime"
-    }
-  ],
-  "pagination": {...}
+  success: true;
+  players: Array<{
+    id: string;
+    name: string;
+    skill_tier: "S" | "A" | "B" | "C" | "D";
+    positions: Array<"PG" | "SG" | "SF" | "PF" | "C">;
+    created_at: Date;
+    updated_at: Date;
+  }>;
+  pagination: {...};
 }
 ```
 
-- **Success:** 200 OK
+- **Return Type (User):**
 
-#### POST /api/players
+```typescript
+{
+  success: true;
+  players: Array<{
+    id: string;
+    name: string;
+    created_at: Date;
+  }>;
+  pagination: {...};
+}
+```
 
+- **Auth Check:** Fields filtered based on user role
+
+#### `createPlayer(name, skillTier, positions)`
+
+- **Location:** `src/actions/players.ts`
 - **Description:** Create new player (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
+```typescript
+name: string // max 100 chars
+skillTier: "S" | "A" | "B" | "C" | "D"
+positions: Array<"PG" | "SG" | "SF" | "PF" | "C">
+```
+
+- **Return Type:**
+
+```typescript
 {
-	"name": "string (max 100 chars)",
-	"skill_tier": "S|A|B|C|D",
-	"positions": ["PG", "SG"]
+  success: true;
+  player: {
+    id: string;
+    name: string;
+    skill_tier: string;
+    positions: string[];
+    created_at: Date;
+  };
+} | {
+  success: false;
+  error: string;
 }
 ```
 
-- **Success:** 201 Created
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 409 Conflict - Player name already exists
-  - 422 Unprocessable Entity - Invalid skill tier or positions
+  - Insufficient permissions
+  - Player name already exists
+  - Invalid skill tier or positions
 
-#### PUT /api/players/{id}
+#### `updatePlayer(id, data)`
 
+- **Location:** `src/actions/players.ts`
 - **Description:** Update player information (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-  "name": "string (optional)",
-  "skill_tier": "S|A|B|C|D (optional)",
-  "positions": ["PG", "SG"] (optional)
+```typescript
+id: string
+data: {
+  name?: string;
+  skillTier?: "S" | "A" | "B" | "C" | "D";
+  positions?: Array<"PG" | "SG" | "SF" | "PF" | "C">;
 }
 ```
 
-- **Success:** 200 OK
+- **Return Type:** `{ success: true; player: Player } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Player not found
-  - 409 Conflict - Name already taken
+  - Insufficient permissions
+  - Player not found
+  - Name already taken
 
-#### DELETE /api/players/{id}
+#### `deletePlayer(id)`
 
+- **Location:** `src/actions/players.ts`
 - **Description:** Delete player (admin only)
-- **Success:** 204 No Content
+- **Parameters:** `id: string`
+- **Return Type:** `{ success: true } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Player not found
+  - Insufficient permissions
+  - Player not found
 
 ### Game Sessions
 
-#### GET /api/game-sessions
+#### `getGameSessions(options?)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** List game sessions with filtering
-- **Query Parameters:**
-  - `page` (default: 1)
-  - `limit` (default: 20)
-  - `from_date` (ISO datetime)
-  - `to_date` (ISO datetime)
-  - `has_results` (true|false)
-- **Response Payload:**
+- **Parameters:**
 
-```json
-{
-  "gameSessions": [
-    {
-      "id": "uuid",
-      "game_datetime": "datetime",
-      "description": "string|null",
-      "selected_proposition_id": "uuid|null",
-      "games": [...],
-      "created_at": "datetime"
-    }
-  ],
-  "pagination": {...}
+```typescript
+options?: {
+  page?: number;        // default: 1
+  limit?: number;       // default: 20
+  from_date?: Date;
+  to_date?: Date;
+  has_results?: boolean;
 }
 ```
 
-- **Success:** 200 OK
+- **Return Type:**
 
-#### POST /api/game-sessions
+```typescript
+{
+  success: true;
+  gameSessions: Array<{
+    id: string;
+    game_datetime: Date;
+    description: string | null;
+    selected_proposition_id: string | null;
+    games: Array<Array<{ score: number; teamId: string }>>;
+    created_at: Date;
+  }>;
+  pagination: {...};
+}
+```
 
+#### `createGameSession(gameDateTime, description?)`
+
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Create new game session (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-	"game_datetime": "datetime",
-	"description": "string (optional)"
-}
+```typescript
+gameDateTime: Date
+description?: string
 ```
 
-- **Success:** 201 Created
+- **Return Type:** `{ success: true; gameSession: GameSession } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 409 Conflict - Game already exists on this date
-  - 422 Unprocessable Entity - Invalid datetime
+  - Insufficient permissions
+  - Game already exists on this date
+  - Invalid datetime
 
-#### GET /api/game-sessions/{id}
+#### `getGameSessionById(id)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Get detailed game session information
-- **Response Payload:**
+- **Parameters:** `id: string`
+- **Return Type:**
 
-```json
+```typescript
 {
-  "id": "uuid",
-  "game_datetime": "datetime",
-  "description": "string|null",
-  "selected_proposition_id": "uuid|null",
-  "games": [
-    [
-      {"score": 32, "teamId": "uuid"},
-      {"score": 28, "teamId": "uuid"}
-    ]
-  ],
-  "available_players": ["uuid", "uuid"],
-  "propositions": [...],
-  "created_at": "datetime",
-  "updated_at": "datetime"
+  success: true;
+  gameSession: {
+    id: string;
+    game_datetime: Date;
+    description: string | null;
+    selected_proposition_id: string | null;
+    games: Array<Array<{ score: number; teamId: string }>>;
+    available_players: string[];
+    propositions: Proposition[];
+    created_at: Date;
+    updated_at: Date;
+  };
+} | {
+  success: false;
+  error: string;
 }
 ```
 
-- **Success:** 200 OK
-- **Errors:** 404 Not Found
+- **Errors:** Game session not found
 
-#### PUT /api/game-sessions/{id}/available-players
+#### `setAvailablePlayers(sessionId, playerIds)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Set available players for game session (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-  "player_ids": ["uuid", "uuid", ...]
-}
+```typescript
+sessionId: string
+playerIds: string[]
 ```
 
-- **Success:** 200 OK
+- **Return Type:** `{ success: true } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Game session not found
-  - 422 Unprocessable Entity - Less than 10 players selected
+  - Insufficient permissions
+  - Game session not found
+  - Less than 10 players selected
 
-#### POST /api/game-sessions/{id}/propositions/generate
+#### `generatePropositions(sessionId, regenerate?)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Generate AI team propositions (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
+```typescript
+sessionId: string
+regenerate?: boolean // default: false
+```
+
+- **Return Type:**
+
+```typescript
 {
-	"regenerate": false
+  success: true;
+  propositions: Array<{
+    id: string;
+    type: "position_focused" | "skill_balanced" | "general";
+    teams: Array<{
+      id: string;
+      players: Player[];
+    }>;
+  }>;
+} | {
+  success: false;
+  error: string;
 }
 ```
 
-- **Response Payload:**
-
-```json
-{
-  "propositions": [
-    {
-      "id": "uuid",
-      "type": "position_focused",
-      "teams": [
-        {
-          "id": "uuid",
-          "players": [...]
-        }
-      ]
-    },
-    {
-      "id": "uuid",
-      "type": "skill_balanced",
-      "teams": [...]
-    },
-    {
-      "id": "uuid",
-      "type": "general",
-      "teams": [...]
-    }
-  ]
-}
-```
-
-- **Success:** 201 Created
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Game session not found
-  - 422 Unprocessable Entity - Insufficient available players
-  - 503 Service Unavailable - AI service error
+  - Insufficient permissions
+  - Game session not found
+  - Insufficient available players
+  - AI service error
 
-#### PUT /api/game-sessions/{id}/select-proposition
+#### `selectProposition(sessionId, propositionId)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Select final team proposition (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-	"proposition_id": "uuid"
-}
+```typescript
+sessionId: string
+propositionId: string
 ```
 
-- **Success:** 200 OK
+- **Return Type:** `{ success: true } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Game session or proposition not found
-  - 409 Conflict - Proposition already selected
+  - Insufficient permissions
+  - Game session or proposition not found
+  - Proposition already selected
 
-#### PUT /api/game-sessions/{id}/results
+#### `recordGameResults(sessionId, games)`
 
+- **Location:** `src/actions/game-sessions.ts`
 - **Description:** Record game results (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-	"games": [
-		[
-			{ "score": 32, "teamId": "uuid" },
-			{ "score": 28, "teamId": "uuid" }
-		]
-	]
-}
+```typescript
+sessionId: string
+games: Array<Array<{ score: number; teamId: string }>>
 ```
 
-- **Success:** 200 OK
+- **Return Type:** `{ success: true } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Game session not found
-  - 422 Unprocessable Entity - Invalid team IDs or score format
+  - Insufficient permissions
+  - Game session not found
+  - Invalid team IDs or score format
 
 ### Propositions
 
-#### GET /api/propositions/{id}
+#### `getPropositionById(id)`
 
+- **Location:** `src/actions/propositions.ts`
 - **Description:** Get specific proposition details
-- **Response Payload:**
+- **Parameters:** `id: string`
+- **Return Type:**
 
-```json
+```typescript
 {
-	"id": "uuid",
-	"game_session_id": "uuid",
-	"type": "position_focused|skill_balanced|general",
-	"teams": [
-		{
-			"id": "uuid",
-			"players": [
-				{
-					"id": "uuid",
-					"name": "string",
-					"skill_tier": "S|A|B|C|D",
-					"positions": ["PG", "SG"]
-				}
-			]
-		}
-	],
-	"created_at": "datetime"
+  success: true;
+  proposition: {
+    id: string;
+    game_session_id: string;
+    type: "position_focused" | "skill_balanced" | "general";
+    teams: Array<{
+      id: string;
+      players: Array<{
+        id: string;
+        name: string;
+        skill_tier: "S" | "A" | "B" | "C" | "D";
+        positions: Array<"PG" | "SG" | "SF" | "PF" | "C">;
+      }>;
+    }>;
+    created_at: Date;
+  };
+} | {
+  success: false;
+  error: string;
 }
 ```
 
-- **Success:** 200 OK
-- **Errors:** 404 Not Found
+- **Errors:** Proposition not found
 
-#### PUT /api/propositions/{id}/teams
+#### `updatePropositionTeams(id, team1PlayerIds, team2PlayerIds)`
 
+- **Location:** `src/actions/propositions.ts`
 - **Description:** Manually adjust teams in proposition (admin only)
-- **Request Payload:**
+- **Parameters:**
 
-```json
-{
-  "team1_player_ids": ["uuid", ...],
-  "team2_player_ids": ["uuid", ...]
-}
+```typescript
+id: string
+team1PlayerIds: string[]
+team2PlayerIds: string[]
 ```
 
-- **Success:** 200 OK
+- **Return Type:** `{ success: true; proposition: Proposition } | { success: false; error: string }`
+- **Auth Check:** Requires admin role
 - **Errors:**
-  - 403 Forbidden - Insufficient permissions
-  - 404 Not Found - Proposition not found
-  - 422 Unprocessable Entity - Invalid player assignments
+  - Insufficient permissions
+  - Proposition not found
+  - Invalid player assignments
 
 ## 3. Authentication and Authorization
 
@@ -475,22 +527,45 @@
 - **Token Storage:** JWT token in cookie (HttpOnly, Secure, SameSite=Strict)
 - **Token Expiration:** 24 hours for standard users, 7 days for admin
 - **Implementation:**
-  - Generate JWT upon successful login
+  - Generate JWT upon successful login via `loginUser()` or `registerUser()`
   - Include user ID and role in token payload
-  - Verify cookie with token on each protected endpoint
-  - Refresh token endpoint not required for MVP
+  - Verify cookie with token at start of each protected server action using `verifyAuth()` helper
+  - Refresh token not required for MVP
 
 ### Authorization Rules
 
-- **Public Endpoints:** POST /api/auth/login, POST /api/auth/register
+- **Public Actions:** `loginUser()`, `registerUser()`
 - **User-level Access (authenticated users):**
-  - GET endpoints for players (limited fields), game sessions, propositions
+  - Read actions for players (limited fields), game sessions, propositions
   - Cannot access skill_tier and positions fields for players
 - **Admin-only Access:**
-  - All POST, PUT, DELETE operations
+  - All mutation actions (create, update, delete)
   - Full access to all player fields
-  - User management endpoints
+  - User management actions
   - Team generation and game management
+
+### Implementation Pattern
+
+Each protected server action should:
+
+1. Call `verifyAuth()` helper to get current user from cookie
+2. Check user role against required permissions
+3. Return `{ success: false; error: string }` if unauthorized
+4. Proceed with operation if authorized
+
+```typescript
+// Example pattern
+export async function createPlayer(name: string, skillTier: SkillTier, positions: Position[]) {
+  "use server";
+
+  const user = await verifyAuth();
+  if (!user || user.role !== "admin") {
+    return { success: false, error: "Insufficient permissions" };
+  }
+
+  // Proceed with operation...
+}
+```
 
 ## 4. Validation and Business Logic
 
@@ -526,22 +601,45 @@
 ### Business Logic Implementation
 
 - **Team Generation:**
-  - Calls AI service with available players
-  - Enforces minimum 10 players
+  - `generatePropositions()` calls AI service with available players
+  - Enforces minimum 10 players before processing
   - Generates exactly 3 propositions per request
   - Balances teams based on skill points (S=5, A=4, B=3, C=2, D=1)
 - **Role-based Field Filtering:**
-  - Middleware checks user role from JWT
-  - Removes sensitive fields from response based on role
-  - Applied at serialization layer before sending response
+  - Each server action checks user role via `verifyAuth()`
+  - Removes sensitive fields from return value based on role
+  - Applied before returning data to client
 
 - **Duplicate Prevention:**
   - Database unique constraints enforced
-  - Pre-validation checks for duplicates with meaningful error messages
-  - Game session date uniqueness checked at day level
+  - Server actions perform pre-validation checks with meaningful error messages
+  - Game session date uniqueness checked at day level in `createGameSession()`
 
 - **Cascading Operations:**
-  - Deleting game session removes all associated propositions
+  - Deleting game session removes all associated propositions (DB constraint)
   - Deleting selected proposition sets game session's selected_proposition_id to
     null
-  - User deletion cascades to password record
+  - User deletion cascades to password record (DB constraint)
+
+### Error Handling Pattern
+
+All server actions should return discriminated unions:
+
+```typescript
+// Success case
+{ success: true; data: T }
+
+// Error case
+{ success: false; error: string; fieldErrors?: Record<string, string> }
+```
+
+Client components can check `success` field and handle accordingly:
+
+```typescript
+const result = await createPlayer(name, skillTier, positions);
+if (!result.success) {
+  // Handle error: result.error, result.fieldErrors
+} else {
+  // Handle success: result.player
+}
+```

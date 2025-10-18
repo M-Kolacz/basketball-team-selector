@@ -31,7 +31,7 @@ throughout the application.
   - Form with username/password inputs
   - Submit button with loading state
   - Error message display area
-  - "Create new account" link
+  - "Create new account" link Validates credentials and sets auth cookie
 - **UX, accessibility, and security considerations:**
   - Auto-focus on username field
   - Password field with masked input
@@ -39,6 +39,7 @@ throughout the application.
   - Keyboard navigation support
   - Secure password handling (no client-side storage)
   - ARIA labels for screen readers
+  - Server action called on form submission with validation
 
 ### Registration Page
 
@@ -53,10 +54,14 @@ throughout the application.
   - Password and confirm password fields
   - Register button with loading state
   - "Back to login" navigation link
+- **Server actions:**
+  - `checkUsernameAvailability(username)` - Real-time username validation
+  - `registerUser(userData)` - Creates new user account
 - **UX, accessibility, and security considerations:**
   - Real-time password strength feedback
   - Clear validation messages
   - Password requirements clearly stated
+  - Server-side validation via server actions
 
 ### Games List
 
@@ -76,13 +81,17 @@ throughout the application.
   - Action buttons (View/Edit/Delete)
   - Empty state message when no games exist
   - Pagination controls
+- **Server actions:**
+  - `getGames(filters)` - Fetches games list with optional filtering/pagination
+  - `deleteGame(gameId)` - Removes game (admin only)
 - **UX, accessibility, and security considerations:**
   - Sortable columns (date, status)
   - Mobile-responsive table with horizontal scroll
   - Clickable rows for quick navigation
   - Confirmation dialog for destructive actions
-  - Loading states during data fetch
+  - Loading states during server action execution
   - Clear visual hierarchy for game status
+  - Optimistic UI updates with revalidation
 
 ### Game Creation Wizard
 
@@ -115,13 +124,20 @@ throughout the application.
     - Progress indicator (Step X of 3)
     - Previous/Next buttons
     - Cancel with confirmation
+- **Server actions:**
+  - `validateGameDate(date)` - Checks for duplicate games on date
+  - `getAvailablePlayers()` - Fetches active player roster
+  - `generateTeamPropositions(playerIds)` - AI generates three balanced teams
+  - `saveGameWithTeams(gameData)` - Persists game and selected team composition
 - **UX, accessibility, and security considerations:**
-  - State preservation across steps
+  - State preservation across steps (using client state)
   - Clear step instructions
   - Visual feedback for drag-and-drop
   - Keyboard navigation support
   - Confirmation before final selection
   - Error recovery without data loss
+  - Server actions validate all data server-side
+  - Loading states during AI team generation
 
 ### Game Details
 
@@ -140,12 +156,16 @@ throughout the application.
   - "Enter Results" button/modal (admin only)
   - Print button with optimized layout
   - Back navigation to games list
+- **Server actions:**
+  - `getGameById(gameId)` - Fetches complete game data with teams
+  - `updateGameResults(gameId, scores)` - Saves final scores (admin only)
 - **UX, accessibility, and security considerations:**
   - Print-optimized CSS styles
   - Conditional rendering based on user role
   - Mobile-responsive team layout
   - Clear team identification (Team 1/Team 2)
   - Accessible modal for result entry
+  - Server actions enforce role-based permissions
 
 ### Players Management
 
@@ -168,12 +188,19 @@ throughout the application.
   - Search/filter input
   - Inline edit mode (admin)
   - Delete confirmation dialog
+- **Server actions:**
+  - `getPlayers(filters)` - Fetches player list with optional search
+  - `createPlayer(playerData)` - Adds new player (admin only)
+  - `updatePlayer(playerId, playerData)` - Updates player info (admin only)
+  - `deletePlayer(playerId)` - Removes player (admin only)
 - **UX, accessibility, and security considerations:**
   - Graceful degradation for non-admin users
   - Optimistic UI updates with error recovery
   - Batch operations support
   - Mobile-friendly table layout
   - Clear visual feedback for CRUD operations
+  - All mutations validated via server actions
+  - Automatic revalidation after changes
 
 ### User Management
 
@@ -188,12 +215,17 @@ throughout the application.
     - Username, role, created date columns
     - Delete action buttons
   - Confirmation dialogs for deletions
+- **Server actions:**
+  - `getUsers()` - Fetches all users (admin only)
+  - `createUser(userData)` - Adds new user (admin only)
+  - `deleteUser(userId)` - Removes user (admin only, prevents self-deletion)
 - **UX, accessibility, and security considerations:**
-  - Admin-only access enforcement
+  - Admin-only access enforcement via server actions
   - Password security requirements
-  - Prevention of self-deletion
+  - Prevention of self-deletion (validated server-side)
   - Clear role indicators
   - Audit trail considerations
+  - All operations validate admin role in server actions
 
 ## 3. User Journey Map
 
@@ -202,9 +234,12 @@ throughout the application.
 1. **Authentication Phase**
    - Admin arrives at login page (/)
    - Enters credentials and submits form
-   - System validates and redirects to games list (/games)
+   - Form calls `authenticateUser(credentials)` server action
+   - Server action validates and sets auth cookie
+   - System redirects to games list (/games)
 
 2. **Game Initiation**
+   - Page calls `getGames()` server action to load data
    - Admin views existing games in list
    - Clicks "Create New Game" button
    - Navigates to game creation wizard (/games/new)
@@ -212,19 +247,23 @@ throughout the application.
 3. **Game Configuration (Step 1)**
    - Selects date and time for the game
    - Optionally adds description
-   - Validates no duplicate games on selected date
+   - Form calls `validateGameDate(date)` on blur/change
+   - Server action checks for duplicate games
    - Clicks "Next" to proceed
 
 4. **Player Selection (Step 2)**
+   - Page calls `getAvailablePlayers()` to load roster
    - Views complete player roster with checkboxes
    - Uses search to find specific players if needed
    - Selects available players (minimum 10 required)
-   - System shows count and validates minimum
+   - System shows count and validates minimum client-side
    - Clicks "Next" to proceed
 
 5. **Team Generation (Step 3)**
    - Clicks "Generate Teams" button
+   - Calls `generateTeamPropositions(playerIds)` server action
    - System displays loading state during AI processing
+   - Server action returns three propositions
    - Three propositions appear side-by-side
    - Reviews each proposition type:
      - Position-focused
@@ -233,26 +272,31 @@ throughout the application.
    - Optionally adjusts teams via drag-and-drop
    - Selects preferred proposition
    - Confirms selection in dialog
+   - Calls `saveGameWithTeams(gameData)` server action
    - System saves and redirects to game details (/games/[id])
 
 6. **Post-Game Activities**
    - After physical game completion
    - Admin returns to game details page
+   - Page calls `getGameById(gameId)` to load data
    - Clicks "Enter Results" button
    - Enters scores in modal
-   - Saves results
+   - Calls `updateGameResults(gameId, scores)` server action
+   - Saves results with automatic revalidation
 
 ### Secondary Journey: Regular User Game Viewing
 
 1. **Login**
-   - User authenticates at login page
+   - User authenticates at login page via `authenticateUser()` action
    - Redirected to games list
 
 2. **Browse Games**
+   - Page loads games via `getGames()` server action
    - Views list of upcoming and past games
    - Clicks on specific game for details
 
 3. **View Teams**
+   - Page loads game data via `getGameById(gameId)` action
    - Sees team compositions (without skill information)
    - Can print team lineup for physical reference
 
@@ -261,16 +305,17 @@ throughout the application.
 **Player Management Flow (Admin):**
 
 - Navigate to Players page
-- Add new players via form
-- Edit existing players inline
-- Delete players with confirmation
+- Page calls `getPlayers()` server action
+- Add new players via form calling `createPlayer(playerData)`
+- Edit existing players inline calling `updatePlayer(playerId, data)`
+- Delete players with confirmation calling `deletePlayer(playerId)`
 
 **User Management Flow (Admin):**
 
 - Navigate to Users page
-- Create new user accounts
-- Manage existing users
-- Delete users with confirmation
+- Page calls `getUsers()` server action
+- Create new user accounts via `createUser(userData)`
+- Delete users with confirmation via `deleteUser(userId)`
 
 ## 4. Layout and Navigation Structure
 
@@ -309,6 +354,7 @@ throughout the application.
 - **Tab Navigation:** Used within game creation wizard for steps
 - **Contextual Actions:** Appear based on user role and current context
 - **Mobile Navigation:** Responsive menu with hamburger toggle on small screens
+- **Logout:** Calls `logoutUser()` server action to clear auth cookie
 
 ## 5. Key Components
 
@@ -331,33 +377,34 @@ for team balance. Mobile-responsive with carousel layout on small screens.
 
 Global navigation bar providing consistent access to main application sections.
 Implements role-based menu visibility, active route highlighting, and user
-session information. Includes logout functionality and mobile-responsive
-hamburger menu. Maintains fixed position for constant accessibility.
+session information. Includes logout functionality (via `logoutUser()` server
+action) and mobile-responsive hamburger menu. Maintains fixed position for
+constant accessibility.
 
 ### ResultsModal
 
 Overlay dialog for entering game results post-completion. Contains score input
-fields for each team with numeric validation. Provides save and cancel actions
-with confirmation. Implements accessible modal patterns with focus management
-and keyboard navigation support.
+fields for each team with numeric validation. Calls `updateGameResults()` server
+action on save. Provides save and cancel actions with confirmation. Implements
+accessible modal patterns with focus management and keyboard navigation support.
 
 ### LoadingSpinner
 
 Reusable loading indicator for asynchronous operations. Provides consistent
-visual feedback during data fetching, AI generation, and form submissions.
-Includes contextual loading messages for different operations.
+visual feedback during server action execution, AI generation, and form
+submissions. Includes contextual loading messages for different operations.
 
 ### ErrorBoundary
 
 Catches and gracefully handles component-level errors. Displays user-friendly
 error messages with recovery options. Logs errors for debugging while
-maintaining application stability.
+maintaining application stability. Handles server action errors appropriately.
 
 ### ConfirmationDialog
 
 Reusable modal for confirming destructive actions. Used for deletion operations
 and final selections. Provides clear action descriptions and cancel options.
-Implements accessible dialog patterns.
+Implements accessible dialog patterns. Executes server actions on confirmation.
 
 ### EmptyState
 
@@ -369,10 +416,12 @@ based on user permissions.
 
 Standardized form input wrapper providing consistent styling, validation
 display, and accessibility features. Handles label association, error messages,
-and help text. Supports various input types with unified behavior.
+and help text. Supports various input types with unified behavior. Compatible
+with server action form submission patterns.
 
 ### DataTable
 
 Responsive table component with sorting, filtering, and pagination. Adapts to
-mobile screens with horizontal scrolling. Supports row actions and bulk
-operations. Implements accessible table markup.
+mobile screens with horizontal scrolling. Supports row actions calling server
+actions for mutations. Implements accessible table markup. Handles optimistic
+updates and revalidation.
