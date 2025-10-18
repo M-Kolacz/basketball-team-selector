@@ -1,7 +1,7 @@
 'use client'
 
 import { cva, type VariantProps } from 'class-variance-authority'
-import { useMemo } from 'react'
+import { useId, useMemo } from 'react'
 
 import { Label } from '#app/components/ui/label'
 import { Separator } from '#app/components/ui/separator'
@@ -189,7 +189,7 @@ function FieldError({
 	errors,
 	...props
 }: React.ComponentProps<'div'> & {
-	errors?: Array<{ message?: string } | undefined>
+	errors?: string[] | undefined
 }) {
 	const content = useMemo(() => {
 		if (children) {
@@ -201,15 +201,12 @@ function FieldError({
 		}
 
 		if (errors?.length == 1) {
-			return errors[0]?.message
+			return errors[0]
 		}
 
 		return (
 			<ul className="ml-4 flex list-disc flex-col gap-1">
-				{errors.map(
-					(error, index) =>
-						error?.message && <li key={index}>{error.message}</li>,
-				)}
+				{errors.map((error, index) => error && <li key={index}>{error}</li>)}
 			</ul>
 		)
 	}, [children, errors])

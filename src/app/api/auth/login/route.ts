@@ -2,13 +2,13 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { setAuthCookie } from '#app/lib/cookie.server'
 import { generateToken } from '#app/lib/jwt.server'
-import { LoginCommandSchema } from '#app/lib/validations/auth'
+import { LoginSchema } from '#app/lib/validations/auth'
 import { verifyCredentials } from '#app/services/auth.server'
 
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json()
-		const validatedData = LoginCommandSchema.parse(body)
+		const validatedData = LoginSchema.parse(body)
 
 		const user = await verifyCredentials(
 			validatedData.username,
@@ -22,19 +22,7 @@ export async function POST(request: NextRequest) {
 		const expiresIn = '7d'
 		await setAuthCookie(token, expiresIn)
 
-		return NextResponse.json(
-			{
-				user: {
-					id: user.id,
-					username: user.username,
-					role: user.role,
-					createdAt: user.createdAt.toISOString(),
-					updatedAt: user.updatedAt.toISOString(),
-				},
-				message: 'Login successful',
-			},
-			{ status: 200 },
-		)
+		return NextResponse.json({ message: 'Success' })
 	} catch (error) {
 		if (error instanceof ZodError) {
 			return NextResponse.json(
