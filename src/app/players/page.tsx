@@ -1,7 +1,7 @@
 import { type Metadata } from 'next'
 import { getPlayers } from '#app/lib/actions/players'
 import { PlayersList } from '#app/app/players/components/PlayersList'
-import { getCurrentUser } from '#app/services/auth.server'
+import { getCurrentUser } from '#app/lib/auth.server'
 
 export const metadata: Metadata = {
 	title: 'Players - Basketball Team Selector',

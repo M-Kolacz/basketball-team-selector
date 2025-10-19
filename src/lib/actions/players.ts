@@ -3,25 +3,34 @@
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 import z from 'zod'
+import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import {
 	CreatePlayerSchema,
 	DeletePlayerSchema,
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
-import { getCurrentUser } from '#app/services/auth.server'
-import {
-	listAllPlayers,
-	deletePlayer as deletePlayerService,
-	updatePlayer as updatePlayerService,
-} from '#app/services/player.service'
+
+const options = {
+	user: { id: true, name: true, createdAt: true },
+	admin: {
+		id: true,
+		name: true,
+		skillTier: true,
+		positions: true,
+		createdAt: true,
+		updatedAt: true,
+	},
+} as const
 
 export async function getPlayers() {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
 
-	const players = await listAllPlayers(currentUser.role)
+	const players = await prisma.player.findMany({
+		select: options[currentUser.role],
+	})
 
 	return players
 }
@@ -122,7 +131,9 @@ export async function deletePlayer(_prevState: unknown, formData: FormData) {
 
 	const { id } = submission.value
 
-	await deletePlayerService(id)
+	await prisma.player.delete({
+		where: { id },
+	})
 
 	return { success: true }
 }
@@ -184,7 +195,15 @@ export async function updatePlayer(_prevState: unknown, formData: FormData) {
 
 	const { id, ...updateData } = submission.value
 
-	await updatePlayerService(id, updateData)
+	await prisma.player.update({
+		where: { id },
+		data: {
+			...updateData,
+		},
+		select: {
+			id: true,
+		},
+	})
 
 	return { success: true }
 }
