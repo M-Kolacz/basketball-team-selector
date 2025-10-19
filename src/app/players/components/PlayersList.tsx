@@ -1,21 +1,22 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import type { PlayerAdminDto, PlayerUserDto } from '#app/types/dto'
-import type {
-	FilterState,
-	SortOption,
-	BulkAction,
-	AddPlayerFormData,
-	EditPlayerFormData,
-	ValidationErrors,
-} from '../types'
-import { filterAndSortPlayers, validatePlayerForm } from '../utils'
-import { AddPlayerForm } from './AddPlayerForm'
-import { PlayersTable } from './PlayersTable'
-import { EditPlayerDialog } from './EditPlayerDialog'
-import { DeleteConfirmationDialog } from './DeleteConfirmationDialog'
-import { BulkActionBar } from './BulkActionBar'
+import { AddPlayerForm } from '#app/app/players/components/AddPlayerForm'
+import { DeleteConfirmationDialog } from '#app/app/players/components/DeleteConfirmationDialog'
+import { EditPlayerDialog } from '#app/app/players/components/EditPlayerDialog'
+import { PlayersTable } from '#app/app/players/components/PlayersTable'
+import {
+	type FilterState,
+	type SortOption,
+	type AddPlayerFormData,
+	type EditPlayerFormData,
+	type ValidationErrors,
+} from '#app/app/players/types'
+import {
+	filterAndSortPlayers,
+	validatePlayerForm,
+} from '#app/app/players/utils'
+import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayersListProps = {
 	initialPlayers: PlayerAdminDto[] | PlayerUserDto[]
@@ -23,7 +24,6 @@ type PlayersListProps = {
 }
 
 export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
-	// State
 	const [players, setPlayers] = useState(initialPlayers)
 	const [filterState, setFilterState] = useState<FilterState>({
 		searchQuery: '',
@@ -32,57 +32,40 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 	})
 	const [sortBy, setSortBy] = useState<SortOption>('name')
 	const [selectedPlayerIds, setSelectedPlayerIds] = useState<Set<string>>(
-		new Set()
+		new Set(),
 	)
 
-	// Edit dialog state
 	const [editingPlayer, setEditingPlayer] = useState<PlayerAdminDto | null>(
-		null
+		null,
 	)
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 	const [editErrors, setEditErrors] = useState<ValidationErrors>()
 	const [editErrorMessage, setEditErrorMessage] = useState<string>()
 	const [isEditSubmitting, setIsEditSubmitting] = useState(false)
 
-	// Delete dialog state
 	const [deletingPlayerId, setDeletingPlayerId] = useState<string | null>(null)
 	const [deletingPlayerName, setDeletingPlayerName] = useState<string>()
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [isBulkDelete, setIsBulkDelete] = useState(false)
 
-	// Add form state
 	const [addFormErrors, setAddFormErrors] = useState<ValidationErrors>()
 	const [addFormSuccessMessage, setAddFormSuccessMessage] = useState<string>()
 	const [addFormErrorMessage, setAddFormErrorMessage] = useState<string>()
 	const [isAddSubmitting, setIsAddSubmitting] = useState(false)
 
-	// Computed values
 	const filteredPlayers = useMemo(
 		() => filterAndSortPlayers(players, filterState, sortBy, isAdmin),
-		[players, filterState, sortBy, isAdmin]
+		[players, filterState, sortBy, isAdmin],
 	)
-
-	const isAllSelected =
-		selectedPlayerIds.size > 0 &&
-		selectedPlayerIds.size === filteredPlayers.length
 
 	const existingPlayerNames = useMemo(
-		() => players.map(p => p.name),
-		[players]
+		() => players.map((p) => p.name),
+		[players],
 	)
 
-	// Event handlers
-	const handleFilterChange = (newFilterState: FilterState) => {
-		setFilterState(newFilterState)
-	}
-
-	const handleSortChange = (newSortBy: SortOption) => {
-		setSortBy(newSortBy)
-	}
-
 	const handlePlayerSelect = (playerId: string, selected: boolean) => {
-		setSelectedPlayerIds(prev => {
+		setSelectedPlayerIds((prev) => {
 			const newSet = new Set(prev)
 			if (selected) {
 				newSet.add(playerId)
@@ -91,18 +74,6 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 			}
 			return newSet
 		})
-	}
-
-	const handleSelectAll = (selected: boolean) => {
-		if (selected) {
-			setSelectedPlayerIds(new Set(filteredPlayers.map(p => p.id)))
-		} else {
-			setSelectedPlayerIds(new Set())
-		}
-	}
-
-	const handleClearSelection = () => {
-		setSelectedPlayerIds(new Set())
 	}
 
 	const handleEdit = (player: PlayerAdminDto) => {
@@ -121,21 +92,20 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 
 	const handleEditSubmit = async (
 		playerId: string,
-		data: EditPlayerFormData
+		data: EditPlayerFormData,
 	) => {
 		setIsEditSubmitting(true)
 		setEditErrors(undefined)
 		setEditErrorMessage(undefined)
 
-		// Client-side validation
 		const otherPlayerNames = existingPlayerNames.filter(
-			name => name !== editingPlayer?.name
+			(name) => name !== editingPlayer?.name,
 		)
 		const errors = validatePlayerForm(
 			data.name,
 			data.skillTier,
 			data.positions,
-			otherPlayerNames
+			otherPlayerNames,
 		)
 
 		if (Object.keys(errors).length > 0) {
@@ -145,24 +115,21 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 		}
 
 		try {
-			// TODO: Call server action updatePlayer(playerId, data)
-			// For now, simulate success with local update
-			await new Promise(resolve => setTimeout(resolve, 500))
+			await new Promise((resolve) => setTimeout(resolve, 500))
 
-			// Update local state
-			setPlayers(prev =>
-				prev.map(p =>
+			setPlayers((prev) =>
+				prev.map((p) =>
 					p.id === playerId
 						? { ...p, ...data, updatedAt: new Date().toISOString() }
-						: p
-				)
+						: p,
+				),
 			)
 
 			setIsEditDialogOpen(false)
 			setEditingPlayer(null)
 		} catch (error) {
 			setEditErrorMessage(
-				error instanceof Error ? error.message : 'Failed to update player'
+				error instanceof Error ? error.message : 'Failed to update player',
 			)
 		} finally {
 			setIsEditSubmitting(false)
@@ -170,7 +137,7 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 	}
 
 	const handleDelete = (playerId: string) => {
-		const player = players.find(p => p.id === playerId)
+		const player = players.find((p) => p.id === playerId)
 		setDeletingPlayerId(playerId)
 		setDeletingPlayerName(player?.name)
 		setIsBulkDelete(false)
@@ -189,21 +156,16 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 
 		try {
 			if (isBulkDelete) {
-				// TODO: Call server action deleteMultiplePlayers(Array.from(selectedPlayerIds))
-				await new Promise(resolve => setTimeout(resolve, 500))
+				await new Promise((resolve) => setTimeout(resolve, 500))
 
-				// Update local state
-				setPlayers(prev => prev.filter(p => !selectedPlayerIds.has(p.id)))
+				setPlayers((prev) => prev.filter((p) => !selectedPlayerIds.has(p.id)))
 				setSelectedPlayerIds(new Set())
 			} else if (deletingPlayerId) {
-				// TODO: Call server action deletePlayer(deletingPlayerId)
-				await new Promise(resolve => setTimeout(resolve, 500))
+				await new Promise((resolve) => setTimeout(resolve, 500))
 
-				// Update local state
-				setPlayers(prev => prev.filter(p => p.id !== deletingPlayerId))
+				setPlayers((prev) => prev.filter((p) => p.id !== deletingPlayerId))
 
-				// Remove from selection if selected
-				setSelectedPlayerIds(prev => {
+				setSelectedPlayerIds((prev) => {
 					const newSet = new Set(prev)
 					newSet.delete(deletingPlayerId)
 					return newSet
@@ -222,26 +184,17 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 		}
 	}
 
-	const handleBulkAction = (action: BulkAction) => {
-		if (action === 'delete_selected') {
-			setIsBulkDelete(true)
-			setDeletingPlayerName(undefined)
-			setIsDeleteDialogOpen(true)
-		}
-	}
-
 	const handleAddPlayer = async (data: AddPlayerFormData) => {
 		setIsAddSubmitting(true)
 		setAddFormErrors(undefined)
 		setAddFormSuccessMessage(undefined)
 		setAddFormErrorMessage(undefined)
 
-		// Client-side validation
 		const errors = validatePlayerForm(
 			data.name,
 			data.skillTier,
 			data.positions,
-			existingPlayerNames
+			existingPlayerNames,
 		)
 
 		if (Object.keys(errors).length > 0) {
@@ -251,27 +204,24 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 		}
 
 		try {
-			// TODO: Call server action createPlayer(data)
-			// For now, simulate success with local update
-			await new Promise(resolve => setTimeout(resolve, 500))
+			await new Promise((resolve) => setTimeout(resolve, 500))
 
 			const newPlayer: PlayerAdminDto = {
 				id: `temp-${Date.now()}`,
 				name: data.name,
 				skillTier: data.skillTier as any,
 				positions: data.positions,
-				createdAt: new Date().toISOString(),
-				updatedAt: new Date().toISOString(),
+				createdAt: new Date(),
+				updatedAt: new Date(),
 			}
 
-			setPlayers(prev => [newPlayer, ...prev])
+			setPlayers((prev) => [newPlayer, ...prev])
 			setAddFormSuccessMessage('Player added successfully!')
 
-			// Clear success message after 3 seconds
 			setTimeout(() => setAddFormSuccessMessage(undefined), 3000)
 		} catch (error) {
 			setAddFormErrorMessage(
-				error instanceof Error ? error.message : 'Failed to add player'
+				error instanceof Error ? error.message : 'Failed to add player',
 			)
 		} finally {
 			setIsAddSubmitting(false)
@@ -279,7 +229,7 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 	}
 
 	return (
-		<div className="container mx-auto px-4 py-8 max-w-7xl">
+		<div className="container mx-auto max-w-7xl px-4 py-8">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
 					Players
@@ -291,7 +241,6 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 				</p>
 			</div>
 
-			{/* Add Player Form (Admin only) */}
 			{isAdmin && (
 				<AddPlayerForm
 					onSubmit={handleAddPlayer}
@@ -302,32 +251,15 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 				/>
 			)}
 
-			{/* Bulk Action Bar (Admin only) */}
-			{isAdmin && (
-				<BulkActionBar
-					selectedCount={selectedPlayerIds.size}
-					isAllSelected={isAllSelected}
-					onSelectAll={handleSelectAll}
-					onBulkAction={handleBulkAction}
-					onClearSelection={handleClearSelection}
-				/>
-			)}
-
-			{/* Players Table */}
 			<PlayersTable
 				players={filteredPlayers}
 				isAdmin={isAdmin}
-				filterState={filterState}
-				sortBy={sortBy}
 				selectedPlayerIds={selectedPlayerIds}
-				onFilterChange={handleFilterChange}
-				onSortChange={handleSortChange}
 				onPlayerSelect={handlePlayerSelect}
 				onEdit={handleEdit}
 				onDelete={handleDelete}
 			/>
 
-			{/* Edit Player Dialog (Admin only) */}
 			{isAdmin && (
 				<EditPlayerDialog
 					isOpen={isEditDialogOpen}
@@ -340,7 +272,6 @@ export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
 				/>
 			)}
 
-			{/* Delete Confirmation Dialog (Admin only) */}
 			{isAdmin && (
 				<DeleteConfirmationDialog
 					isOpen={isDeleteDialogOpen}

@@ -20,15 +20,15 @@ export function DeleteConfirmationDialog({
 	if (!isOpen) return null
 
 	return (
-		<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+		<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
 			<div
-				className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+				className="mx-4 w-full max-w-md rounded-lg bg-white shadow-xl dark:bg-gray-800"
 				role="dialog"
 				aria-labelledby="dialog-title"
 				aria-describedby="dialog-description"
 			>
 				{/* Header */}
-				<div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+				<div className="border-b border-gray-200 px-6 py-4 dark:border-gray-700">
 					<h2
 						id="dialog-title"
 						className="text-lg font-semibold text-gray-900 dark:text-gray-100"
@@ -43,7 +43,7 @@ export function DeleteConfirmationDialog({
 						{/* Warning Icon */}
 						<div className="flex-shrink-0">
 							<svg
-								className="w-6 h-6 text-red-600 dark:text-red-400"
+								className="h-6 w-6 text-red-600 dark:text-red-400"
 								fill="none"
 								viewBox="0 0 24 24"
 								stroke="currentColor"
@@ -74,8 +74,7 @@ export function DeleteConfirmationDialog({
 								) : (
 									<>
 										Are you sure you want to delete{' '}
-										<strong>{playerName}</strong>? This action cannot be
-										undone.
+										<strong>{playerName}</strong>? This action cannot be undone.
 									</>
 								)}
 							</p>
@@ -83,19 +82,18 @@ export function DeleteConfirmationDialog({
 					</div>
 				</div>
 
-				{/* Actions */}
-				<div className="px-6 py-4 bg-gray-50 dark:bg-gray-900 rounded-b-lg flex justify-end gap-3">
+				<div className="flex justify-end gap-3 rounded-b-lg bg-gray-50 px-6 py-4 dark:bg-gray-900">
 					<button
 						onClick={onCancel}
 						disabled={isDeleting}
-						className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
 					>
 						Cancel
 					</button>
 					<button
 						onClick={onConfirm}
 						disabled={isDeleting}
-						className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+						className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
 					>
 						{isDeleting ? 'Deleting...' : 'Delete'}
 					</button>

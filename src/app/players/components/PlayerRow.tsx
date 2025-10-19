@@ -4,12 +4,7 @@ import {
 	SKILL_TIER_COLORS,
 } from '#app/app/players/constants'
 import { formatDateTime } from '#app/app/players/utils'
-import {
-	type PlayerAdminDto,
-	type PlayerUserDto,
-	type Position,
-	type SkillTier,
-} from '#app/types/dto'
+import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayerRowProps = {
 	player: PlayerAdminDto | PlayerUserDto
@@ -32,7 +27,6 @@ export function PlayerRow({
 
 	return (
 		<tr className="border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
-			{/* Checkbox (Admin only) */}
 			{isAdmin && onSelect && (
 				<td className="px-4 py-3">
 					<input
@@ -45,12 +39,10 @@ export function PlayerRow({
 				</td>
 			)}
 
-			{/* Name */}
 			<td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
 				{player.name}
 			</td>
 
-			{/* Skill Tier (Admin only) */}
 			{isAdmin && adminPlayer && (
 				<td className="px-4 py-3">
 					<span
@@ -61,7 +53,6 @@ export function PlayerRow({
 				</td>
 			)}
 
-			{/* Positions (Admin only) */}
 			{isAdmin && adminPlayer && (
 				<td className="px-4 py-3">
 					<div className="flex flex-wrap gap-1">
@@ -77,14 +68,12 @@ export function PlayerRow({
 				</td>
 			)}
 
-			{/* Created At (Admin only) */}
 			{isAdmin && (
 				<td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
 					{formatDateTime(player.createdAt)}
 				</td>
 			)}
 
-			{/* Actions (Admin only) */}
 			{isAdmin && adminPlayer && (
 				<td className="px-4 py-3">
 					<div className="flex gap-2">

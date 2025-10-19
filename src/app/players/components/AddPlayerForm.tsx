@@ -1,9 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import type { Position, SkillTier } from '#app/types/dto'
-import type { AddPlayerFormData, ValidationErrors } from '../types'
-import { POSITION_LABELS, SKILL_TIER_LABELS } from '../constants'
+import { POSITION_LABELS, SKILL_TIER_LABELS } from '#app/app/players/constants'
+import {
+	type AddPlayerFormData,
+	type ValidationErrors,
+} from '#app/app/players/types'
+import { type Position, type SkillTier } from '#app/types/dto'
 
 type AddPlayerFormProps = {
 	onSubmit: (data: AddPlayerFormData) => Promise<void>
@@ -33,10 +36,10 @@ export function AddPlayerForm({
 	}
 
 	const handlePositionToggle = (position: Position) => {
-		setFormData(prev => ({
+		setFormData((prev) => ({
 			...prev,
 			positions: prev.positions.includes(position)
-				? prev.positions.filter(p => p !== position)
+				? prev.positions.filter((p) => p !== position)
 				: [...prev.positions, position],
 		}))
 	}
@@ -54,18 +57,17 @@ export function AddPlayerForm({
 	const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
 
 	return (
-		<div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg mb-6">
-			{/* Collapsible Header */}
+		<div className="mb-6 rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
 			<button
 				onClick={() => setIsExpanded(!isExpanded)}
-				className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-t-lg"
+				className="flex w-full items-center justify-between rounded-t-lg px-6 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50"
 				aria-expanded={isExpanded}
 			>
 				<h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
 					Add New Player
 				</h2>
 				<svg
-					className={`w-5 h-5 text-gray-500 dark:text-gray-400 transition-transform ${
+					className={`h-5 w-5 text-gray-500 transition-transform dark:text-gray-400 ${
 						isExpanded ? 'rotate-180' : ''
 					}`}
 					fill="none"
@@ -81,29 +83,28 @@ export function AddPlayerForm({
 				</svg>
 			</button>
 
-			{/* Form Content */}
 			{isExpanded && (
-				<form onSubmit={handleSubmit} className="px-6 pb-6 border-t border-gray-200 dark:border-gray-700">
+				<form
+					onSubmit={handleSubmit}
+					className="border-t border-gray-200 px-6 pb-6 dark:border-gray-700"
+				>
 					<div className="mt-4 space-y-4">
-						{/* Success Message */}
 						{successMessage && (
-							<div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded text-sm text-green-800 dark:text-green-200">
+							<div className="rounded border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200">
 								{successMessage}
 							</div>
 						)}
 
-						{/* Error Message */}
 						{errorMessage && (
-							<div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded text-sm text-red-800 dark:text-red-200">
+							<div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
 								{errorMessage}
 							</div>
 						)}
 
-						{/* Name Field */}
 						<div>
 							<label
 								htmlFor="name"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+								className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
 							>
 								Player Name <span className="text-red-500">*</span>
 							</label>
@@ -111,74 +112,80 @@ export function AddPlayerForm({
 								id="name"
 								type="text"
 								value={formData.name}
-								onChange={e =>
-									setFormData(prev => ({ ...prev, name: e.target.value }))
+								onChange={(e) =>
+									setFormData((prev) => ({ ...prev, name: e.target.value }))
 								}
 								disabled={isSubmitting}
-								className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+								className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
 								placeholder="Enter player name"
 								aria-invalid={!!errors?.name}
 								aria-describedby={errors?.name ? 'name-error' : undefined}
 							/>
 							{errors?.name && (
-								<p id="name-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
+								<p
+									id="name-error"
+									className="mt-1 text-sm text-red-600 dark:text-red-400"
+								>
 									{errors.name.join(', ')}
 								</p>
 							)}
 						</div>
 
-						{/* Skill Tier Field */}
 						<div>
 							<label
 								htmlFor="skillTier"
-								className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+								className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
 							>
 								Skill Tier <span className="text-red-500">*</span>
 							</label>
 							<select
 								id="skillTier"
 								value={formData.skillTier}
-								onChange={e =>
-									setFormData(prev => ({
+								onChange={(e) =>
+									setFormData((prev) => ({
 										...prev,
 										skillTier: e.target.value as SkillTier | '',
 									}))
 								}
 								disabled={isSubmitting}
-								className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+								className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
 								aria-invalid={!!errors?.skillTier}
-								aria-describedby={errors?.skillTier ? 'skillTier-error' : undefined}
+								aria-describedby={
+									errors?.skillTier ? 'skillTier-error' : undefined
+								}
 							>
 								<option value="">Select skill tier</option>
-								{skillTiers.map(tier => (
+								{skillTiers.map((tier) => (
 									<option key={tier} value={tier}>
 										{SKILL_TIER_LABELS[tier]}
 									</option>
 								))}
 							</select>
 							{errors?.skillTier && (
-								<p id="skillTier-error" className="mt-1 text-sm text-red-600 dark:text-red-400">
+								<p
+									id="skillTier-error"
+									className="mt-1 text-sm text-red-600 dark:text-red-400"
+								>
 									{errors.skillTier.join(', ')}
 								</p>
 							)}
 						</div>
 
-						{/* Positions Field */}
 						<div>
-							<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+							<label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
 								Positions <span className="text-red-500">*</span>
 							</label>
 							<div className="flex flex-wrap gap-2">
-								{positions.map(position => (
+								{positions.map((position) => (
 									<button
 										key={position}
 										type="button"
 										onClick={() => handlePositionToggle(position)}
 										disabled={isSubmitting}
-										className={`px-3 py-1.5 text-sm font-medium rounded border transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+										className={`rounded border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
 											formData.positions.includes(position)
-												? 'bg-blue-600 text-white border-blue-600'
-												: 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800'
+												? 'border-blue-600 bg-blue-600 text-white'
+												: 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
 										}`}
 										aria-pressed={formData.positions.includes(position)}
 									>
@@ -193,20 +200,19 @@ export function AddPlayerForm({
 							)}
 						</div>
 
-						{/* Form Actions */}
 						<div className="flex justify-end gap-3 pt-4">
 							<button
 								type="button"
 								onClick={handleReset}
 								disabled={isSubmitting}
-								className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
 							>
 								Cancel
 							</button>
 							<button
 								type="submit"
 								disabled={isSubmitting}
-								className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+								className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
 							>
 								{isSubmitting ? 'Adding...' : 'Add Player'}
 							</button>
