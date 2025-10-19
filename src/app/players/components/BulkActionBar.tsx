@@ -1,4 +1,4 @@
-import type { BulkAction } from '../types'
+import { type BulkAction } from '#app/app/players/types'
 
 type BulkActionBarProps = {
 	selectedCount: number
@@ -18,7 +18,7 @@ export function BulkActionBar({
 	if (selectedCount === 0) return null
 
 	return (
-		<div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg px-4 py-3 mb-4">
+		<div className="mb-4 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-800 dark:bg-blue-900/20">
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-4">
 					{/* Selection Info */}
@@ -26,8 +26,8 @@ export function BulkActionBar({
 						<input
 							type="checkbox"
 							checked={isAllSelected}
-							onChange={e => onSelectAll(e.target.checked)}
-							className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+							onChange={(e) => onSelectAll(e.target.checked)}
+							className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
 							aria-label="Select all players"
 						/>
 						<span className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -39,7 +39,7 @@ export function BulkActionBar({
 					{/* Clear Selection */}
 					<button
 						onClick={onClearSelection}
-						className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+						className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
 					>
 						Clear selection
 					</button>
@@ -49,7 +49,7 @@ export function BulkActionBar({
 				<div className="flex items-center gap-2">
 					<button
 						onClick={() => onBulkAction('delete_selected')}
-						className="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50 rounded"
+						className="rounded bg-red-100 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-200 dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50"
 					>
 						Delete Selected
 					</button>

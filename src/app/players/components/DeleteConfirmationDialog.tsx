@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertTriangle } from 'lucide-react'
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -10,7 +11,6 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from '#app/components/ui/alert-dialog'
-import { AlertTriangle } from 'lucide-react'
 
 type DeleteConfirmationDialogProps = {
 	isOpen: boolean

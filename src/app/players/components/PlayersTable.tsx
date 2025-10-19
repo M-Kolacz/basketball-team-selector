@@ -1,3 +1,4 @@
+import { PlayerRow } from '#app/app/players/components/PlayerRow'
 import { Card } from '#app/components/ui/card'
 import {
 	Table,
@@ -7,7 +8,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '#app/components/ui/table'
-import { PlayerRow } from '#app/app/players/components/PlayerRow'
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayersTableProps = {

@@ -1,7 +1,3 @@
-import { TableCell, TableRow } from '#app/components/ui/table'
-import { Checkbox } from '#app/components/ui/checkbox'
-import { Badge } from '#app/components/ui/badge'
-import { Button } from '#app/components/ui/button'
 import { Pencil, Trash2 } from 'lucide-react'
 import {
 	POSITION_LABELS,
@@ -9,6 +5,10 @@ import {
 	SKILL_TIER_COLORS,
 } from '#app/app/players/constants'
 import { formatDateTime } from '#app/app/players/utils'
+import { Badge } from '#app/components/ui/badge'
+import { Button } from '#app/components/ui/button'
+import { Checkbox } from '#app/components/ui/checkbox'
+import { TableCell, TableRow } from '#app/components/ui/table'
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayerRowProps = {
