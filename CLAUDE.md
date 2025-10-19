@@ -5,58 +5,101 @@ code in this repository.
 
 ## Project Overview
 
-This is a Next.js 15 application for basketball team selection, bootstrapped
-with `create-next-app`. It uses:
-
-- **Next.js 15.5.4** with App Router
-- **React 19.1.0**
-- **TypeScript 5**
-- **Tailwind CSS 4** (with new `@import` syntax)
-- **Turbopack** for fast builds and development
+Basketball team selection app for organizing amateur basketball games. Single
+admin creates balanced teams for ~20 players using AI algorithms. Built with
+Next.js 15, React 19, TypeScript 5, Tailwind CSS 4, Prisma, PostgreSQL and
+Conform.
 
 ## Common Commands
 
 ```bash
-# Development server (uses Turbopack)
-npm run dev
+# Development
+npm run dev              # Start dev server (Turbopack)
+npm run build            # Build production (Turbopack)
+npm start               # Start production server
 
-# Production build (uses Turbopack)
-npm run build
+# Database
+npm run db:push         # Push schema to database
+npm run db:migrate      # Run migrations
+npm run db:generate     # Generate Prisma client
+npm run db:seed         # Seed database
+npm run db:studio       # Open Prisma Studio
 
-# Start production server
-npm start
+# Testing
+npm test                        # Run unit tests (Vitest)
+npm run test:e2e:install        # Install Playwright browsers
+npm run test:e2e:run            # Run E2E tests (CI mode)
+npm run test:e2e:dev            # Run E2E tests (UI mode)
 
-# Run linter
-npm run lint
+# Code Quality
+npm run lint            # Run ESLint
+npm run lint:fix        # Fix ESLint errors
+npm run format          # Check formatting (Prettier)
+npm run format:fix      # Fix formatting
+npm run typecheck       # Type check TypeScript
+
+# Storybook
+npm run storybook           # Start Storybook on port 6006
+npm run build-storybook     # Build Storybook
 ```
 
-The development server runs on [http://localhost:3000](http://localhost:3000).
+## Architecture
 
-## Project Structure
+### App Structure
 
-- **`src/app/`** - Next.js App Router pages and layouts
-  - `layout.tsx` - Root layout with Geist fonts and global styles
-  - `page.tsx` - Homepage component
-  - `globals.css` - Global styles with Tailwind CSS imports and theme variables
+- **Next.js App Router** - Uses app directory for routing
+- **Server Actions** - Backend logic in `src/lib/actions/` (auth, players)
+- **Prisma ORM** - Database client generated to `generated/prisma/`
+- **Path Alias** - `#app/*` maps to `./src/*` (defined in
+  [tsconfig.json:15](tsconfig.json#L15))
 
-## TypeScript Configuration
+### Database Schema (Prisma)
 
-- **Path alias**: `#app/*` maps to `./src/*` (defined in
-  [tsconfig.json:22](tsconfig.json#L22))
-- **Target**: ES2017
-- **Module resolution**: bundler (Next.js optimized)
-- Strict mode enabled
+Key models:
 
-## Styling
+- **User/Password** - Authentication with role-based access (admin/user)
+- **Player** - Name, skillTier (S/A/B/C/D), positions (PG/SG/SF/PF/C)
+- **Team** - Contains players
+- **GameSession** - Game date, description, selected proposition
+- **Proposition** - Three types: position_focused, skill_balanced, general
 
-Uses Tailwind CSS 4 with the new `@import "tailwindcss"` syntax. Theme variables
-are defined in [globals.css:8-13](src/app/globals.css#L8-L13) using
-`@theme inline` directive. Dark mode is supported via `prefers-color-scheme`.
+### Authentication
 
-## Fonts
+- JWT-based auth using `jsonwebtoken` and `bcryptjs`
+- Session stored in `bts-session` cookie (7 day expiry)
+- Authentication helpers in [auth.server.ts](src/lib/auth.server.ts)
 
-Uses Geist and Geist Mono fonts from Google Fonts, configured in
-[layout.tsx:5-13](src/app/layout.tsx#L5-L13) with CSS variables.
+### Form Validation
+
+- Uses `@conform-to/react` + `@conform-to/zod` for form handling
+- Validation schemas in `src/lib/validations/` (auth, player, user)
+- Server actions use `parseWithZod` with async transforms for DB checks
+
+### Testing Setup
+
+- **Vitest** - Two projects: `unit` (Node) and `storybook` (browser with
+  Playwright)
+- **Playwright** - E2E tests in `src/e2e/`, runs on Chromium + Mobile Chrome
+- **Storybook** - Component testing with accessibility addon
+
+### Styling
+
+- Tailwind CSS 4 with `@import "tailwindcss"` syntax in
+  [globals.css](src/app/globals.css)
+- Theme variables defined with `@theme inline` directive
+- Shadcn/ui components in `src/components/ui/`
+- Geist Sans/Mono fonts via Google Fonts
+
+## Environment Variables
+
+Required in `.env.local`:
+
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - Secret for JWT signing
+- `NODE_ENV` - development/test/production
+
+Validated by `@t3-oss/env-nextjs` in [env.mjs](src/lib/env.mjs). Validation
+skipped in CI.
 
 ## Rules to follow
 
