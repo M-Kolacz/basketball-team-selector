@@ -1,4 +1,10 @@
+'use client'
+
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
 import { Pencil, Trash2 } from 'lucide-react'
+import { useActionState } from 'react'
+import { deletePlayer } from '#app/actions/players'
 import {
 	POSITION_LABELS,
 	SKILL_TIER_LABELS,
@@ -9,6 +15,7 @@ import { Badge } from '#app/components/ui/badge'
 import { Button } from '#app/components/ui/button'
 import { Checkbox } from '#app/components/ui/checkbox'
 import { TableCell, TableRow } from '#app/components/ui/table'
+import { DeletePlayerSchema } from '#app/lib/validations/player'
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayerRowProps = {
@@ -17,7 +24,6 @@ type PlayerRowProps = {
 	isSelected?: boolean
 	onSelect?: (playerId: string, selected: boolean) => void
 	onEdit?: (player: PlayerAdminDto) => void
-	onDelete?: (playerId: string) => void
 }
 
 export function PlayerRow({
@@ -26,8 +32,23 @@ export function PlayerRow({
 	isSelected = false,
 	onSelect,
 	onEdit,
-	onDelete,
 }: PlayerRowProps) {
+	const [lastResult, formAction, isSubmitting] = useActionState(
+		deletePlayer,
+		undefined,
+	)
+	const [form, fields] = useForm({
+		lastResult: lastResult?.result,
+		defaultValue: {
+			id: player.id,
+		},
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: DeletePlayerSchema })
+		},
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+	})
+
 	const adminPlayer = isAdmin ? (player as PlayerAdminDto) : null
 
 	return (
@@ -36,9 +57,7 @@ export function PlayerRow({
 				<TableCell>
 					<Checkbox
 						checked={isSelected}
-						onCheckedChange={(checked) =>
-							onSelect(player.id, checked === true)
-						}
+						onCheckedChange={(checked) => onSelect(player.id, checked === true)}
 						aria-label={`Select ${player.name}`}
 					/>
 				</TableCell>
@@ -86,15 +105,23 @@ export function PlayerRow({
 						>
 							<Pencil className="h-4 w-4" />
 						</Button>
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={() => onDelete?.(player.id)}
-							aria-label={`Delete ${player.name}`}
-							className="text-destructive hover:text-destructive"
-						>
-							<Trash2 className="h-4 w-4" />
-						</Button>
+						<form action={formAction} {...getFormProps(form)}>
+							<input
+								{...getInputProps(fields.id, {
+									type: 'hidden',
+								})}
+							/>
+							<Button
+								variant="ghost"
+								size="sm"
+								disabled={isSubmitting}
+								type="submit"
+								aria-label={`Delete ${player.name}`}
+								className="text-destructive hover:text-destructive"
+							>
+								<Trash2 className="h-4 w-4" />
+							</Button>
+						</form>
 					</div>
 				</TableCell>
 			)}

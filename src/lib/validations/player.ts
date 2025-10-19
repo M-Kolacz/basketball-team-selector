@@ -53,3 +53,9 @@ export const CreatePlayerSchema = z.object({
 })
 
 export type CreatePlayerCommand = z.infer<typeof CreatePlayerSchema>
+
+export const DeletePlayerSchema = z.object({
+	id: z.string().uuid('Invalid player ID format'),
+})
+
+export type DeletePlayerCommand = z.infer<typeof DeletePlayerSchema>

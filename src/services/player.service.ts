@@ -143,3 +143,9 @@ export async function createPlayer(
 
 	return player
 }
+
+export async function deletePlayer(id: string): Promise<void> {
+	await prisma.player.delete({
+		where: { id },
+	})
+}

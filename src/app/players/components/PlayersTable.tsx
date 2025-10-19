@@ -67,7 +67,6 @@ export function PlayersTable({
 								isSelected={selectedPlayerIds.has(player.id)}
 								onSelect={onPlayerSelect}
 								onEdit={onEdit}
-								onDelete={onDelete}
 							/>
 						))
 					)}

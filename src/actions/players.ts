@@ -4,9 +4,15 @@ import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 import z from 'zod'
 import { prisma } from '#app/lib/db.server'
-import { CreatePlayerSchema } from '#app/lib/validations/player'
+import {
+	CreatePlayerSchema,
+	DeletePlayerSchema,
+} from '#app/lib/validations/player'
 import { getCurrentUser } from '#app/services/auth.server'
-import { listAllPlayers } from '#app/services/player.service'
+import {
+	listAllPlayers,
+	deletePlayer as deletePlayerService,
+} from '#app/services/player.service'
 
 export async function getPlayers() {
 	const currentUser = await getCurrentUser()
@@ -67,6 +73,54 @@ export async function createPlayer(_prevState: unknown, formData: FormData) {
 			id: true,
 		},
 	})
+
+	return { success: true }
+}
+
+export async function deletePlayer(_prevState: unknown, formData: FormData) {
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			DeletePlayerSchema.transform(async (data, ctx) => {
+				if (intent !== null) return { ...data }
+
+				// 1. Authentication check
+				const currentUser = await getCurrentUser()
+
+				if (!currentUser || currentUser.role !== 'admin') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Something went wrong',
+					})
+					return z.NEVER
+				}
+
+				// 2. Existence check
+				const player = await prisma.player.findUnique({
+					where: { id: data.id },
+					select: { id: true },
+				})
+
+				if (!player) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Player not found',
+						path: ['id'],
+					})
+					return z.NEVER
+				}
+
+				return { ...data }
+			}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { id } = submission.value
+
+	await deletePlayerService(id)
 
 	return { success: true }
 }
