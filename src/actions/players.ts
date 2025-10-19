@@ -1,7 +1,8 @@
 'use server'
 
+import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
-import { type SkillTier, type Position } from '#app/lib/db.server'
+import z from 'zod'
 import { CreatePlayerSchema } from '#app/lib/validations/player'
 import { getCurrentUser } from '#app/services/auth.server'
 import {
@@ -19,55 +20,32 @@ export async function getPlayers() {
 	return players
 }
 
-export async function createPlayer(
-	name: string,
-	skillTier: SkillTier,
-	positions: Position[],
-) {
-	const currentUser = await getCurrentUser()
+export async function createPlayer(_prevState: unknown, formData: FormData) {
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			CreatePlayerSchema.transform(async (data, ctx) => {
+				if (intent !== null) return { ...data }
 
-	if (!currentUser) {
-		return {
-			success: false,
-			error: {
-				code: 'UNAUTHORIZED',
-				message: 'Authentication required',
-			},
-		}
-	}
+				const currentUser = await getCurrentUser()
 
-	if (currentUser.role !== 'admin') {
-		return {
-			success: false,
-			error: {
-				code: 'UNAUTHORIZED',
-				message: 'Insufficient permissions',
-			},
-		}
-	}
+				if (!currentUser || currentUser.role !== 'admin') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Something went wrong',
+					})
+					return z.NEVER
+				}
 
-	const validationResult = CreatePlayerSchema.safeParse({
-		name,
-		skillTier,
-		positions,
+				return { ...data }
+			}),
+		async: true,
 	})
 
-	if (!validationResult.success) {
-		const fieldErrors = validationResult.error.flatten().fieldErrors
-		return {
-			success: false,
-			error: {
-				code: 'VALIDATION_ERROR',
-				message: 'Invalid player data',
-				fields: fieldErrors,
-			},
-		}
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
 	}
 
-	const player = await createPlayerService(validationResult.data)
+	await createPlayerService(submission.value)
 
-	return {
-		success: true,
-		player,
-	}
+	return { success: true }
 }

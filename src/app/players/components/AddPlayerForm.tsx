@@ -1,57 +1,43 @@
 'use client'
 
-import { useState } from 'react'
-import { POSITION_LABELS, SKILL_TIER_LABELS } from '#app/app/players/constants'
 import {
-	type AddPlayerFormData,
-	type ValidationErrors,
-} from '#app/app/players/types'
+	getCollectionProps,
+	getFormProps,
+	getInputProps,
+	useForm,
+} from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
+import { useActionState, useState } from 'react'
+import { createPlayer } from '#app/actions/players'
+import { SKILL_TIER_LABELS } from '#app/app/players/constants'
+import { Button } from '#app/components/ui/button'
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '#app/components/ui/field'
+import { Input } from '#app/components/ui/input'
+import { CreatePlayerSchema } from '#app/lib/validations/player'
 import { type Position, type SkillTier } from '#app/types/dto'
 
-type AddPlayerFormProps = {
-	onSubmit: (data: AddPlayerFormData) => Promise<void>
-	isSubmitting?: boolean
-	errors?: ValidationErrors
-	successMessage?: string
-	errorMessage?: string
-}
+// TODO: Use existing form and action code as reference
 
-export function AddPlayerForm({
-	onSubmit,
-	isSubmitting = false,
-	errors,
-	successMessage,
-	errorMessage,
-}: AddPlayerFormProps) {
+export function AddPlayerForm() {
 	const [isExpanded, setIsExpanded] = useState(false)
-	const [formData, setFormData] = useState<AddPlayerFormData>({
-		name: '',
-		skillTier: '',
-		positions: [],
+	const [lastResult, formAction, isSubmitting] = useActionState(
+		createPlayer,
+		undefined,
+	)
+
+	const [form, fields] = useForm({
+		lastResult: lastResult?.result,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: CreatePlayerSchema })
+		},
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
 	})
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		await onSubmit(formData)
-	}
-
-	const handlePositionToggle = (position: Position) => {
-		setFormData((prev) => ({
-			...prev,
-			positions: prev.positions.includes(position)
-				? prev.positions.filter((p) => p !== position)
-				: [...prev.positions, position],
-		}))
-	}
-
-	const handleReset = () => {
-		setFormData({
-			name: '',
-			skillTier: '',
-			positions: [],
-		})
-		setIsExpanded(false)
-	}
 
 	const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 	const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
@@ -84,139 +70,54 @@ export function AddPlayerForm({
 			</button>
 
 			{isExpanded && (
-				<form
-					onSubmit={handleSubmit}
-					className="border-t border-gray-200 px-6 pb-6 dark:border-gray-700"
-				>
-					<div className="mt-4 space-y-4">
-						{successMessage && (
-							<div className="rounded border border-green-200 bg-green-50 p-3 text-sm text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200">
-								{successMessage}
-							</div>
-						)}
-
-						{errorMessage && (
-							<div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200">
-								{errorMessage}
-							</div>
-						)}
-
-						<div>
-							<label
-								htmlFor="name"
-								className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-							>
-								Player Name <span className="text-red-500">*</span>
-							</label>
-							<input
-								id="name"
-								type="text"
-								value={formData.name}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, name: e.target.value }))
-								}
+				<form action={formAction} {...getFormProps(form)}>
+					<FieldGroup>
+						<Field>
+							<FieldLabel htmlFor={fields.name.id}>Player name</FieldLabel>
+							<Input
+								{...getInputProps(fields.name, { type: 'text' })}
+								defaultValue={fields.name.defaultValue}
 								disabled={isSubmitting}
-								className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
-								placeholder="Enter player name"
-								aria-invalid={!!errors?.name}
-								aria-describedby={errors?.name ? 'name-error' : undefined}
+								autoFocus
 							/>
-							{errors?.name && (
-								<p
-									id="name-error"
-									className="mt-1 text-sm text-red-600 dark:text-red-400"
-								>
-									{errors.name.join(', ')}
-								</p>
-							)}
-						</div>
-
-						<div>
-							<label
-								htmlFor="skillTier"
-								className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-300"
-							>
-								Skill Tier <span className="text-red-500">*</span>
-							</label>
-							<select
-								id="skillTier"
-								value={formData.skillTier}
-								onChange={(e) =>
-									setFormData((prev) => ({
-										...prev,
-										skillTier: e.target.value as SkillTier | '',
-									}))
-								}
-								disabled={isSubmitting}
-								className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-transparent focus:ring-2 focus:ring-blue-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
-								aria-invalid={!!errors?.skillTier}
-								aria-describedby={
-									errors?.skillTier ? 'skillTier-error' : undefined
-								}
-							>
-								<option value="">Select skill tier</option>
-								{skillTiers.map((tier) => (
-									<option key={tier} value={tier}>
-										{SKILL_TIER_LABELS[tier]}
-									</option>
-								))}
+							<FieldError errors={fields.name.errors} />
+						</Field>
+						<Field>
+							<FieldLabel htmlFor={fields.skillTier.id}>Skill tier</FieldLabel>
+							<select name={fields.skillTier.name} id={fields.skillTier.id}>
+								{skillTiers.map((tier) => {
+									return (
+										<option key={tier} value={tier}>
+											{SKILL_TIER_LABELS[tier]}
+										</option>
+									)
+								})}
 							</select>
-							{errors?.skillTier && (
-								<p
-									id="skillTier-error"
-									className="mt-1 text-sm text-red-600 dark:text-red-400"
-								>
-									{errors.skillTier.join(', ')}
-								</p>
-							)}
-						</div>
+							<FieldError errors={fields.skillTier.errors} />
+						</Field>
+						<Field orientation={'horizontal'}>
+							{getCollectionProps(fields.positions, {
+								type: 'checkbox',
+								options: positions,
+							}).map((position) => (
+								<label key={position.id} htmlFor={position.id}>
+									<input {...position} key={position.key} />
+									<span>{position.value}</span>
+								</label>
+							))}
+							<FieldError errors={fields.name.errors} />
+						</Field>
+						<FieldError errors={form.errors} />
+					</FieldGroup>
 
-						<div>
-							<label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-								Positions <span className="text-red-500">*</span>
-							</label>
-							<div className="flex flex-wrap gap-2">
-								{positions.map((position) => (
-									<button
-										key={position}
-										type="button"
-										onClick={() => handlePositionToggle(position)}
-										disabled={isSubmitting}
-										className={`rounded border px-3 py-1.5 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
-											formData.positions.includes(position)
-												? 'border-blue-600 bg-blue-600 text-white'
-												: 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800'
-										}`}
-										aria-pressed={formData.positions.includes(position)}
-									>
-										{POSITION_LABELS[position]}
-									</button>
-								))}
-							</div>
-							{errors?.positions && (
-								<p className="mt-1 text-sm text-red-600 dark:text-red-400">
-									{errors.positions.join(', ')}
-								</p>
-							)}
-						</div>
+					<div>
+						<Button variant="outline" type="reset" disabled={isSubmitting}>
+							Cancel
+						</Button>
 
-						<div className="flex justify-end gap-3 pt-4">
-							<button
-								type="button"
-								onClick={handleReset}
-								disabled={isSubmitting}
-								className="rounded border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-							>
-								Cancel
-							</button>
-							<button
-								type="submit"
-								disabled={isSubmitting}
-								className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-							>
-								{isSubmitting ? 'Adding...' : 'Add Player'}
-							</button>
-						</div>
+						<Button variant="default" type="submit" disabled={isSubmitting}>
+							{isSubmitting ? 'Adding...' : 'Add Player'}
+						</Button>
 					</div>
 				</form>
 			)}

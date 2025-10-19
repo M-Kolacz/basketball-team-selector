@@ -244,15 +244,7 @@ export function PlayersList({
 				</p>
 			</div>
 
-			{isAdmin && (
-				<AddPlayerForm
-					onSubmit={handleAddPlayer}
-					isSubmitting={isAddSubmitting}
-					errors={addFormErrors}
-					successMessage={addFormSuccessMessage}
-					errorMessage={addFormErrorMessage}
-				/>
-			)}
+			{isAdmin && <AddPlayerForm />}
 
 			<PlayersTable
 				players={filteredPlayers}

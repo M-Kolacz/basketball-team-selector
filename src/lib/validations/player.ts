@@ -49,7 +49,7 @@ export const CreatePlayerSchema = z.object({
 		.array(z.enum(['PG', 'SG', 'SF', 'PF', 'C']), {
 			message: 'Position must be one of: PG, SG, SF, PF, C',
 		})
-		.min(1, 'At least one position is required'),
+		.min(1, 'At least one position must be selected'),
 })
 
 export type CreatePlayerCommand = z.infer<typeof CreatePlayerSchema>
