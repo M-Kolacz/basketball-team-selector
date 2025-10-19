@@ -185,11 +185,10 @@ throughout the application.
     - Skill tier column (admin only)
     - Positions column (admin only)
     - Action buttons (admin only)
-  - Search/filter input
   - Inline edit mode (admin)
   - Delete confirmation dialog
 - **Server actions:**
-  - `getPlayers(filters)` - Fetches player list with optional search
+  - `getPlayers()` - Fetches player list
   - `createPlayer(playerData)` - Adds new player (admin only)
   - `updatePlayer(playerId, playerData)` - Updates player info (admin only)
   - `deletePlayer(playerId)` - Removes player (admin only)

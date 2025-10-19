@@ -5,7 +5,8 @@ all logical steps described in the plan.
 
 First, carefully review the provided implementation plan:
 
-<implementation_plan> @docs/endpoints/user-register.md </implementation_plan>
+<implementation_plan> @docs/backend/actions/user-register.md
+</implementation_plan>
 
 <types>
 @src/types/dto.ts
@@ -27,7 +28,8 @@ Now perform the following steps to implement the server action:
 2. Begin implementation:
    - Create the server action file with 'use server' directive
    - Define the async server action function
-   - Configure function parameters based on expected inputs (FormData or typed objects)
+   - Configure function parameters based on expected inputs (FormData or typed
+     objects)
    - Implement input validation for all parameters
    - Follow the logical steps described in the implementation plan
    - Implement error handling for each stage of the process

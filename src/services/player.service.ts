@@ -1,9 +1,15 @@
-import { prisma, type SkillTier, type Position } from '#app/lib/db.server'
+import {
+	prisma,
+	type SkillTier,
+	type Position,
+	type User,
+} from '#app/lib/db.server'
 import {
 	type PlayersListAdminResponseDto,
 	type PlayersListUserResponseDto,
 	type PlayerAdminDto,
 	type PlayerUserDto,
+	type CreatePlayerCommandDto,
 } from '#app/types/dto'
 
 export type ListPlayersOptions = {
@@ -15,11 +21,13 @@ export type ListPlayersOptions = {
 	isAdmin: boolean
 }
 
-/**
- * Retrieves a paginated list of players with role-based filtering and data exposure.
- * Admin users can filter by skill tier and position and receive full player details.
- * Regular users receive only basic player information without filtering.
- */
+export type ListAllPlayersOptions = {
+	sort?: 'name' | 'skillTier' | 'createdAt'
+	skillTier?: SkillTier
+	position?: Position
+	isAdmin: boolean
+}
+
 export async function listPlayers(
 	options: ListPlayersOptions,
 ): Promise<PlayersListAdminResponseDto | PlayersListUserResponseDto> {
@@ -86,4 +94,52 @@ export async function listPlayers(
 			totalPages,
 		},
 	}
+}
+
+const options = {
+	user: {
+		select: { id: true, name: true, createdAt: true },
+	},
+	admin: {
+		select: {
+			id: true,
+			name: true,
+			skillTier: true,
+			positions: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	},
+} as const
+
+export async function listAllPlayers(
+	userRole: User['role'],
+): Promise<PlayerAdminDto[] | PlayerUserDto[]> {
+	const players = await prisma.player.findMany({
+		select: options[userRole].select,
+	})
+
+	return players
+}
+
+export async function createPlayer(
+	data: CreatePlayerCommandDto,
+): Promise<PlayerAdminDto> {
+	const player = await prisma.player.create({
+		data: {
+			name: data.name,
+			skillTier: data.skillTier,
+			positions: data.positions,
+		},
+		select: {
+			id: true,
+			name: true,
+			skillTier: true,
+			positions: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	})
+
+	return player
 }

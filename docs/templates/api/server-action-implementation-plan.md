@@ -14,9 +14,9 @@ Before we begin, review the following information:
 
 ```typescript
 {
-	username: string; // max 50 chars
-	password: string; // min 8 chars
-	confirmPassword: string; // must match password
+	username: string // max 50 chars
+	password: string // min 8 chars
+	confirmPassword: string // must match password
 }
 ```
 
@@ -51,16 +51,16 @@ Before we begin, review the following information:
 
 </server_action_specification>
 
-2. Related database resources: <related_db_resources> @docs/db.md
+2. Related database resources: <related_db_resources> @docs/backend/db.md
    </related_db_resources>
 
 3. Type definitions: <type_definitions> @src/types/dto.ts</type_definitions>
 
 4. Tech stack: <tech_stack>@docs/tech-stack.md</tech_stack>
 
-Your task is to create a comprehensive implementation plan for the server action.
-Before delivering the final plan, use <analysis> tags to analyze the information
-and outline your approach. In this analysis, ensure that:
+Your task is to create a comprehensive implementation plan for the server
+action. Before delivering the final plan, use <analysis> tags to analyze the
+information and outline your approach. In this analysis, ensure that:
 
 1. Summarize key points of the server action specification.
 2. List required and optional input parameters from the specification.
