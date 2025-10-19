@@ -1,3 +1,8 @@
+import { TableCell, TableRow } from '#app/components/ui/table'
+import { Checkbox } from '#app/components/ui/checkbox'
+import { Badge } from '#app/components/ui/badge'
+import { Button } from '#app/components/ui/button'
+import { Pencil, Trash2 } from 'lucide-react'
 import {
 	POSITION_LABELS,
 	SKILL_TIER_LABELS,
@@ -26,74 +31,73 @@ export function PlayerRow({
 	const adminPlayer = isAdmin ? (player as PlayerAdminDto) : null
 
 	return (
-		<tr className="border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800">
+		<TableRow>
 			{isAdmin && onSelect && (
-				<td className="px-4 py-3">
-					<input
-						type="checkbox"
+				<TableCell>
+					<Checkbox
 						checked={isSelected}
-						onChange={(e) => onSelect(player.id, e.target.checked)}
-						className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 dark:border-gray-600"
+						onCheckedChange={(checked) =>
+							onSelect(player.id, checked === true)
+						}
 						aria-label={`Select ${player.name}`}
 					/>
-				</td>
+				</TableCell>
 			)}
 
-			<td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100">
-				{player.name}
-			</td>
+			<TableCell className="font-medium">{player.name}</TableCell>
 
 			{isAdmin && adminPlayer && (
-				<td className="px-4 py-3">
-					<span
-						className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${SKILL_TIER_COLORS[adminPlayer.skillTier]}`}
+				<TableCell>
+					<Badge
+						variant="secondary"
+						className={SKILL_TIER_COLORS[adminPlayer.skillTier]}
 					>
 						{SKILL_TIER_LABELS[adminPlayer.skillTier]}
-					</span>
-				</td>
+					</Badge>
+				</TableCell>
 			)}
 
 			{isAdmin && adminPlayer && (
-				<td className="px-4 py-3">
+				<TableCell>
 					<div className="flex flex-wrap gap-1">
 						{adminPlayer.positions.map((pos) => (
-							<span
-								key={pos}
-								className="inline-flex items-center rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-800 dark:bg-gray-700 dark:text-gray-200"
-							>
+							<Badge key={pos} variant="outline">
 								{POSITION_LABELS[pos]}
-							</span>
+							</Badge>
 						))}
 					</div>
-				</td>
+				</TableCell>
 			)}
 
 			{isAdmin && (
-				<td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+				<TableCell className="text-sm text-muted-foreground">
 					{formatDateTime(player.createdAt)}
-				</td>
+				</TableCell>
 			)}
 
 			{isAdmin && adminPlayer && (
-				<td className="px-4 py-3">
+				<TableCell>
 					<div className="flex gap-2">
-						<button
+						<Button
+							variant="ghost"
+							size="sm"
 							onClick={() => onEdit?.(adminPlayer)}
-							className="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
 							aria-label={`Edit ${player.name}`}
 						>
-							Edit
-						</button>
-						<button
+							<Pencil className="h-4 w-4" />
+						</Button>
+						<Button
+							variant="ghost"
+							size="sm"
 							onClick={() => onDelete?.(player.id)}
-							className="text-sm font-medium text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
 							aria-label={`Delete ${player.name}`}
+							className="text-destructive hover:text-destructive"
 						>
-							Delete
-						</button>
+							<Trash2 className="h-4 w-4" />
+						</Button>
 					</div>
-				</td>
+				</TableCell>
 			)}
-		</tr>
+		</TableRow>
 	)
 }

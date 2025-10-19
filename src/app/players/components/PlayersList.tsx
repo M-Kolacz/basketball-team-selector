@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import { AddPlayerForm } from '#app/app/players/components/AddPlayerForm'
 import { DeleteConfirmationDialog } from '#app/app/players/components/DeleteConfirmationDialog'
 import { EditPlayerDialog } from '#app/app/players/components/EditPlayerDialog'
@@ -15,6 +16,7 @@ import {
 	filterAndSortPlayers,
 	validatePlayerForm,
 } from '#app/app/players/utils'
+import { Toaster } from '#app/components/ui/sonner'
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayersListProps = {
@@ -124,10 +126,12 @@ export function PlayersList({
 
 			setIsEditDialogOpen(false)
 			setEditingPlayer(null)
+			toast.success('Player updated successfully')
 		} catch (error) {
-			setEditErrorMessage(
-				error instanceof Error ? error.message : 'Failed to update player',
-			)
+			const errorMsg =
+				error instanceof Error ? error.message : 'Failed to update player'
+			setEditErrorMessage(errorMsg)
+			toast.error(errorMsg)
 		} finally {
 			setIsEditSubmitting(false)
 		}
@@ -155,8 +159,12 @@ export function PlayersList({
 			if (isBulkDelete) {
 				await new Promise((resolve) => setTimeout(resolve, 500))
 
+				const count = selectedPlayerIds.size
 				setPlayers((prev) => prev.filter((p) => !selectedPlayerIds.has(p.id)))
 				setSelectedPlayerIds(new Set())
+				toast.success(
+					`${count} ${count === 1 ? 'player' : 'players'} deleted successfully`,
+				)
 			} else if (deletingPlayerId) {
 				await new Promise((resolve) => setTimeout(resolve, 500))
 
@@ -167,6 +175,7 @@ export function PlayersList({
 					newSet.delete(deletingPlayerId)
 					return newSet
 				})
+				toast.success('Player deleted successfully')
 			}
 
 			setIsDeleteDialogOpen(false)
@@ -174,7 +183,9 @@ export function PlayersList({
 			setDeletingPlayerName(undefined)
 			setIsBulkDelete(false)
 		} catch (error) {
-			// TODO: Show error toast
+			const errorMsg =
+				error instanceof Error ? error.message : 'Failed to delete player'
+			toast.error(errorMsg)
 			console.error('Delete failed:', error)
 		} finally {
 			setIsDeleting(false)
@@ -184,10 +195,8 @@ export function PlayersList({
 	return (
 		<div className="container mx-auto max-w-7xl px-4 py-8">
 			<div className="mb-8">
-				<h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-					Players
-				</h1>
-				<p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+				<h1 className="text-3xl font-bold">Players</h1>
+				<p className="mt-2 text-sm text-muted-foreground">
 					{isAdmin
 						? 'Manage your basketball team roster'
 						: 'View basketball team roster'}
@@ -228,6 +237,8 @@ export function PlayersList({
 					onCancel={handleDeleteCancel}
 				/>
 			)}
+
+			<Toaster />
 		</div>
 	)
 }
