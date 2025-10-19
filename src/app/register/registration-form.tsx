@@ -19,7 +19,7 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { register } from '#app/lib/actions'
+import { register } from '#app/lib/actions/auth'
 import { RegisterSchema } from '#app/lib/validations/auth'
 
 export function RegistrationForm() {

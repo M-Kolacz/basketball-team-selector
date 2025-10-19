@@ -156,5 +156,5 @@ The final output should consist solely of the implementation plan in markdown
 format and should not duplicate or repeat any work done in the analysis section.
 
 Remember to save your implementation plan as
-@docs/actions/user-register-action.md. Ensure the plan is detailed, clear, and
+@docs/actions/player-delete-action.md. Ensure the plan is detailed, clear, and
 provides comprehensive guidance for the development team.

@@ -15,17 +15,16 @@
 
 ### Authentication
 
-#### `loginUser(username, password)`
+#### `loginUser(_prevState, formData)`
 
 - **Location:** `src/actions/auth.ts`
 - **Description:** Authenticate user and create session
 - **Parameters:**
-
-```typescript
-username: string
-password: string
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing login credentials
+- **FormData Fields:**
+  - `username: string`
+  - `password: string`
 - **Return Type:**
 
 ```typescript
@@ -47,25 +46,27 @@ password: string
   - Invalid credentials
   - Missing required fields
 
-#### `logoutUser()`
+#### `logoutUser(_prevState, formData)`
 
 - **Location:** `src/actions/auth.ts`
 - **Description:** Terminate user session - remove cookie
+- **Parameters:**
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data (may be empty)
 - **Return Type:** `{ success: true } | { success: false; error: string }`
 - **Errors:** Not authenticated
 
-#### `registerUser(username, password, confirmPassword)`
+#### `registerUser(_prevState, formData)`
 
 - **Location:** `src/actions/auth.ts`
 - **Description:** Register new user account (public action)
 - **Parameters:**
-
-```typescript
-username: string // max 50 chars
-password: string // min 8 chars
-confirmPassword: string // must match password
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing registration details
+- **FormData Fields:**
+  - `username: string` // max 50 chars
+  - `password: string` // min 8 chars
+  - `confirmPassword: string` // must match password
 - **Return Type:**
 
 ```typescript
@@ -94,19 +95,14 @@ confirmPassword: string // must match password
 
 ### Users
 
-#### `getUsers(options?)`
+#### `getUsers(_prevState, formData)`
 
 - **Location:** `src/actions/users.ts`
 - **Description:** List all users (admin only)
 - **Parameters:**
-
-```typescript
-options?: {
-  page?: number;      // default: 1
-  limit?: number;     // default: 20
-  sort?: "username" | "created_at"; // default: username
-}
-```
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data (may be empty)
+- **FormData Fields:**
 
 - **Return Type:**
 
@@ -120,12 +116,7 @@ options?: {
     created_at: Date;
     updated_at: Date;
   }>;
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
+
 } | {
   success: false;
   error: string;
@@ -135,18 +126,17 @@ options?: {
 - **Auth Check:** Requires admin role
 - **Errors:** Insufficient permissions
 
-#### `createUser(username, password, role)`
+#### `createUser(_prevState, formData)`
 
 - **Location:** `src/actions/users.ts`
 - **Description:** Create new user (admin only)
 - **Parameters:**
-
-```typescript
-username: string // max 50 chars
-password: string // min 8 chars
-role: 'admin' | 'user'
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing user details
+- **FormData Fields:**
+  - `username: string` // max 50 chars
+  - `password: string` // min 8 chars
+  - `role: 'admin' | 'user'`
 - **Return Type:**
 
 ```typescript
@@ -173,21 +163,12 @@ role: 'admin' | 'user'
 
 ### Players
 
-#### `getPlayers(options?)`
+#### `getPlayers()`
 
 - **Location:** `src/actions/players.ts`
 - **Description:** List all players (skill_tier and positions hidden for
   non-admins)
-- **Parameters:**
-
-```typescript
-options?: {
-  sort?: "name" | "skill_tier" | "created_at";
-  skill_tier?: "S" | "A" | "B" | "C" | "D";
-  position?: "PG" | "SG" | "SF" | "PF" | "C";
-}
-```
-
+- **Parameters:** None (standard getter, doesn't follow form action signature)
 - **Return Type (Admin):**
 
 ```typescript
@@ -219,18 +200,17 @@ options?: {
 
 - **Auth Check:** Fields filtered based on user role
 
-#### `createPlayer(name, skillTier, positions)`
+#### `createPlayer(_prevState, formData)`
 
 - **Location:** `src/actions/players.ts`
 - **Description:** Create new player (admin only)
 - **Parameters:**
-
-```typescript
-name: string // max 100 chars
-skillTier: 'S' | 'A' | 'B' | 'C' | 'D'
-positions: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'>
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing player details
+- **FormData Fields:**
+  - `name: string` // max 100 chars
+  - `skillTier: 'S' | 'A' | 'B' | 'C' | 'D'`
+  - `positions: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'>`
 - **Return Type:**
 
 ```typescript
@@ -255,21 +235,18 @@ positions: Array<'PG' | 'SG' | 'SF' | 'PF' | 'C'>
   - Player name already exists
   - Invalid skill tier or positions
 
-#### `updatePlayer(id, data)`
+#### `updatePlayer(_prevState, formData)`
 
 - **Location:** `src/actions/players.ts`
 - **Description:** Update player information (admin only)
 - **Parameters:**
-
-```typescript
-id: string
-data: {
-  name?: string;
-  skillTier?: "S" | "A" | "B" | "C" | "D";
-  positions?: Array<"PG" | "SG" | "SF" | "PF" | "C">;
-}
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing player updates
+- **FormData Fields:**
+  - `id: string` (required)
+  - `name?: string`
+  - `skillTier?: "S" | "A" | "B" | "C" | "D"`
+  - `positions?: Array<"PG" | "SG" | "SF" | "PF" | "C">`
 - **Return Type:**
   `{ success: true; player: Player } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
@@ -278,11 +255,14 @@ data: {
   - Player not found
   - Name already taken
 
-#### `deletePlayer(id)`
+#### `deletePlayer(_prevState, formData)`
 
 - **Location:** `src/actions/players.ts`
 - **Description:** Delete player (admin only)
-- **Parameters:** `id: string`
+- **Parameters:**
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing player ID
+- **FormData Fields:** `id: string` (player ID to delete)
 - **Return Type:** `{ success: true } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
@@ -324,17 +304,16 @@ options?: {
 }
 ```
 
-#### `createGameSession(gameDateTime, description?)`
+#### `createGameSession(_prevState, formData)`
 
 - **Location:** `src/actions/game-sessions.ts`
 - **Description:** Create new game session (admin only)
 - **Parameters:**
-
-```typescript
-gameDateTime: Date
-description?: string
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing game session details
+- **FormData Fields:**
+  - `gameDateTime: Date`
+  - `description?: string`
 - **Return Type:**
   `{ success: true; gameSession: GameSession } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
@@ -372,17 +351,16 @@ description?: string
 
 - **Errors:** Game session not found
 
-#### `setAvailablePlayers(sessionId, playerIds)`
+#### `setAvailablePlayers(_prevState, formData)`
 
 - **Location:** `src/actions/game-sessions.ts`
 - **Description:** Set available players for game session (admin only)
 - **Parameters:**
-
-```typescript
-sessionId: string
-playerIds: string[]
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing session and player IDs
+- **FormData Fields:**
+  - `sessionId: string`
+  - `playerIds: string[]`
 - **Return Type:** `{ success: true } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
@@ -390,17 +368,16 @@ playerIds: string[]
   - Game session not found
   - Less than 10 players selected
 
-#### `generatePropositions(sessionId, regenerate?)`
+#### `generatePropositions(_prevState, formData)`
 
 - **Location:** `src/actions/game-sessions.ts`
 - **Description:** Generate AI team propositions (admin only)
 - **Parameters:**
-
-```typescript
-sessionId: string
-regenerate?: boolean // default: false
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing session details
+- **FormData Fields:**
+  - `sessionId: string`
+  - `regenerate?: boolean` // default: false
 - **Return Type:**
 
 ```typescript
@@ -427,17 +404,16 @@ regenerate?: boolean // default: false
   - Insufficient available players
   - AI service error
 
-#### `selectProposition(sessionId, propositionId)`
+#### `selectProposition(_prevState, formData)`
 
 - **Location:** `src/actions/game-sessions.ts`
 - **Description:** Select final team proposition (admin only)
 - **Parameters:**
-
-```typescript
-sessionId: string
-propositionId: string
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing IDs
+- **FormData Fields:**
+  - `sessionId: string`
+  - `propositionId: string`
 - **Return Type:** `{ success: true } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
@@ -445,17 +421,16 @@ propositionId: string
   - Game session or proposition not found
   - Proposition already selected
 
-#### `recordGameResults(sessionId, games)`
+#### `recordGameResults(_prevState, formData)`
 
 - **Location:** `src/actions/game-sessions.ts`
 - **Description:** Record game results (admin only)
 - **Parameters:**
-
-```typescript
-sessionId: string
-games: Array<Array<{ score: number; teamId: string }>>
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing game results
+- **FormData Fields:**
+  - `sessionId: string`
+  - `games: Array<Array<{ score: number; teamId: string }>>`
 - **Return Type:** `{ success: true } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
 - **Errors:**
@@ -498,18 +473,17 @@ games: Array<Array<{ score: number; teamId: string }>>
 
 - **Errors:** Proposition not found
 
-#### `updatePropositionTeams(id, team1PlayerIds, team2PlayerIds)`
+#### `updatePropositionTeams(_prevState, formData)`
 
 - **Location:** `src/actions/propositions.ts`
 - **Description:** Manually adjust teams in proposition (admin only)
 - **Parameters:**
-
-```typescript
-id: string
-team1PlayerIds: string[]
-team2PlayerIds: string[]
-```
-
+  - `_prevState: unknown` - Previous state (required by server action signature)
+  - `formData: FormData` - Form data containing proposition and team updates
+- **FormData Fields:**
+  - `id: string`
+  - `team1PlayerIds: string[]`
+  - `team2PlayerIds: string[]`
 - **Return Type:**
   `{ success: true; proposition: Proposition } | { success: false; error: string }`
 - **Auth Check:** Requires admin role
@@ -624,26 +598,3 @@ export async function createPlayer(
   - Deleting selected proposition sets game session's selected_proposition_id to
     null
   - User deletion cascades to password record (DB constraint)
-
-### Error Handling Pattern
-
-All server actions should return discriminated unions:
-
-```typescript
-// Success case
-{ success: true; data: T }
-
-// Error case
-{ success: false; error: string; fieldErrors?: Record<string, string> }
-```
-
-Client components can check `success` field and handle accordingly:
-
-```typescript
-const result = await createPlayer(name, skillTier, positions)
-if (!result.success) {
-	// Handle error: result.error, result.fieldErrors
-} else {
-	// Handle success: result.player
-}
-```

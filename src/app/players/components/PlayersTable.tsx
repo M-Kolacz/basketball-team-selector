@@ -13,30 +13,15 @@ import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 type PlayersTableProps = {
 	players: PlayerAdminDto[] | PlayerUserDto[]
 	isAdmin: boolean
-	selectedPlayerIds: Set<string>
-	onPlayerSelect: (playerId: string, selected: boolean) => void
 	onEdit?: (player: PlayerAdminDto) => void
-	onDelete?: (playerId: string) => void
 }
 
-export function PlayersTable({
-	players,
-	isAdmin,
-	selectedPlayerIds,
-	onPlayerSelect,
-	onEdit,
-	onDelete,
-}: PlayersTableProps) {
+export function PlayersTable({ players, isAdmin, onEdit }: PlayersTableProps) {
 	return (
 		<Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
-						{isAdmin && (
-							<TableHead className="w-12">
-								<span className="sr-only">Select</span>
-							</TableHead>
-						)}
 						<TableHead>Name</TableHead>
 						{isAdmin && (
 							<>
@@ -64,10 +49,7 @@ export function PlayersTable({
 								key={player.id}
 								player={player}
 								isAdmin={isAdmin}
-								isSelected={selectedPlayerIds.has(player.id)}
-								onSelect={onPlayerSelect}
 								onEdit={onEdit}
-								onDelete={onDelete}
 							/>
 						))
 					)}

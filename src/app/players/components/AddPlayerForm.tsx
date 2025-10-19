@@ -9,10 +9,15 @@ import {
 import { parseWithZod } from '@conform-to/zod'
 import { ChevronDown } from 'lucide-react'
 import { useActionState, useState } from 'react'
-import { createPlayer } from '#app/actions/players'
+import { createPlayer } from '#app/lib/actions/players'
 import { SKILL_TIER_LABELS } from '#app/app/players/constants'
 import { Button } from '#app/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '#app/components/ui/card'
+import {
+	Card,
+	CardContent,
+	CardHeader,
+	CardTitle,
+} from '#app/components/ui/card'
 import {
 	Collapsible,
 	CollapsibleContent,
