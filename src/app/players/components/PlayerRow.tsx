@@ -21,18 +21,10 @@ import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 type PlayerRowProps = {
 	player: PlayerAdminDto | PlayerUserDto
 	isAdmin: boolean
-	isSelected?: boolean
-	onSelect?: (playerId: string, selected: boolean) => void
 	onEdit?: (player: PlayerAdminDto) => void
 }
 
-export function PlayerRow({
-	player,
-	isAdmin,
-	isSelected = false,
-	onSelect,
-	onEdit,
-}: PlayerRowProps) {
+export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		deletePlayer,
 		undefined,
@@ -53,16 +45,6 @@ export function PlayerRow({
 
 	return (
 		<TableRow>
-			{isAdmin && onSelect && (
-				<TableCell>
-					<Checkbox
-						checked={isSelected}
-						onCheckedChange={(checked) => onSelect(player.id, checked === true)}
-						aria-label={`Select ${player.name}`}
-					/>
-				</TableCell>
-			)}
-
 			<TableCell className="font-medium">{player.name}</TableCell>
 
 			{isAdmin && adminPlayer && (
@@ -100,7 +82,7 @@ export function PlayerRow({
 						<Button
 							variant="ghost"
 							size="sm"
-							onClick={() => onEdit?.(adminPlayer)}
+							onClick={() => onEdit?.(player as PlayerAdminDto)}
 							aria-label={`Edit ${player.name}`}
 						>
 							<Pencil className="h-4 w-4" />

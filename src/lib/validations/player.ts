@@ -59,3 +59,26 @@ export const DeletePlayerSchema = z.object({
 })
 
 export type DeletePlayerCommand = z.infer<typeof DeletePlayerSchema>
+
+export const UpdatePlayerSchema = z.object({
+	id: z.string().uuid('Invalid player ID format'),
+	name: z
+		.string()
+		.min(1, 'Player name is required')
+		.max(100, 'Player name must be at most 100 characters')
+		.trim()
+		.optional(),
+	skillTier: z
+		.enum(['S', 'A', 'B', 'C', 'D'], {
+			message: 'Skill tier must be one of: S, A, B, C, D',
+		})
+		.optional(),
+	positions: z
+		.array(z.enum(['PG', 'SG', 'SF', 'PF', 'C']), {
+			message: 'Position must be one of: PG, SG, SF, PF, C',
+		})
+		.min(1, 'At least one position must be selected')
+		.optional(),
+})
+
+export type UpdatePlayerCommand = z.infer<typeof UpdatePlayerSchema>

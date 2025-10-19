@@ -1,13 +1,15 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { POSITION_LABELS, SKILL_TIER_LABELS } from '#app/app/players/constants'
 import {
-	type EditPlayerFormData,
-	type ValidationErrors,
-} from '#app/app/players/types'
-import { hasPlayerChanged } from '#app/app/players/utils'
-import { Alert, AlertDescription } from '#app/components/ui/alert'
+	getCollectionProps,
+	getFormProps,
+	getInputProps,
+	useForm,
+} from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
+import { useActionState } from 'react'
+import { updatePlayer } from '#app/actions/players'
+import { SKILL_TIER_LABELS } from '#app/app/players/constants'
 import { Button } from '#app/components/ui/button'
 import {
 	Dialog,
@@ -24,16 +26,10 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '#app/components/ui/select'
-import { ToggleGroup, ToggleGroupItem } from '#app/components/ui/toggle-group'
+import { UpdatePlayerSchema } from '#app/lib/validations/player'
 import {
 	type PlayerAdminDto,
+	type PlayerUserDto,
 	type Position,
 	type SkillTier,
 } from '#app/types/dto'
@@ -41,11 +37,7 @@ import {
 type EditPlayerDialogProps = {
 	isOpen: boolean
 	player: PlayerAdminDto | null
-	onSubmit: (playerId: string, data: EditPlayerFormData) => Promise<void>
 	onCancel: () => void
-	isSubmitting?: boolean
-	errors?: ValidationErrors
-	errorMessage?: string
 }
 
 const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
@@ -53,37 +45,30 @@ const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
 
 export function EditPlayerDialog({
 	isOpen,
-	player,
-	onSubmit,
 	onCancel,
-	isSubmitting = false,
-	errors,
-	errorMessage,
+	player,
 }: EditPlayerDialogProps) {
-	const [formData, setFormData] = useState<EditPlayerFormData>({
-		name: '',
-		skillTier: 'C',
-		positions: [],
+	console.log({ player })
+
+	const [lastResult, formAction, isSubmitting] = useActionState(
+		updatePlayer,
+		undefined,
+	)
+
+	const [form, fields] = useForm({
+		defaultValue: {
+			id: player?.id ?? '',
+			name: player?.name ?? '',
+			skillTier: player?.skillTier ?? 'C',
+			positions: player?.positions ?? [],
+		},
+		lastResult: lastResult?.result,
+		onValidate({ formData }) {
+			return parseWithZod(formData, { schema: UpdatePlayerSchema })
+		},
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
 	})
-
-	useEffect(() => {
-		if (player) {
-			setFormData({
-				name: player.name,
-				skillTier: player.skillTier,
-				positions: [...player.positions],
-			})
-		}
-	}, [player])
-
-	if (!player) return null
-
-	const isDirty = hasPlayerChanged(player, formData)
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		await onSubmit(player.id, formData)
-	}
 
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
@@ -95,91 +80,57 @@ export function EditPlayerDialog({
 					</DialogDescription>
 				</DialogHeader>
 
-				<form onSubmit={handleSubmit} className="space-y-4">
-					{errorMessage && (
-						<Alert variant="destructive">
-							<AlertDescription>{errorMessage}</AlertDescription>
-						</Alert>
-					)}
+				<form action={formAction} {...getFormProps(form)}>
+					<input {...getInputProps(fields.id, { type: 'hidden' })} />
 					<FieldGroup>
 						<Field>
 							<FieldLabel>Player Name</FieldLabel>
 							<Input
-								value={formData.name}
-								onChange={(e) =>
-									setFormData((prev) => ({ ...prev, name: e.target.value }))
-								}
+								{...getInputProps(fields.name, { type: 'text' })}
 								disabled={isSubmitting}
-								placeholder="Enter player name"
-								aria-invalid={!!errors?.name}
 							/>
-							<FieldError errors={errors?.name} />
+							<FieldError errors={fields.name.errors} />
 						</Field>
 
 						<Field>
-							<FieldLabel>Skill Tier</FieldLabel>
-							<Select
-								value={formData.skillTier}
-								onValueChange={(value) =>
-									setFormData((prev) => ({
-										...prev,
-										skillTier: value as SkillTier,
-									}))
-								}
+							<FieldLabel htmlFor={fields.skillTier.id}>Skill tier</FieldLabel>
+							<select
+								name={fields.skillTier.name}
+								id={fields.skillTier.id}
+								defaultValue="C"
 								disabled={isSubmitting}
 							>
-								<SelectTrigger>
-									<SelectValue />
-								</SelectTrigger>
-								<SelectContent>
-									{skillTiers.map((tier) => (
-										<SelectItem key={tier} value={tier}>
-											{SKILL_TIER_LABELS[tier]}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-							<FieldError errors={errors?.skillTier} />
-						</Field>
-
-						<Field>
-							<FieldLabel>Positions</FieldLabel>
-							<ToggleGroup
-								type="multiple"
-								value={formData.positions}
-								onValueChange={(value) =>
-									setFormData((prev) => ({
-										...prev,
-										positions: value as Position[],
-									}))
-								}
-								disabled={isSubmitting}
-								className="flex-wrap justify-start"
-							>
-								{positions.map((position) => (
-									<ToggleGroupItem
-										key={position}
-										value={position}
-										aria-label={POSITION_LABELS[position]}
-									>
-										{POSITION_LABELS[position]}
-									</ToggleGroupItem>
+								{skillTiers.map((tier) => (
+									<option key={tier} value={tier}>
+										{SKILL_TIER_LABELS[tier]}
+									</option>
 								))}
-							</ToggleGroup>
-							<FieldError errors={errors?.positions} />
+							</select>
+							<FieldError errors={fields.skillTier.errors} />
 						</Field>
+
+						<Field orientation="horizontal">
+							<FieldLabel>Positions</FieldLabel>
+							{getCollectionProps(fields.positions, {
+								type: 'checkbox',
+								options: positions,
+							}).map((position) => (
+								<label key={position.id} htmlFor={position.id}>
+									<input {...position} key={position.key} />
+									<span>{position.value}</span>
+								</label>
+							))}
+							<FieldError errors={fields.positions.errors} />
+						</Field>
+
+						<FieldError errors={form.errors} />
 					</FieldGroup>
 
 					<DialogFooter>
-						<Button
-							type="button"
-							variant="outline"
-							onClick={onCancel}
-							disabled={isSubmitting}
-						>
+						<Button type="reset" variant="outline" disabled={isSubmitting}>
 							Cancel
 						</Button>
-						<Button type="submit" disabled={isSubmitting || !isDirty}>
+						<Button type="submit" disabled={isSubmitting}>
 							{isSubmitting ? 'Updating...' : 'Update Player'}
 						</Button>
 					</DialogFooter>

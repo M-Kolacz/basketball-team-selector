@@ -10,6 +10,7 @@ import {
 	type PlayerAdminDto,
 	type PlayerUserDto,
 	type CreatePlayerCommandDto,
+	type UpdatePlayerCommandDto,
 } from '#app/types/dto'
 
 export type ListPlayersOptions = {
@@ -148,4 +149,26 @@ export async function deletePlayer(id: string): Promise<void> {
 	await prisma.player.delete({
 		where: { id },
 	})
+}
+
+export async function updatePlayer(
+	id: string,
+	data: UpdatePlayerCommandDto,
+): Promise<PlayerAdminDto> {
+	const player = await prisma.player.update({
+		where: { id },
+		data: {
+			...data,
+		},
+		select: {
+			id: true,
+			name: true,
+			skillTier: true,
+			positions: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	})
+
+	return player
 }
