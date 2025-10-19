@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { getPlayers } from '#app/actions/players'
+import { getPlayers } from '#app/lib/actions/players'
 import { PlayersList } from '#app/app/players/components/PlayersList'
 import { getCurrentUser } from '#app/services/auth.server'
 

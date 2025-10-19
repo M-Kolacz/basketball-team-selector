@@ -19,7 +19,7 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { loginAction } from '#app/lib/actions'
+import { loginAction } from '#app/lib/actions/auth'
 import { LoginSchema } from '#app/lib/validations/auth'
 
 export function LoginForm() {

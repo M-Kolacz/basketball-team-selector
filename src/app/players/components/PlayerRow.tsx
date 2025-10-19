@@ -4,7 +4,7 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useActionState } from 'react'
-import { deletePlayer } from '#app/actions/players'
+import { deletePlayer } from '#app/lib/actions/players'
 import {
 	POSITION_LABELS,
 	SKILL_TIER_LABELS,
