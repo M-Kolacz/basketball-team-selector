@@ -1,6 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { POSITION_LABELS, SKILL_TIER_LABELS } from '#app/app/players/constants'
+import {
+	type EditPlayerFormData,
+	type ValidationErrors,
+} from '#app/app/players/types'
+import { hasPlayerChanged } from '#app/app/players/utils'
+import { Alert, AlertDescription } from '#app/components/ui/alert'
+import { Button } from '#app/components/ui/button'
 import {
 	Dialog,
 	DialogContent,
@@ -9,7 +17,12 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '#app/components/ui/dialog'
-import { FormControl, FormItem, FormLabel, FormMessage } from '#app/components/ui/form'
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
 import {
 	Select,
@@ -19,14 +32,6 @@ import {
 	SelectValue,
 } from '#app/components/ui/select'
 import { ToggleGroup, ToggleGroupItem } from '#app/components/ui/toggle-group'
-import { Button } from '#app/components/ui/button'
-import { Alert, AlertDescription } from '#app/components/ui/alert'
-import { POSITION_LABELS, SKILL_TIER_LABELS } from '#app/app/players/constants'
-import {
-	type EditPlayerFormData,
-	type ValidationErrors,
-} from '#app/app/players/types'
-import { hasPlayerChanged } from '#app/app/players/utils'
 import {
 	type PlayerAdminDto,
 	type Position,
@@ -96,10 +101,9 @@ export function EditPlayerDialog({
 							<AlertDescription>{errorMessage}</AlertDescription>
 						</Alert>
 					)}
-
-					<FormItem>
-						<FormLabel>Player Name</FormLabel>
-						<FormControl>
+					<FieldGroup>
+						<Field>
+							<FieldLabel>Player Name</FieldLabel>
 							<Input
 								value={formData.name}
 								onChange={(e) =>
@@ -109,45 +113,37 @@ export function EditPlayerDialog({
 								placeholder="Enter player name"
 								aria-invalid={!!errors?.name}
 							/>
-						</FormControl>
-						{errors?.name && (
-							<FormMessage>{errors.name.join(', ')}</FormMessage>
-						)}
-					</FormItem>
+							<FieldError errors={errors?.name} />
+						</Field>
 
-					<FormItem>
-						<FormLabel>Skill Tier</FormLabel>
-						<Select
-							value={formData.skillTier}
-							onValueChange={(value) =>
-								setFormData((prev) => ({
-									...prev,
-									skillTier: value as SkillTier,
-								}))
-							}
-							disabled={isSubmitting}
-						>
-							<FormControl>
+						<Field>
+							<FieldLabel>Skill Tier</FieldLabel>
+							<Select
+								value={formData.skillTier}
+								onValueChange={(value) =>
+									setFormData((prev) => ({
+										...prev,
+										skillTier: value as SkillTier,
+									}))
+								}
+								disabled={isSubmitting}
+							>
 								<SelectTrigger>
 									<SelectValue />
 								</SelectTrigger>
-							</FormControl>
-							<SelectContent>
-								{skillTiers.map((tier) => (
-									<SelectItem key={tier} value={tier}>
-										{SKILL_TIER_LABELS[tier]}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-						{errors?.skillTier && (
-							<FormMessage>{errors.skillTier.join(', ')}</FormMessage>
-						)}
-					</FormItem>
+								<SelectContent>
+									{skillTiers.map((tier) => (
+										<SelectItem key={tier} value={tier}>
+											{SKILL_TIER_LABELS[tier]}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+							<FieldError errors={errors?.skillTier} />
+						</Field>
 
-					<FormItem>
-						<FormLabel>Positions</FormLabel>
-						<FormControl>
+						<Field>
+							<FieldLabel>Positions</FieldLabel>
 							<ToggleGroup
 								type="multiple"
 								value={formData.positions}
@@ -158,7 +154,7 @@ export function EditPlayerDialog({
 									}))
 								}
 								disabled={isSubmitting}
-								className="justify-start flex-wrap"
+								className="flex-wrap justify-start"
 							>
 								{positions.map((position) => (
 									<ToggleGroupItem
@@ -170,11 +166,9 @@ export function EditPlayerDialog({
 									</ToggleGroupItem>
 								))}
 							</ToggleGroup>
-						</FormControl>
-						{errors?.positions && (
-							<FormMessage>{errors.positions.join(', ')}</FormMessage>
-						)}
-					</FormItem>
+							<FieldError errors={errors?.positions} />
+						</Field>
+					</FieldGroup>
 
 					<DialogFooter>
 						<Button
