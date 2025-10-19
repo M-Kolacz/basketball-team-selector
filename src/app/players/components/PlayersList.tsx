@@ -19,11 +19,14 @@ import {
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 
 type PlayersListProps = {
-	initialPlayers: PlayerAdminDto[] | PlayerUserDto[]
+	players: PlayerAdminDto[] | PlayerUserDto[]
 	isAdmin: boolean
 }
 
-export function PlayersList({ initialPlayers, isAdmin }: PlayersListProps) {
+export function PlayersList({
+	players: initialPlayers,
+	isAdmin,
+}: PlayersListProps) {
 	const [players, setPlayers] = useState(initialPlayers)
 	const [filterState, setFilterState] = useState<FilterState>({
 		searchQuery: '',

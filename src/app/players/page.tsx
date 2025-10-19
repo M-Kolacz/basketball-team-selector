@@ -16,5 +16,5 @@ export default async function PlayersPage() {
 
 	const isAdmin = currentUser?.role === 'admin'
 
-	return <PlayersList initialPlayers={players} isAdmin={isAdmin} />
+	return <PlayersList players={players} isAdmin={isAdmin} />
 }
