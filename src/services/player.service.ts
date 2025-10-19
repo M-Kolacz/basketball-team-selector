@@ -9,6 +9,7 @@ import {
 	type PlayersListUserResponseDto,
 	type PlayerAdminDto,
 	type PlayerUserDto,
+	type CreatePlayerCommandDto,
 } from '#app/types/dto'
 
 export type ListPlayersOptions = {
@@ -27,11 +28,6 @@ export type ListAllPlayersOptions = {
 	isAdmin: boolean
 }
 
-/**
- * Retrieves a paginated list of players with role-based filtering and data exposure.
- * Admin users can filter by skill tier and position and receive full player details.
- * Regular users receive only basic player information without filtering.
- */
 export async function listPlayers(
 	options: ListPlayersOptions,
 ): Promise<PlayersListAdminResponseDto | PlayersListUserResponseDto> {
@@ -124,4 +120,26 @@ export async function listAllPlayers(
 	})
 
 	return players
+}
+
+export async function createPlayer(
+	data: CreatePlayerCommandDto,
+): Promise<PlayerAdminDto> {
+	const player = await prisma.player.create({
+		data: {
+			name: data.name,
+			skillTier: data.skillTier,
+			positions: data.positions,
+		},
+		select: {
+			id: true,
+			name: true,
+			skillTier: true,
+			positions: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	})
+
+	return player
 }

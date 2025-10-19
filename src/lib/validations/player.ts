@@ -35,3 +35,21 @@ export const GetPlayersOptionsSchema = z
 	.optional()
 
 export type GetPlayersOptions = z.infer<typeof GetPlayersOptionsSchema>
+
+export const CreatePlayerSchema = z.object({
+	name: z
+		.string()
+		.min(1, 'Player name is required')
+		.max(100, 'Player name must be at most 100 characters')
+		.trim(),
+	skillTier: z.enum(['S', 'A', 'B', 'C', 'D'], {
+		message: 'Skill tier must be one of: S, A, B, C, D',
+	}),
+	positions: z
+		.array(z.enum(['PG', 'SG', 'SF', 'PF', 'C']), {
+			message: 'Position must be one of: PG, SG, SF, PF, C',
+		})
+		.min(1, 'At least one position is required'),
+})
+
+export type CreatePlayerCommand = z.infer<typeof CreatePlayerSchema>
