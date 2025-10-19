@@ -3,12 +3,10 @@
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
 import z from 'zod'
+import { prisma } from '#app/lib/db.server'
 import { CreatePlayerSchema } from '#app/lib/validations/player'
 import { getCurrentUser } from '#app/services/auth.server'
-import {
-	listAllPlayers,
-	createPlayer as createPlayerService,
-} from '#app/services/player.service'
+import { listAllPlayers } from '#app/services/player.service'
 
 export async function getPlayers() {
 	const currentUser = await getCurrentUser()
@@ -36,6 +34,18 @@ export async function createPlayer(_prevState: unknown, formData: FormData) {
 					return z.NEVER
 				}
 
+				const player = await prisma.player.findUnique({
+					where: { name: data.name },
+				})
+
+				if (player) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Player with this name already exists',
+					})
+					return z.NEVER
+				}
+
 				return { ...data }
 			}),
 		async: true,
@@ -45,7 +55,18 @@ export async function createPlayer(_prevState: unknown, formData: FormData) {
 		return { result: submission.reply() }
 	}
 
-	await createPlayerService(submission.value)
+	const { name, positions, skillTier } = submission.value
+
+	await prisma.player.create({
+		data: {
+			name,
+			skillTier,
+			positions,
+		},
+		select: {
+			id: true,
+		},
+	})
 
 	return { success: true }
 }

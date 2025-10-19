@@ -8,7 +8,6 @@ import { PlayersTable } from '#app/app/players/components/PlayersTable'
 import {
 	type FilterState,
 	type SortOption,
-	type AddPlayerFormData,
 	type EditPlayerFormData,
 	type ValidationErrors,
 } from '#app/app/players/types'
@@ -51,11 +50,6 @@ export function PlayersList({
 	const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const [isBulkDelete, setIsBulkDelete] = useState(false)
-
-	const [addFormErrors, setAddFormErrors] = useState<ValidationErrors>()
-	const [addFormSuccessMessage, setAddFormSuccessMessage] = useState<string>()
-	const [addFormErrorMessage, setAddFormErrorMessage] = useState<string>()
-	const [isAddSubmitting, setIsAddSubmitting] = useState(false)
 
 	const filteredPlayers = useMemo(
 		() => filterAndSortPlayers(players, filterState, sortBy, isAdmin),
@@ -184,50 +178,6 @@ export function PlayersList({
 			console.error('Delete failed:', error)
 		} finally {
 			setIsDeleting(false)
-		}
-	}
-
-	const handleAddPlayer = async (data: AddPlayerFormData) => {
-		setIsAddSubmitting(true)
-		setAddFormErrors(undefined)
-		setAddFormSuccessMessage(undefined)
-		setAddFormErrorMessage(undefined)
-
-		const errors = validatePlayerForm(
-			data.name,
-			data.skillTier,
-			data.positions,
-			existingPlayerNames,
-		)
-
-		if (Object.keys(errors).length > 0) {
-			setAddFormErrors(errors)
-			setIsAddSubmitting(false)
-			return
-		}
-
-		try {
-			await new Promise((resolve) => setTimeout(resolve, 500))
-
-			const newPlayer: PlayerAdminDto = {
-				id: `temp-${Date.now()}`,
-				name: data.name,
-				skillTier: data.skillTier as any,
-				positions: data.positions,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			}
-
-			setPlayers((prev) => [newPlayer, ...prev])
-			setAddFormSuccessMessage('Player added successfully!')
-
-			setTimeout(() => setAddFormSuccessMessage(undefined), 3000)
-		} catch (error) {
-			setAddFormErrorMessage(
-				error instanceof Error ? error.message : 'Failed to add player',
-			)
-		} finally {
-			setIsAddSubmitting(false)
 		}
 	}
 
