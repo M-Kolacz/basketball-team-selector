@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { cookies } from 'next/headers'
+import { getAllGameSessionsAction } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
 	title: 'Games - Basketball Team Selector',
@@ -7,12 +7,12 @@ export const metadata: Metadata = {
 }
 
 export default async function GamesPage() {
-	const cookieStore = await cookies()
+	const gameSessions = await getAllGameSessionsAction()
 
-	console.log(cookieStore.getAll())
+	console.log(gameSessions)
 
 	return (
-		<main className="flex min-h-screen items-center justify-center p-4">
+		<main className="flex min-h-screen flex-col items-center justify-start p-4">
 			<h1>Games</h1>
 		</main>
 	)

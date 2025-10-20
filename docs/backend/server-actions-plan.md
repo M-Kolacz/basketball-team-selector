@@ -245,6 +245,36 @@ async function deletePlayerAction(prevState: unknown, formData: FormData)
 
 ### Game Sessions Module (`src/lib/actions/game-sessions.ts`)
 
+#### getAllGameSessionsAction
+
+```typescript
+async function getAllGameSessionsAction()
+```
+
+- **Purpose**: Retrieve all game sessions from database
+- **Input Parameters**: None
+- **Validation Schema**: None (read-only operation)
+- **Return Type**: `GameSession[]`
+- **Database Operations**:
+  ```typescript
+  const gameSessions = await prisma.gameSession.findMany({
+    orderBy: { gameDatetime: 'desc' },
+    include: {
+      selectedProposition: {
+        include: {
+          teams: {
+            include: {
+              players: true
+            }
+          }
+        }
+      }
+    }
+  })
+  ```
+- **Revalidation**: Not needed (read operation)
+- **Error Handling**: Try-catch with error logging
+
 #### createGameSessionAction
 
 ```typescript
