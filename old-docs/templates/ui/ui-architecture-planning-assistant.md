@@ -38,7 +38,8 @@ effective UI architecture. Consider questions regarding:
 2. User flows and navigation supported by available server actions
 3. Responsiveness and adaptation to different devices
 4. Accessibility and inclusiveness
-5. Security and authorization at the UI level in connection with server action validation
+5. Security and authorization at the UI level in connection with server action
+   validation
 6. Design consistency and user experience
 7. Application state management strategy and synchronization with server actions
 8. Handling error states and exceptions returned by server actions

@@ -1,36 +1,32 @@
-As a senior frontend architect, your task is to redesign an existing UI view using ShadCN components that are already installed in this project. This redesign should modernize the interface, improve consistency, enhance accessibility, and maintain all existing functionality while leveraging the ShadCN component library.
+As a senior frontend architect, your task is to redesign an existing UI view
+using ShadCN components that are already installed in this project. This
+redesign should modernize the interface, improve consistency, enhance
+accessibility, and maintain all existing functionality while leveraging the
+ShadCN component library.
 
 First, review the following information:
 
-1. Current View Implementation: <current_view>
-{{current-view-file-path}} <- paste the path to the existing view file
-</current_view>
+1. Current View Implementation: <current_view> {{current-view-file-path}} <-
+   paste the path to the existing view file </current_view>
 
-2. Product Requirements Document (PRD): <prd>
-@docs/prd.md
-</prd>
+2. Product Requirements Document (PRD): <prd> @docs/prd.md </prd>
 
 3. View Implementation Plan (if exists): <view_plan>
-{{view-implementation-plan-path}} <- paste the path if exists, or indicate "N/A"
-</view_plan>
+   {{view-implementation-plan-path}} <- paste the path if exists, or indicate
+   "N/A" </view_plan>
 
-4. Available ShadCN Components: <shadcn_components>
-@src/components/ui/
-</shadcn_components>
+4. Available ShadCN Components: <shadcn_components> @src/components/ui/
+   </shadcn_components>
 
-5. ShadCN Configuration: <shadcn_config>
-@components.json
-</shadcn_config>
+5. ShadCN Configuration: <shadcn_config> @components.json </shadcn_config>
 
-6. Type Definitions: <type_definitions>
-@src/types/dto.ts
-</type_definitions>
+6. Type Definitions: <type_definitions> @src/types/dto.ts </type_definitions>
 
-7. Tech Stack: <tech_stack>
-@docs/tech-stack.md
-</tech_stack>
+7. Tech Stack: <tech_stack> @docs/tech-stack.md </tech_stack>
 
-Before creating the final redesign plan, conduct analysis inside <redesign_analysis> tags in your thinking block. This section should be thorough.
+Before creating the final redesign plan, conduct analysis inside
+<redesign_analysis> tags in your thinking block. This section should be
+thorough.
 
 In your redesign analysis, execute the following steps:
 
@@ -43,7 +39,8 @@ In your redesign analysis, execute the following steps:
    - List accessibility features currently implemented
 
 2. **ShadCN Component Mapping:**
-   - For each current UI element, identify the appropriate ShadCN component replacement
+   - For each current UI element, identify the appropriate ShadCN component
+     replacement
    - List ShadCN components available in the project (from src/components/ui/)
    - Note any custom components that should remain
    - Identify gaps where ShadCN components may need customization
@@ -76,7 +73,8 @@ In your redesign analysis, execute the following steps:
    - Identify performance optimizations
    - List SEO improvements if applicable
 
-After conducting the analysis, provide a redesign plan in Markdown format with the following sections:
+After conducting the analysis, provide a redesign plan in Markdown format with
+the following sections:
 
 ## 1. Redesign Overview
 
@@ -85,30 +83,34 @@ Brief summary of the redesign goals, scope, and expected improvements.
 ## 2. Current vs. Redesigned Structure
 
 ### Current Structure
+
 [Outline of current component hierarchy and UI elements]
 
 ### Redesigned Structure
+
 [Outline of new component hierarchy using ShadCN components]
 
 ## 3. ShadCN Component Mapping
 
 Table mapping current UI elements to ShadCN components:
 
-| Current Element | Current Implementation | ShadCN Component | Component Path | Notes |
-|-----------------|------------------------|------------------|----------------|-------|
-| Login form | Custom form | Form + Card | @/components/ui/form | Use react-hook-form integration |
-| Submit button | Custom button | Button | @/components/ui/button | Multiple variants available |
-| ... | ... | ... | ... | ... |
+| Current Element | Current Implementation | ShadCN Component | Component Path         | Notes                           |
+| --------------- | ---------------------- | ---------------- | ---------------------- | ------------------------------- |
+| Login form      | Custom form            | Form + Card      | @/components/ui/form   | Use react-hook-form integration |
+| Submit button   | Custom button          | Button           | @/components/ui/button | Multiple variants available     |
+| ...             | ...                    | ...              | ...                    | ...                             |
 
 ## 4. Component Redesign Details
 
 ### [Component Name 1]
 
 **Current Implementation:**
+
 - Description of current approach
 - Current props and behavior
 
 **Redesigned Implementation:**
+
 - ShadCN components to use
 - New composition structure
 - Props mapping from current to new
@@ -122,8 +124,10 @@ Table mapping current UI elements to ShadCN components:
 
 ## 5. Visual Design Changes
 
-- **Typography:** Changes to font sizes, weights, line heights using ShadCN defaults
-- **Spacing:** Improvements to padding, margins, gaps using Tailwind spacing scale
+- **Typography:** Changes to font sizes, weights, line heights using ShadCN
+  defaults
+- **Spacing:** Improvements to padding, margins, gaps using Tailwind spacing
+  scale
 - **Colors:** Migration to ShadCN/Tailwind color system and CSS variables
 - **Borders & Shadows:** Consistent use of ShadCN styling patterns
 - **Responsive Design:** Breakpoint and layout improvements
@@ -131,20 +135,24 @@ Table mapping current UI elements to ShadCN components:
 ## 6. Functionality Preservation
 
 ### User Interactions
+
 - List of all user interactions and how they're maintained in the redesign
 - Event handler mapping from current to redesigned implementation
 
 ### Server Actions
+
 - List of server actions and their integration points
 - Any changes to how server actions are called or handled
 - Error handling approach with ShadCN components
 
 ### Validation
+
 - Current validation approach
 - How validation will work with ShadCN Form components
 - Error display using ShadCN patterns
 
 ### State Management
+
 - Current state management
 - Any changes needed for ShadCN components
 - Custom hooks that need updating
@@ -200,11 +208,13 @@ Table mapping current UI elements to ShadCN components:
 ## 10. Code Examples
 
 ### Before (Current Implementation)
+
 ```tsx
 [Example of current component code]
 ```
 
 ### After (Redesigned with ShadCN)
+
 ```tsx
 [Example of redesigned component code using ShadCN]
 ```
@@ -219,6 +229,7 @@ Table mapping current UI elements to ShadCN components:
 ---
 
 Ensure your redesign plan:
+
 - Maintains all existing functionality
 - Uses only ShadCN components available in the project
 - Follows the existing tech stack and conventions

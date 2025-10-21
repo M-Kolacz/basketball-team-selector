@@ -258,22 +258,57 @@ async function getAllGameSessionsAction()
 - **Database Operations**:
   ```typescript
   const gameSessions = await prisma.gameSession.findMany({
-    orderBy: { gameDatetime: 'desc' },
-    include: {
-      selectedProposition: {
-        include: {
-          teams: {
-            include: {
-              players: true
-            }
-          }
-        }
-      }
-    }
+  	orderBy: { gameDatetime: 'desc' },
+  	include: {
+  		selectedProposition: {
+  			include: {
+  				teams: {
+  					include: {
+  						players: true,
+  					},
+  				},
+  			},
+  		},
+  	},
   })
   ```
 - **Revalidation**: Not needed (read operation)
 - **Error Handling**: Try-catch with error logging
+
+#### getGameSessionAction
+
+```typescript
+async function getGameSessionAction(gameSessionId: string)
+```
+
+- **Purpose**: Retrieve single game session by ID from database
+- **Input Parameters**: gameSessionId (string, UUID)
+- **Validation Schema**:
+  ```typescript
+  const GetGameSessionSchema = z.object({
+  	gameSessionId: z.string().uuid('Invalid game session ID'),
+  })
+  ```
+- **Return Type**: `GameSession | null`
+- **Database Operations**:
+  ```typescript
+  const gameSession = await prisma.gameSession.findUnique({
+  	where: { id: gameSessionId },
+  	include: {
+  		selectedProposition: {
+  			include: {
+  				teams: {
+  					include: {
+  						players: true,
+  					},
+  				},
+  			},
+  		},
+  	},
+  })
+  ```
+- **Revalidation**: Not needed (read operation)
+- **Error Handling**: Try-catch with error logging, returns null if not found
 
 #### createGameSessionAction
 
