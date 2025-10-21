@@ -54,9 +54,7 @@ Before we begin, review the following information:
 2. Related database resources: <related_db_resources> @docs/backend/db.md
    </related_db_resources>
 
-3. Type definitions: <type_definitions> @src/types/dto.ts</type_definitions>
-
-4. Tech stack: <tech_stack>@docs/tech-stack.md</tech_stack>
+3. Tech stack: <tech_stack>@docs/tech-stack.md</tech_stack>
 
 Your task is to create a comprehensive implementation plan for the server
 action. Before delivering the final plan, use <analysis> tags to analyze the
@@ -64,15 +62,12 @@ information and outline your approach. In this analysis, ensure that:
 
 1. Summarize key points of the server action specification.
 2. List required and optional input parameters from the specification.
-3. List necessary DTO types, Command Models, and Zod schemas.
-4. Consider how to extract logic to a service (existing or new, if it doesn't
-   exist).
-5. Plan input validation using Zod schemas according to the server action
+3. List necessary types, Prisma models, and Zod schemas.
+4. Plan input validation using Zod schemas according to the server action
    specification, database resources, and implementation rules.
-6. Determine how to log errors in the error table (if applicable).
-7. Identify potential security threats based on the server action specification
+5. Identify potential security threats based on the server action specification
    and tech stack.
-8. Outline potential error scenarios and corresponding error codes/messages.
+6. Outline potential error scenarios and corresponding error codes/messages.
 
 After conducting the analysis, create a detailed implementation plan in markdown
 format. The plan should contain the following sections:
@@ -83,16 +78,13 @@ format. The plan should contain the following sections:
 4. Data Flow
 5. Security Considerations
 6. Error Handling
-7. Performance
-8. Implementation Steps
+7. Implementation Steps
 
 Throughout the plan, ensure that you:
 
 - Use consistent error response patterns:
-  - Return `{ success: false, error: { code, message, fields? } }` for expected
-    errors
+  - Return expected errors `{ result: SubmissionResult }` for Conform forms
   - Throw errors for unexpected/server errors
-  - Use specific error codes (e.g., `USERNAME_EXISTS`, `VALIDATION_ERROR`)
   - Include field-level validation errors when applicable
 - Adapt to the provided tech stack
 - Follow the provided implementation rules
@@ -122,7 +114,7 @@ format. Here's an example of what the output should look like:
 
 ## 3. Used Types
 
-[DTOs, Command Models, and Zod schemas necessary for implementation]
+[Prisma Schema, and Zod schemas necessary for implementation]
 
 ## 4. Output Details
 
@@ -137,15 +129,7 @@ databases]
 
 [Authentication, authorization, and data validation details]
 
-## 7. Error Handling
-
-[List of potential errors and how to handle them with error codes]
-
-## 8. Performance Considerations
-
-[Potential bottlenecks and optimization strategies]
-
-## 9. Implementation Steps
+## 7. Implementation Steps
 
 1. [Step 1]
 2. [Step 2]
@@ -156,5 +140,5 @@ The final output should consist solely of the implementation plan in markdown
 format and should not duplicate or repeat any work done in the analysis section.
 
 Remember to save your implementation plan as
-@docs/actions/player-delete-action.md. Ensure the plan is detailed, clear, and
-provides comprehensive guidance for the development team.
+@docs/backend/actions/[action-name]-action.md. Ensure the plan is detailed,
+clear, and provides comprehensive guidance for the development team.

@@ -1,5 +1,7 @@
 import { type Metadata } from 'next'
-import { cookies } from 'next/headers'
+import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
+import { transformToViewModel } from '#app/app/games/utils/transform'
+import { getAllGameSessionsAction } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
 	title: 'Games - Basketball Team Selector',
@@ -7,13 +9,11 @@ export const metadata: Metadata = {
 }
 
 export default async function GamesPage() {
-	const cookieStore = await cookies()
-
-	console.log(cookieStore.getAll())
+	const gameSessions = await getAllGameSessionsAction()
 
 	return (
-		<main className="flex min-h-screen items-center justify-center p-4">
-			<h1>Games</h1>
+		<main className="container mx-auto px-4 py-8">
+			<GameHistoryList games={gameSessions} />
 		</main>
 	)
 }

@@ -75,4 +75,4 @@ comprehensive, clear, and contains all relevant information needed for further
 product development.
 
 The final output should consist solely of the PRD in the specified markdown
-format, which you will save in the file @docs/prd.md
+format, which you will save in the file .ai/prd.md

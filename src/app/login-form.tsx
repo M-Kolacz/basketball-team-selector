@@ -28,7 +28,7 @@ export function LoginForm() {
 		undefined,
 	)
 	const [form, fields] = useForm({
-		lastResult: lastResult,
+		lastResult: lastResult?.result,
 		onValidate({ formData }) {
 			return parseWithZod(formData, { schema: LoginSchema })
 		},

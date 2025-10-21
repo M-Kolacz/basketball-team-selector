@@ -5,8 +5,6 @@
 - Next.js v15.5
 - React v19
 - TypeScript v5
-- Conform to handle forms
-- Zod for schema validation
 - Tailwind v4
 - Shadcn/ui
 

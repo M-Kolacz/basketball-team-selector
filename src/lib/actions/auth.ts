@@ -46,7 +46,7 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 	})
 
 	if (submission.status !== 'success' || !submission.value.userId) {
-		return submission.reply({ hideFields: ['password'] })
+		return { result: submission.reply({ hideFields: ['password'] }) }
 	}
 
 	const { userId } = submission.value
