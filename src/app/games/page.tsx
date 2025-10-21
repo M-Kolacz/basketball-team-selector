@@ -1,4 +1,6 @@
 import { type Metadata } from 'next'
+import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
+import { transformToViewModel } from '#app/app/games/utils/transform'
 import { getAllGameSessionsAction } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
@@ -9,11 +11,9 @@ export const metadata: Metadata = {
 export default async function GamesPage() {
 	const gameSessions = await getAllGameSessionsAction()
 
-	console.log(gameSessions)
-
 	return (
-		<main className="flex min-h-screen flex-col items-center justify-start p-4">
-			<h1>Games</h1>
+		<main className="container mx-auto px-4 py-8">
+			<GameHistoryList games={gameSessions} />
 		</main>
 	)
 }

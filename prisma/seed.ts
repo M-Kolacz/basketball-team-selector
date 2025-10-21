@@ -128,6 +128,16 @@ async function seed() {
 					})),
 				},
 				selectedProposition: { connect: { id: numberOfPropositions[0]!.id } },
+				games: [
+					[
+						{ score: 15, teamId: teams[0]?.id },
+						{ score: 10, teamId: teams[1]?.id },
+					],
+					[
+						{ score: 15, teamId: teams[0]?.id },
+						{ score: 10, teamId: teams[1]?.id },
+					],
+				],
 			},
 		})
 

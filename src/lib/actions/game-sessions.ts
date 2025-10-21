@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { transformToViewModel } from '#app/app/games/utils/transform'
 import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 
@@ -23,15 +24,13 @@ export type GameSessionWithRelations = Awaited<
 	>
 >[number]
 
-export async function getAllGameSessionsAction(): Promise<
-	GameSessionWithRelations[]
-> {
+export async function getAllGameSessionsAction() {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
 
 	try {
-		const gameSessions = await prisma.gameSession.findMany({
+		const rawGameSessions = await prisma.gameSession.findMany({
 			orderBy: { gameDatetime: 'desc' },
 			include: {
 				selectedProposition: {
@@ -45,6 +44,8 @@ export async function getAllGameSessionsAction(): Promise<
 				},
 			},
 		})
+
+		const gameSessions = rawGameSessions.map(transformToViewModel)
 
 		return gameSessions
 	} catch (error) {

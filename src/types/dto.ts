@@ -88,6 +88,11 @@ export type GameScoreDto = {
 	teamId: string
 }
 
+type Games = {
+	score: number
+	teamId: string
+}[][]
+
 export type GameDto = GameScoreDto[]
 
 export type GameSessionDto = Pick<
