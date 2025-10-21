@@ -3,6 +3,7 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
+import  { type GameScoreViewModel } from '#app/app/games/[id]/types'
 import { Button } from '#app/components/ui/button'
 import {
 	Field,
@@ -13,7 +14,6 @@ import {
 import { Input } from '#app/components/ui/input'
 import { updateGameScoreAction } from '#app/lib/actions/game-sessions.server'
 import { UpdateGameScoreSchema } from '#app/lib/validations/game-session'
-import type { GameScoreViewModel } from '../types'
 
 type ScoreInputFormProps = {
 	gameSessionId: string

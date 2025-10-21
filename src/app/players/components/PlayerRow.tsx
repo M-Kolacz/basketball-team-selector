@@ -4,7 +4,6 @@ import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { Pencil, Trash2 } from 'lucide-react'
 import { useActionState } from 'react'
-import { deletePlayer } from '#app/lib/actions/players'
 import {
 	POSITION_LABELS,
 	SKILL_TIER_LABELS,
@@ -13,6 +12,7 @@ import {
 import { Badge } from '#app/components/ui/badge'
 import { Button } from '#app/components/ui/button'
 import { TableCell, TableRow } from '#app/components/ui/table'
+import { deletePlayer } from '#app/lib/actions/players'
 import { DeletePlayerSchema } from '#app/lib/validations/player'
 import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
 

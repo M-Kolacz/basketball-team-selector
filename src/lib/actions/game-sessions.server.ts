@@ -34,7 +34,12 @@ export async function getGameSessionAction(gameSessionId: string) {
 				include: {
 					teams: {
 						include: {
-							players: true,
+							players: {
+								select: {
+									id: true,
+									name: true,
+								},
+							},
 						},
 					},
 				},

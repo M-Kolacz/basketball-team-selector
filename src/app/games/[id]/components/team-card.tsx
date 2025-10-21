@@ -1,11 +1,11 @@
+import { PlayerList } from '#app/app/games/[id]/components/player-list'
+import  { type TeamViewModel } from '#app/app/games/[id]/types'
 import {
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import type { TeamViewModel } from '../types'
-import { PlayerList } from './player-list'
 
 type TeamCardProps = {
 	team: TeamViewModel

@@ -1,5 +1,6 @@
 'use client'
 
+import { AlertCircle } from 'lucide-react'
 import { useEffect } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
@@ -9,7 +10,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import { AlertCircle } from 'lucide-react'
 
 export default function GameDetailsError({
 	error,

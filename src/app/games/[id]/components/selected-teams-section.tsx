@@ -1,5 +1,5 @@
-import type { TeamViewModel } from '../types'
-import { TeamCard } from './team-card'
+import { TeamCard } from '#app/app/games/[id]/components/team-card'
+import  { type TeamViewModel } from '#app/app/games/[id]/types'
 
 type SelectedTeamsSectionProps = {
 	teams: TeamViewModel[]

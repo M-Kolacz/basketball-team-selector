@@ -1,3 +1,4 @@
+import { FileQuestion } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '#app/components/ui/button'
 import {
@@ -7,7 +8,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import { FileQuestion } from 'lucide-react'
 
 export default function GameDetailsNotFound() {
 	return (

@@ -1,5 +1,5 @@
-import type { PlayerViewModel } from '../types'
-import { PlayerBadge } from './player-badge'
+import { PlayerBadge } from '#app/app/games/[id]/components/player-badge'
+import  { type PlayerViewModel } from '#app/app/games/[id]/types'
 
 type PlayerListProps = {
 	players: PlayerViewModel[]

@@ -1,5 +1,5 @@
+import  { type TeamViewModel } from '#app/app/games/[id]/types'
 import { Badge } from '#app/components/ui/badge'
-import type { TeamViewModel } from '../types'
 
 type TeamPreviewProps = {
 	team: TeamViewModel
