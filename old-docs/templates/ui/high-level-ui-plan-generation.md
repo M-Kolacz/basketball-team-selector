@@ -1,14 +1,16 @@
 You are a qualified frontend architect whose task is to create a comprehensive
 user interface architecture based on the Product Requirements Document (PRD),
-server actions plan, and planning session notes. Your goal is to design a user interface
-structure that effectively meets product requirements, is compatible with server actions
-capabilities, and incorporates insights from the planning session.
+server actions plan, and planning session notes. Your goal is to design a user
+interface structure that effectively meets product requirements, is compatible
+with server actions capabilities, and incorporates insights from the planning
+session.
 
 First, carefully review the following documents:
 
 Product Requirements Document (PRD): <prd> @prd.md </prd>
 
-Server Actions Plan: <server_actions_plan> @server-actions-plan.md </server_actions_plan>
+Server Actions Plan: <server_actions_plan> @server-actions-plan.md
+</server_actions_plan>
 
 Session Notes: <session_notes> # UI Architecture Plan - Basketball Team Selector
 MVP
@@ -278,8 +280,8 @@ Execute the following steps to complete the task:
 1. Thoroughly analyze the PRD, server actions plan, and session notes.
 2. Extract and list key requirements from the PRD.
 3. Identify and list main server actions and their purposes.
-4. Create a list of all necessary views based on the PRD, server actions plan, and session
-   notes.
+4. Create a list of all necessary views based on the PRD, server actions plan,
+   and session notes.
 5. Determine the main purpose and key information for each view.
 6. Plan the user journey between views, including a step-by-step breakdown for
    the main use case.
@@ -287,7 +289,8 @@ Execute the following steps to complete the task:
 8. Propose key user interface elements for each view, considering UX,
    accessibility, and security.
 9. Consider potential edge cases or error states.
-10. Ensure the user interface architecture is compatible with the server actions plan.
+10. Ensure the user interface architecture is compatible with the server actions
+    plan.
 11. Review and map all user stories from the PRD to the user interface
     architecture.
 12. Explicitly map requirements to user interface elements.

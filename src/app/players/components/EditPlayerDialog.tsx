@@ -8,7 +8,6 @@ import {
 } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
-import { updatePlayer } from '#app/lib/actions/players'
 import { SKILL_TIER_LABELS } from '#app/app/players/constants'
 import { Button } from '#app/components/ui/button'
 import {
@@ -26,6 +25,7 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
+import { updatePlayer } from '#app/lib/actions/players'
 import { UpdatePlayerSchema } from '#app/lib/validations/player'
 import {
 	type PlayerAdminDto,

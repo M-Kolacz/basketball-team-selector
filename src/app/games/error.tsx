@@ -22,7 +22,7 @@ export default function GamesError({
 	}, [error])
 
 	return (
-		<main className="container mx-auto py-8 px-4">
+		<main className="container mx-auto px-4 py-8">
 			<Empty>
 				<EmptyHeader>
 					<EmptyTitle>Failed to load games</EmptyTitle>

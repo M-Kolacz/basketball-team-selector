@@ -41,8 +41,7 @@ First, review the following information:
 
 1. Server Action Description: <server_action_description>
    {{server-action-description}} <- paste server action descriptions from
-   server-actions-plan.md that the view will use
-   </server_action_description>
+   server-actions-plan.md that the view will use </server_action_description>
 
 1. Server Action Implementation: <server_action_implementation>
 
@@ -95,7 +94,8 @@ with the following sections:
 - Component description, its purpose and what it consists of
 - Main HTML elements and child components that build the component
 - Handled events
-- Validation conditions (detailed conditions, according to server action requirements)
+- Validation conditions (detailed conditions, according to server action
+  requirements)
 - Types (DTO and ViewModel) required by the component
 - Props that the component accepts from parent (component interface)
 

@@ -42,3 +42,27 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
 		updatedAt: user.updatedAt,
 	}
 }
+
+export async function requireAdminUser(): Promise<AuthenticatedUser> {
+	const user = await getCurrentUser()
+
+	if (!user) {
+		throw new Error('Unauthorized: Admin access required')
+	}
+
+	if (user.role !== 'admin') {
+		throw new Error('Unauthorized: Admin access required')
+	}
+
+	return user
+}
+
+export async function requireUser(): Promise<AuthenticatedUser> {
+	const user = await getCurrentUser()
+
+	if (!user) {
+		throw new Error('Unauthorized: User access required')
+	}
+
+	return user
+}

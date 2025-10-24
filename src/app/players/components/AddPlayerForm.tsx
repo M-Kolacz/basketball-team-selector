@@ -9,7 +9,6 @@ import {
 import { parseWithZod } from '@conform-to/zod'
 import { ChevronDown } from 'lucide-react'
 import { useActionState, useState } from 'react'
-import { createPlayer } from '#app/lib/actions/players'
 import { SKILL_TIER_LABELS } from '#app/app/players/constants'
 import { Button } from '#app/components/ui/button'
 import {
@@ -30,6 +29,7 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
+import { createPlayer } from '#app/lib/actions/players'
 import { cn } from '#app/lib/utils'
 import { CreatePlayerSchema } from '#app/lib/validations/player'
 import { type Position, type SkillTier } from '#app/types/dto'
