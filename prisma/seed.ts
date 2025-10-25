@@ -6,6 +6,7 @@ import {
 	type Player,
 	type Team,
 } from '#app/lib/db.server'
+import { connect } from 'node:http2'
 
 async function seed() {
 	console.log('🌱 Seeding database...')
@@ -72,7 +73,6 @@ async function seed() {
 				updatedAt: faker.date.recent({ days: 5 }),
 				description: 'Casual Friday Game',
 				gameDatetime: faker.date.soon({ days: 5 }),
-				games: [],
 			},
 		})
 
@@ -118,6 +118,34 @@ async function seed() {
 			})
 		}
 
+		const game = await prisma.game.create({
+			data: {
+				gameSession: {
+					connect: { id: gameSession.id },
+				},
+			},
+		})
+
+		const firstScore = await prisma.score.create({
+			data: {
+				points: faker.number.int({ min: 0, max: 30 }),
+				game: { connect: { id: game.id } },
+				team: {
+					connect: { id: teams[0]!.id },
+				},
+			},
+		})
+
+		const secondScore = await prisma.score.create({
+			data: {
+				points: faker.number.int({ min: 0, max: 30 }),
+				game: { connect: { id: game.id } },
+				team: {
+					connect: { id: teams[1]!.id },
+				},
+			},
+		})
+
 		console.log('📝 Updating seed game sessions data with propositions...')
 		await prisma.gameSession.update({
 			where: { id: gameSession.id },
@@ -128,16 +156,6 @@ async function seed() {
 					})),
 				},
 				selectedProposition: { connect: { id: numberOfPropositions[0]!.id } },
-				games: [
-					[
-						{ score: 15, teamId: teams[0]?.id },
-						{ score: 10, teamId: teams[1]?.id },
-					],
-					[
-						{ score: 15, teamId: teams[0]?.id },
-						{ score: 10, teamId: teams[1]?.id },
-					],
-				],
 			},
 		})
 
