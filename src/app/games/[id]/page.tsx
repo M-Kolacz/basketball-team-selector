@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { GameDetailsHeader } from '#app/app/games/[id]/components/game-details-header'
 import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-section'
 import { SelectedTeamsSection } from '#app/app/games/[id]/components/selected-teams-section'
-import { getGameSessionAction } from '#app/lib/actions/game-sessions.server'
+import { getGameSessionAction } from '#app/lib/actions/game-sessions'
 import { getCurrentUser } from '#app/lib/auth.server'
 
 type PageProps = {

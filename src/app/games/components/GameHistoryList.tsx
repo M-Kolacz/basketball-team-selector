@@ -14,10 +14,10 @@ import {
 	TableHead,
 	TableRow,
 } from '#app/components/ui/table'
-import { type GameSessionAction } from '#app/lib/actions/game-sessions'
+import { type GameSessions } from '#app/lib/actions/game-sessions'
 
 interface GameHistoryListProps {
-	gameSessions: GameSessionAction[]
+	gameSessions: GameSessions
 }
 
 export function GameHistoryList({ gameSessions }: GameHistoryListProps) {

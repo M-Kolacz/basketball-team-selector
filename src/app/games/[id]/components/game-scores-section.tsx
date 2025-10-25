@@ -1,5 +1,5 @@
 import { GameScoreCard } from '#app/app/games/[id]/components/game-score-card'
-import { type GameSession } from '#app/lib/actions/game-sessions.server'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type GameScoresSectionProps = {
 	gameSessionId: GameSession['id']

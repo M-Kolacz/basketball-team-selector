@@ -3,10 +3,10 @@
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { TableRow, TableCell } from '#app/components/ui/table'
-import { type GameSessionAction } from '#app/lib/actions/game-sessions'
+import { type GameSessions } from '#app/lib/actions/game-sessions'
 
 interface GameHistoryRowProps {
-	gameSession: GameSessionAction
+	gameSession: GameSessions[number]
 }
 
 export function GameHistoryRow({ gameSession }: GameHistoryRowProps) {
@@ -15,8 +15,6 @@ export function GameHistoryRow({ gameSession }: GameHistoryRowProps) {
 	const handleRowClick = () => {
 		router.push(`/games/${gameSession.id}`)
 	}
-
-	console.log({ gameSession })
 
 	const formattedDate = format(
 		gameSession.gameDatetime,

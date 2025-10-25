@@ -1,6 +1,6 @@
 import { type Metadata } from 'next'
 import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
-import { getAllGameSessionsAction } from '#app/lib/actions/game-sessions'
+import { getGameSessionsAction } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
 	title: 'Games - Basketball Team Selector',
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function GamesPage() {
-	const gameSessions = await getAllGameSessionsAction()
+	const gameSessions = await getGameSessionsAction()
 
 	return (
 		<main className="container mx-auto px-4 py-8">

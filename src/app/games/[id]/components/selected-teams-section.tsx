@@ -1,5 +1,5 @@
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
-import { type GameSession } from '#app/lib/actions/game-sessions.server'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type SelectedTeamsSectionProps = {
 	teams: NonNullable<GameSession['selectedProposition']>['teams']

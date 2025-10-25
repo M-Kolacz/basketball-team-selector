@@ -10,7 +10,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import { type GameSession } from '#app/lib/actions/game-sessions.server'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type GameScoreCardProps = {
 	gameSessionId: GameSession['games'][number]['id']
@@ -37,7 +37,7 @@ export function GameScoreCard({
 					<ScoreInputForm
 						gameSessionId={gameSessionId}
 						gameIndex={gameIndex}
-						score={game}
+						score={[]}
 						onCancel={() => setIsEditing(false)}
 					/>
 				</CardContent>
