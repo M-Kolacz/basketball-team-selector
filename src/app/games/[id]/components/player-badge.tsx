@@ -1,7 +1,9 @@
-import { type PlayerViewModel } from '#app/app/games/[id]/types'
+import { type GameSession } from '#app/lib/actions/game-sessions.server'
 
 type PlayerBadgeProps = {
-	player: PlayerViewModel
+	player: NonNullable<
+		GameSession['selectedProposition']
+	>['teams'][number]['players'][number]
 }
 
 export function PlayerBadge({ player }: PlayerBadgeProps) {

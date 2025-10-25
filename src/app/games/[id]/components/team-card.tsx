@@ -1,14 +1,14 @@
 import { PlayerList } from '#app/app/games/[id]/components/player-list'
-import  { type TeamViewModel } from '#app/app/games/[id]/types'
 import {
 	Card,
 	CardContent,
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
+import { type GameSession } from '#app/lib/actions/game-sessions.server'
 
 type TeamCardProps = {
-	team: TeamViewModel
+	team: NonNullable<GameSession['selectedProposition']>['teams'][number]
 	teamLabel: 'Team A' | 'Team B'
 }
 

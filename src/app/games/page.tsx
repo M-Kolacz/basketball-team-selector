@@ -1,6 +1,5 @@
 import { type Metadata } from 'next'
 import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
-import { transformToViewModel } from '#app/app/games/utils/transform'
 import { getAllGameSessionsAction } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
@@ -13,7 +12,7 @@ export default async function GamesPage() {
 
 	return (
 		<main className="container mx-auto px-4 py-8">
-			<GameHistoryList games={gameSessions} />
+			<GameHistoryList gameSessions={gameSessions} />
 		</main>
 	)
 }

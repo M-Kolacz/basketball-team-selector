@@ -1,28 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { transformToViewModel } from '#app/app/games/utils/transform'
 import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
-
-export type GameSessionWithRelations = Awaited<
-	ReturnType<
-		typeof prisma.gameSession.findMany<{
-			orderBy: { gameDatetime: 'desc' }
-			include: {
-				selectedProposition: {
-					include: {
-						teams: {
-							include: {
-								players: true
-							}
-						}
-					}
-				}
-			}
-		}>
-	>
->[number]
 
 export async function getAllGameSessionsAction() {
 	const currentUser = await getCurrentUser()
@@ -42,10 +22,31 @@ export async function getAllGameSessionsAction() {
 						},
 					},
 				},
+				games: {
+					include: {
+						scores: {
+							select: {
+								id: true,
+								points: true,
+								teamId: true,
+							},
+						},
+					},
+				},
 			},
 		})
 
-		const gameSessions = rawGameSessions.map(transformToViewModel)
+		const gameSessions = rawGameSessions.map((rawGameSession) => {
+			const hasProposition = rawGameSession.selectedProposition !== null
+
+			return {
+				id: rawGameSession.id,
+				gameDatetime: rawGameSession.gameDatetime,
+				description: rawGameSession.description,
+				games: rawGameSession.games,
+				hasSelectedProposition: hasProposition,
+			}
+		})
 
 		return gameSessions
 	} catch (error) {
@@ -53,3 +54,7 @@ export async function getAllGameSessionsAction() {
 		throw new Error('Failed to fetch game sessions')
 	}
 }
+
+export type GameSessionAction = Awaited<
+	ReturnType<typeof getAllGameSessionsAction>
+>[number]

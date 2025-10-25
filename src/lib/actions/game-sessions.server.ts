@@ -2,14 +2,12 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { redirect } from 'next/navigation'
-import { z } from 'zod'
 import { requireAdminUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
-import { UpdateGameScoreSchema } from '#app/lib/validations/game-session'
-
-const GetGameSessionSchema = z.object({
-	gameSessionId: z.string().uuid('Invalid game session ID'),
-})
+import {
+	UpdateGameScoreSchema,
+	GetGameSessionSchema,
+} from '#app/lib/validations/game-session'
 
 export async function getGameSessionAction(gameSessionId: string) {
 	await requireAdminUser()
@@ -49,6 +47,17 @@ export async function getGameSessionAction(gameSessionId: string) {
 					},
 				},
 			},
+			games: {
+				include: {
+					scores: {
+						select: {
+							id: true,
+							points: true,
+							teamId: true,
+						},
+					},
+				},
+			},
 		},
 	})
 
@@ -58,6 +67,8 @@ export async function getGameSessionAction(gameSessionId: string) {
 
 	return gameSession
 }
+
+export type GameSession = Awaited<ReturnType<typeof getGameSessionAction>>
 
 export async function updateGameScoreAction(formData: FormData) {
 	await requireAdminUser()

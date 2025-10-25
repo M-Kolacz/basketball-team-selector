@@ -2,21 +2,26 @@
 
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { type GameHistoryViewModel } from '#app/app/games/utils/transform'
 import { TableRow, TableCell } from '#app/components/ui/table'
+import { type GameSessionAction } from '#app/lib/actions/game-sessions'
 
 interface GameHistoryRowProps {
-	game: GameHistoryViewModel
+	gameSession: GameSessionAction
 }
 
-export function GameHistoryRow({ game }: GameHistoryRowProps) {
+export function GameHistoryRow({ gameSession }: GameHistoryRowProps) {
 	const router = useRouter()
 
 	const handleRowClick = () => {
-		router.push(`/games/${game.id}`)
+		router.push(`/games/${gameSession.id}`)
 	}
 
-	const formattedDate = format(game.gameDatetime, "MMM d, yyyy 'at' h:mm a")
+	console.log({ gameSession })
+
+	const formattedDate = format(
+		gameSession.gameDatetime,
+		"MMM d, yyyy 'at' h:mm a",
+	)
 
 	return (
 		<TableRow
@@ -24,7 +29,7 @@ export function GameHistoryRow({ game }: GameHistoryRowProps) {
 			className="cursor-pointer hover:bg-muted/70"
 		>
 			<TableCell>{formattedDate}</TableCell>
-			<TableCell>{game.games.length}</TableCell>
+			<TableCell>{gameSession.games.length}</TableCell>
 		</TableRow>
 	)
 }

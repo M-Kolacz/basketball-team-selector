@@ -22,6 +22,10 @@ async function seed() {
 		await prisma.user.deleteMany()
 		console.log('🗑️  Clearing existing teams...')
 		await prisma.team.deleteMany()
+		console.log('🗑️  Clearing existing games...')
+		await prisma.game.deleteMany()
+		console.log('🗑️  Clearing existing scores...')
+		await prisma.score.deleteMany()
 
 		console.log('📝 Inserting seed users data...')
 		await prisma.user.create({
@@ -118,33 +122,37 @@ async function seed() {
 			})
 		}
 
-		const game = await prisma.game.create({
-			data: {
-				gameSession: {
-					connect: { id: gameSession.id },
-				},
-			},
-		})
+		const games = Array.from({ length: 5 })
 
-		const firstScore = await prisma.score.create({
-			data: {
-				points: faker.number.int({ min: 0, max: 30 }),
-				game: { connect: { id: game.id } },
-				team: {
-					connect: { id: teams[0]!.id },
+		for (const ignored of games) {
+			const game = await prisma.game.create({
+				data: {
+					gameSession: {
+						connect: { id: gameSession.id },
+					},
 				},
-			},
-		})
+			})
 
-		const secondScore = await prisma.score.create({
-			data: {
-				points: faker.number.int({ min: 0, max: 30 }),
-				game: { connect: { id: game.id } },
-				team: {
-					connect: { id: teams[1]!.id },
+			await prisma.score.create({
+				data: {
+					points: faker.number.int({ min: 0, max: 30 }),
+					game: { connect: { id: game.id } },
+					team: {
+						connect: { id: teams[0]!.id },
+					},
 				},
-			},
-		})
+			})
+
+			await prisma.score.create({
+				data: {
+					points: faker.number.int({ min: 0, max: 30 }),
+					game: { connect: { id: game.id } },
+					team: {
+						connect: { id: teams[1]!.id },
+					},
+				},
+			})
+		}
 
 		console.log('📝 Updating seed game sessions data with propositions...')
 		await prisma.gameSession.update({

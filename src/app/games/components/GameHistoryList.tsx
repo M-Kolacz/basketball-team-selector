@@ -1,7 +1,6 @@
 'use client'
 
 import { GameHistoryRow } from '#app/app/games/components/GameHistoryRow'
-import { type GameHistoryViewModel } from '#app/app/games/utils/transform'
 import {
 	Empty,
 	EmptyHeader,
@@ -15,13 +14,14 @@ import {
 	TableHead,
 	TableRow,
 } from '#app/components/ui/table'
+import { type GameSessionAction } from '#app/lib/actions/game-sessions'
 
 interface GameHistoryListProps {
-	games: GameHistoryViewModel[]
+	gameSessions: GameSessionAction[]
 }
 
-export function GameHistoryList({ games }: GameHistoryListProps) {
-	if (games.length === 0) {
+export function GameHistoryList({ gameSessions }: GameHistoryListProps) {
+	if (gameSessions.length === 0) {
 		return (
 			<Empty>
 				<EmptyHeader>
@@ -51,8 +51,8 @@ export function GameHistoryList({ games }: GameHistoryListProps) {
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{games.map((game) => (
-						<GameHistoryRow key={game.id} game={game} />
+					{gameSessions.map((gameSession) => (
+						<GameHistoryRow key={gameSession.id} gameSession={gameSession} />
 					))}
 				</TableBody>
 			</Table>
