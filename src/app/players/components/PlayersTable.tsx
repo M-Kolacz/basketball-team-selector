@@ -8,12 +8,14 @@ import {
 	TableHeader,
 	TableRow,
 } from '#app/components/ui/table'
-import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
+import { type Players } from '#app/lib/actions/players'
+
+type Player = Players[number]
 
 type PlayersTableProps = {
-	players: PlayerAdminDto[] | PlayerUserDto[]
+	players: Players
 	isAdmin: boolean
-	onEdit?: (player: PlayerAdminDto) => void
+	onEdit?: (player: Player) => void
 }
 
 export function PlayersTable({ players, isAdmin, onEdit }: PlayersTableProps) {

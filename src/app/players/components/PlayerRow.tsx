@@ -12,14 +12,15 @@ import {
 import { Badge } from '#app/components/ui/badge'
 import { Button } from '#app/components/ui/button'
 import { TableCell, TableRow } from '#app/components/ui/table'
-import { deletePlayer } from '#app/lib/actions/players'
+import { deletePlayer, type Players } from '#app/lib/actions/players'
 import { DeletePlayerSchema } from '#app/lib/validations/player'
-import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
+
+type Player = Players[number]
 
 type PlayerRowProps = {
-	player: PlayerAdminDto | PlayerUserDto
+	player: Player
 	isAdmin: boolean
-	onEdit?: (player: PlayerAdminDto) => void
+	onEdit?: (player: Player) => void
 }
 
 export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
@@ -39,27 +40,25 @@ export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
 		shouldRevalidate: 'onInput',
 	})
 
-	const adminPlayer = isAdmin ? (player as PlayerAdminDto) : null
-
 	return (
 		<TableRow>
 			<TableCell className="font-medium">{player.name}</TableCell>
 
-			{isAdmin && adminPlayer && (
+			{isAdmin && (
 				<TableCell>
 					<Badge
 						variant="secondary"
-						className={SKILL_TIER_COLORS[adminPlayer.skillTier]}
+						className={SKILL_TIER_COLORS[player.skillTier]}
 					>
-						{SKILL_TIER_LABELS[adminPlayer.skillTier]}
+						{SKILL_TIER_LABELS[player.skillTier]}
 					</Badge>
 				</TableCell>
 			)}
 
-			{isAdmin && adminPlayer && (
+			{isAdmin && (
 				<TableCell>
 					<div className="flex flex-wrap gap-1">
-						{adminPlayer.positions.map((pos) => (
+						{player.positions.map((pos) => (
 							<Badge key={pos} variant="outline">
 								{POSITION_LABELS[pos]}
 							</Badge>
@@ -74,13 +73,13 @@ export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
 				</TableCell>
 			)}
 
-			{isAdmin && adminPlayer && (
+			{isAdmin && (
 				<TableCell>
 					<div className="flex gap-2">
 						<Button
 							variant="ghost"
 							size="sm"
-							onClick={() => onEdit?.(player as PlayerAdminDto)}
+							onClick={() => onEdit?.(player)}
 							aria-label={`Edit ${player.name}`}
 						>
 							<Pencil className="h-4 w-4" />

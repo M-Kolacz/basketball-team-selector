@@ -148,7 +148,8 @@ export async function updateGameScoreAction(formData: FormData) {
 	}
 
 	const games = Array.isArray(gameSession.games)
-		? (gameSession.games as Array<Array<{ score: number; teamId: string }>>)
+		? // @ts-ignore
+			(gameSession.games as Array<Array<{ score: number; teamId: string }>>)
 		: []
 
 	if (gameIndex >= games.length) {
@@ -161,6 +162,7 @@ export async function updateGameScoreAction(formData: FormData) {
 
 	await prisma.gameSession.update({
 		where: { id: gameSessionId },
+		// @ts-ignore
 		data: { games },
 	})
 

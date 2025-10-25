@@ -11,29 +11,28 @@ import {
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
 
-const options = {
-	user: { id: true, name: true, createdAt: true },
-	admin: {
-		id: true,
-		name: true,
-		skillTier: true,
-		positions: true,
-		createdAt: true,
-		updatedAt: true,
-	},
-} as const
-
 export async function getPlayers() {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
 
+	const isAdminUser = currentUser.role === 'admin'
+
 	const players = await prisma.player.findMany({
-		select: options[currentUser.role],
+		select: {
+			id: true,
+			name: true,
+			skillTier: isAdminUser,
+			positions: isAdminUser,
+			createdAt: isAdminUser,
+			updatedAt: isAdminUser,
+		},
 	})
 
 	return players
 }
+
+export type Players = Awaited<ReturnType<typeof getPlayers>>
 
 export async function createPlayer(_prevState: unknown, formData: FormData) {
 	const submission = await parseWithZod(formData, {

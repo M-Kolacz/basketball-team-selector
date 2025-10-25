@@ -4,20 +4,20 @@ import { useState } from 'react'
 import { AddPlayerForm } from '#app/app/players/components/AddPlayerForm'
 import { EditPlayerDialog } from '#app/app/players/components/EditPlayerDialog'
 import { PlayersTable } from '#app/app/players/components/PlayersTable'
-import { type PlayerAdminDto, type PlayerUserDto } from '#app/types/dto'
+import { type Players } from '#app/lib/actions/players'
 
 type PlayersListProps = {
-	players: PlayerAdminDto[] | PlayerUserDto[]
+	players: Players
 	isAdmin: boolean
 }
 
+type Player = Players[number]
+
 export function PlayersList({ players, isAdmin }: PlayersListProps) {
-	const [editingPlayer, setEditingPlayer] = useState<PlayerAdminDto | null>(
-		null,
-	)
+	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null)
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
-	const handleEdit = (player: PlayerAdminDto) => {
+	const handleEdit = (player: Player) => {
 		setEditingPlayer(player)
 		setIsEditDialogOpen(true)
 	}

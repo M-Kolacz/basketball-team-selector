@@ -6,7 +6,6 @@ import {
 	type Player,
 	type Team,
 } from '#app/lib/db.server'
-import { connect } from 'node:http2'
 
 async function seed() {
 	console.log('🌱 Seeding database...')

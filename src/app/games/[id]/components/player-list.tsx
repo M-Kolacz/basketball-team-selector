@@ -1,5 +1,5 @@
 import { PlayerBadge } from '#app/app/games/[id]/components/player-badge'
-import { type GameSession } from '#app/lib/actions/game-sessions.server'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type PlayerListProps = {
 	players: NonNullable<

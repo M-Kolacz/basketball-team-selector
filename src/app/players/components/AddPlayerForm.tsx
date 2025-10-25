@@ -30,9 +30,9 @@ import {
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
 import { createPlayer } from '#app/lib/actions/players'
+import { type Position, type SkillTier } from '#app/lib/db.server'
 import { cn } from '#app/lib/utils'
 import { CreatePlayerSchema } from '#app/lib/validations/player'
-import { type Position, type SkillTier } from '#app/types/dto'
 
 const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']

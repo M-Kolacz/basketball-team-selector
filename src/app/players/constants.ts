@@ -1,4 +1,4 @@
-import { type Position, type SkillTier } from '#app/types/dto'
+import { type Position, type SkillTier } from '#app/lib/db.server'
 
 export const POSITION_LABELS: Record<Position, string> = {
 	PG: 'Point Guard',
