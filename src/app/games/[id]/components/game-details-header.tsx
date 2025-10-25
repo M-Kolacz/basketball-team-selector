@@ -4,10 +4,11 @@ import { format } from 'date-fns'
 import { ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { Button } from '#app/components/ui/button'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type GameDetailsHeaderProps = {
-	gameDatetime: Date
-	description: string | null
+	gameDatetime: GameSession['gameDatetime']
+	description: GameSession['description']
 }
 
 export function GameDetailsHeader({

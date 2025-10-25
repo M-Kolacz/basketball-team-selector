@@ -12,7 +12,7 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { updateGameScoreAction } from '#app/lib/actions/game-sessions.server'
+import { updateGameScoreAction } from '#app/lib/actions/game-sessions'
 import { UpdateGameScoreSchema } from '#app/lib/validations/game-session'
 
 type ScoreInputFormProps = {

@@ -25,18 +25,13 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { updatePlayer } from '#app/lib/actions/players'
+import { type Players, updatePlayer } from '#app/lib/actions/players'
+import { type SkillTier, type Position } from '#app/lib/db.server'
 import { UpdatePlayerSchema } from '#app/lib/validations/player'
-import {
-	type PlayerAdminDto,
-	type PlayerUserDto,
-	type Position,
-	type SkillTier,
-} from '#app/types/dto'
 
 type EditPlayerDialogProps = {
 	isOpen: boolean
-	player: PlayerAdminDto | null
+	player: Players[number] | null
 	onCancel: () => void
 }
 
@@ -48,8 +43,6 @@ export function EditPlayerDialog({
 	onCancel,
 	player,
 }: EditPlayerDialogProps) {
-	console.log({ player })
-
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		updatePlayer,
 		undefined,

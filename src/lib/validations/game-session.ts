@@ -14,3 +14,8 @@ export const UpdateGameScoreSchema = z.object({
 })
 
 export type UpdateGameScoreCommand = z.infer<typeof UpdateGameScoreSchema>
+
+export const GetGameSessionSchema = z.object({
+	gameSessionId: z.string().uuid('Invalid game session ID'),
+})
+export type GetGameSessionQuery = z.infer<typeof GetGameSessionSchema>

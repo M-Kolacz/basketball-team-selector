@@ -46,13 +46,13 @@ model Team {
 
   players      Player[]
   propositions Proposition[]
+  scores       Score[]
 }
 
 model GameSession {
   id           String   @id @default(uuid())
   gameDatetime DateTime
   description  String?
-  games        Json     @default("[]")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -60,6 +60,7 @@ model GameSession {
   propositions          Proposition[]
   selectedProposition   Proposition?  @relation("SelectedProposition", fields: [selectedPropositionId], references: [id], onDelete: SetNull)
   selectedPropositionId String?       @unique
+  games                 Game[]
 }
 
 model Proposition {
@@ -72,6 +73,29 @@ model Proposition {
   gameSessionId         String
   selectedByGameSession GameSession? @relation("SelectedProposition")
   teams                 Team[]
+}
+
+model Game {
+  id String @id @default(uuid())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  gameSession   GameSession @relation(fields: [gameSessionId], references: [id], onDelete: Cascade)
+  gameSessionId String
+  scores        Score[]
+}
+
+model Score {
+  id     String @id @default(uuid())
+  points Int
+
+  createdAt DateTime @default(now())
+
+  game   Game   @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId String
+  team   Team   @relation(fields: [teamId], references: [id])
+  teamId String
 }
 
 enum UserRole {

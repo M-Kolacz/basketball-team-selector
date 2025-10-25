@@ -41,13 +41,31 @@
 _Note: The many-to-many relationship between teams and players is managed by
 Prisma through an implicit join table `_PlayerToTeam` (player_id, team_id)._
 
+### games
+
+```sql
+- id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
+- game_session_id: UUID (NOT NULL, FOREIGN KEY → game_sessions.id)
+- created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+- updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+```
+
+### scores
+
+```sql
+- id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
+- points: INTEGER (NOT NULL)
+- game_id: UUID (NOT NULL, FOREIGN KEY → games.id)
+- team_id: UUID (NOT NULL, FOREIGN KEY → teams.id)
+- created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
+```
+
 ### game_sessions
 
 ```sql
 - id: UUID (PRIMARY KEY, DEFAULT gen_random_uuid())
 - game_datetime: TIMESTAMP WITH TIME ZONE (NOT NULL)
 - description: TEXT (NULLABLE)
-- games: JSONB (DEFAULT '[]', NOT NULL)
 - selected_proposition_id: UUID (NULLABLE, UNIQUE, FOREIGN KEY → propositions.id)
 - created_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
 - updated_at: TIMESTAMP WITH TIME ZONE (NOT NULL, DEFAULT NOW())
@@ -71,6 +89,9 @@ team_id)._
 ### One-to-Many Relationships
 
 - game_sessions → many propositions (via propositions.game_session_id)
+- game_sessions → many games (via games.game_session_id)
+- games → many scores (via scores.game_id)
+- teams → many scores (via scores.team_id)
 
 ### One-to-One Relationships
 
@@ -93,7 +114,8 @@ _Note: Prisma automatically creates indexes for the following:_
 - Unique constraints (`users.username`, `passwords.user_id`, `players.name`,
   `game_sessions.selected_proposition_id`)
 - Foreign key fields (`passwords.user_id`, `propositions.game_session_id`,
-  `game_sessions.selected_proposition_id`)
+  `game_sessions.selected_proposition_id`, `games.game_session_id`,
+  `scores.game_id`, `scores.team_id`)
 - Join table columns (indexes on `_PlayerToTeam` and `_PropositionToTeam`)
 
 _Additional performance indexes can be added manually if needed:_
@@ -139,25 +161,15 @@ CREATE TYPE position_enum AS ENUM ('PG', 'SG', 'SF', 'PF', 'C');
 - PF = Power Forward
 - C = Center
 
-### JSONB Structure for games array (in game_sessions table)
+### Games and Scores Structure
 
-Each game is represented as an array containing score objects for each team:
+Games are now stored in two separate tables instead of a JSON field:
 
-```json
-[
-	[
-		{ "score": 32, "teamId": "uuid-of-team-1" },
-		{ "score": 28, "teamId": "uuid-of-team-2" }
-	],
-	[
-		{ "score": 29, "teamId": "uuid-of-team-1" },
-		{ "score": 32, "teamId": "uuid-of-team-2" }
-	]
-]
-```
-
-Each inner array represents a single game, with score objects indicating the
-score and team ID for each participating team.
+- **games table**: Each record represents a single game within a game session.
+  Contains `game_session_id` to link back to the session.
+- **scores table**: Each record represents one team's score in a game. Contains
+  `game_id` (to identify which game), `team_id` (to identify which team), and
+  `points` (the score).
 
 ### Database Triggers
 
@@ -182,6 +194,9 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 CREATE TRIGGER set_updated_at_game_sessions BEFORE UPDATE ON game_sessions
 FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+CREATE TRIGGER set_updated_at_games BEFORE UPDATE ON games
+FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 ```
 
 ### Cascade Behaviors
@@ -191,9 +206,12 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
   deletes all its propositions)
 - game_sessions.selected_proposition_id → ON DELETE SET NULL (deleting a
   proposition doesn't delete the game session)
+- games.game_session_id → ON DELETE CASCADE (deleting a game session deletes
+  all its games)
+- scores.game_id → ON DELETE CASCADE (deleting a game deletes all its scores)
 - `_PlayerToTeam` join table → ON DELETE CASCADE for both player_id and team_id
 - `_PropositionToTeam` join table → ON DELETE CASCADE for both proposition_id
   and team_id
 
-_Note: The `propositions` table intentionally does not have an `updated_at`
-field, as propositions are considered immutable once created._
+_Note: The `propositions` and `scores` tables intentionally do not have an
+`updated_at` field, as they are considered immutable once created._

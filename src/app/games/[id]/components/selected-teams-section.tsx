@@ -1,8 +1,8 @@
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
-import  { type TeamViewModel } from '#app/app/games/[id]/types'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type SelectedTeamsSectionProps = {
-	teams: TeamViewModel[]
+	teams: NonNullable<GameSession['selectedProposition']>['teams']
 }
 
 export function SelectedTeamsSection({ teams }: SelectedTeamsSectionProps) {

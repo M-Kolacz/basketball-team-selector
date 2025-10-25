@@ -1,8 +1,10 @@
 import { PlayerBadge } from '#app/app/games/[id]/components/player-badge'
-import  { type PlayerViewModel } from '#app/app/games/[id]/types'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type PlayerListProps = {
-	players: PlayerViewModel[]
+	players: NonNullable<
+		GameSession['selectedProposition']
+	>['teams'][number]['players']
 }
 
 export function PlayerList({ players }: PlayerListProps) {
