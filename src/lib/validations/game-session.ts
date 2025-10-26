@@ -13,3 +13,11 @@ export const GetGameSessionSchema = z.object({
 	gameSessionId: z.string().uuid('Invalid game session ID'),
 })
 export type GetGameSessionQuery = z.infer<typeof GetGameSessionSchema>
+
+export const CreateGameSessionSchema = z.object({
+	gameDatetime: z.string().datetime('Invalid datetime format'),
+	description: z.string().max(500).optional(),
+	playerIds: z.array(z.string().uuid()),
+})
+
+export type CreateGameSessionCommand = z.infer<typeof CreateGameSessionSchema>

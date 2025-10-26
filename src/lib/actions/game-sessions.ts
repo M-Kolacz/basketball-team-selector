@@ -1,12 +1,15 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { z } from 'zod'
 import { getCurrentUser, requireAdminUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import {
 	UpdateGameScoreSchema,
 	GetGameSessionSchema,
+	CreateGameSessionSchema,
 } from '#app/lib/validations/game-session'
 
 export async function getGameSessions() {
@@ -122,6 +125,90 @@ export async function getGameSession(gameSessionId: string) {
 }
 
 export type GameSession = Awaited<ReturnType<typeof getGameSession>>
+
+export async function createGameSessionAction(
+	_prevState: unknown,
+	formData: FormData,
+) {
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			CreateGameSessionSchema.transform(async (data, ctx) => {
+				if (intent !== null) return { ...data }
+
+				const user = await getCurrentUser()
+				if (!user || user.role !== 'admin') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Unauthorized access',
+					})
+					return z.NEVER
+				}
+
+				// Future date validation
+				const gameDate = new Date(data.gameDatetime)
+				if (gameDate <= new Date()) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Game date must be in the future',
+						path: ['gameDatetime'],
+					})
+					return z.NEVER
+				}
+
+				// Player count validation
+				if (data.playerIds.length < 10) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Minimum 10 players required',
+						path: ['playerIds'],
+					})
+					return z.NEVER
+				}
+				if (data.playerIds.length > 20) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Maximum 20 players allowed',
+						path: ['playerIds'],
+					})
+					return z.NEVER
+				}
+
+				const players = await prisma.player.findMany({
+					where: { id: { in: data.playerIds } },
+				})
+				if (players.length !== data.playerIds.length) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Some players do not exist',
+						path: ['playerIds'],
+					})
+					return z.NEVER
+				}
+
+				return { ...data, players }
+			}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { gameDatetime, description } = submission.value
+
+	await prisma.gameSession.create({
+		data: {
+			gameDatetime: new Date(gameDatetime),
+			description: description ?? null,
+		},
+		select: {
+			id: true,
+		},
+	})
+
+	revalidatePath('/games')
+	redirect('/games')
+}
 
 export async function updateGameScore(_prevState: unknown, formData: FormData) {
 	await requireAdminUser()
