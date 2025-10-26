@@ -3,7 +3,6 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
-import { type GameScoreViewModel } from '#app/app/games/[id]/types'
 import { Button } from '#app/components/ui/button'
 import {
 	Field,
@@ -12,24 +11,22 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { updateGameScore } from '#app/lib/actions/game-sessions'
+import {
+	updateGameScore,
+	type GameSession,
+} from '#app/lib/actions/game-sessions'
 import { UpdateGameScoreSchema } from '#app/lib/validations/game-session'
 
 type ScoreInputFormProps = {
-	gameSessionId: string
-	gameIndex: number
-	score: GameScoreViewModel
+	scores: GameSession['games'][number]['scores']
 	onCancel: () => void
 }
 
-export function ScoreInputForm({
-	gameSessionId,
-	gameIndex,
-	score,
-	onCancel,
-}: ScoreInputFormProps) {
+export function ScoreInputForm({ scores, onCancel }: ScoreInputFormProps) {
+	const firstScore = scores[0]!
+	const secondScore = scores[1]!
+
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		// @ts-ignore To be fixed in next PR
 		updateGameScore,
 		undefined,
 	)
@@ -42,63 +39,42 @@ export function ScoreInputForm({
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 		defaultValue: {
-			gameSessionId,
-			gameIndex,
-			scores: score,
+			firstScoreId: firstScore.id,
+			firstScorePoints: firstScore.points,
+			secondScoreId: secondScore.id,
+			secondScorePoints: secondScore.points,
 		},
 	})
 
-	const scoresField = fields.scores.getFieldList()
-
 	return (
 		<form action={formAction} {...getFormProps(form)} className="space-y-4">
-			<input
-				type="hidden"
-				name={fields.gameSessionId.name}
-				value={gameSessionId}
-			/>
-			<input type="hidden" name={fields.gameIndex.name} value={gameIndex} />
+			<input {...getInputProps(fields.firstScoreId, { type: 'hidden' })} />
+			<input {...getInputProps(fields.secondScoreId, { type: 'hidden' })} />
 
 			<FieldGroup>
 				<div className="grid gap-4 sm:grid-cols-2">
 					<Field>
-						<FieldLabel htmlFor={scoresField[0]?.getFieldset().score.id}>
+						<FieldLabel htmlFor={fields.firstScorePoints.id}>
 							Team A Score
 						</FieldLabel>
 						<Input
-							// @ts-ignore To be fixed in next PR
-							{...getInputProps(scoresField[0]?.getFieldset().score, {
-								type: 'number',
-							})}
+							{...getInputProps(fields.firstScorePoints, { type: 'number' })}
 							disabled={isSubmitting}
-							min="0"
 						/>
-						<input
-							type="hidden"
-							name={scoresField[0]?.getFieldset().teamId.name}
-							value={score[0]?.teamId}
-						/>
-						<FieldError errors={scoresField[0]?.getFieldset().score.errors} />
+
+						<FieldError errors={fields.firstScorePoints.errors} />
 					</Field>
 
 					<Field>
-						<FieldLabel htmlFor={scoresField[1]?.getFieldset().score.id}>
+						<FieldLabel htmlFor={fields.secondScorePoints.id}>
 							Team B Score
 						</FieldLabel>
 						<Input
-							// @ts-ignore To be fixed in next PR
-							{...getInputProps(scoresField[1]?.getFieldset().score, {
-								type: 'number',
-							})}
+							{...getInputProps(fields.secondScorePoints, { type: 'number' })}
 							disabled={isSubmitting}
-							min="0"
 						/>
-						<input
-							type="hidden"
-							name={scoresField[1]?.getFieldset().teamId.name}
-							value={score[1]?.teamId}
-						/>
-						<FieldError errors={scoresField[1]?.getFieldset().score.errors} />
+
+						<FieldError errors={fields.secondScorePoints.errors} />
 					</Field>
 				</div>
 
