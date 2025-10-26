@@ -11,6 +11,7 @@ import {
 	UpdateGameScoreSchema,
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
+	SelectPropositionSchema,
 } from '#app/lib/validations/game-session'
 
 export async function getGameSessions() {
@@ -279,4 +280,91 @@ export async function updateGameScore(_prevState: unknown, formData: FormData) {
 	})
 
 	return submission.reply()
+}
+
+export async function selectPropositionAction(
+	_prevState: unknown,
+	formData: FormData,
+) {
+	const submission = await parseWithZod(formData, {
+		schema: SelectPropositionSchema.transform(async (data, ctx) => {
+			const user = await getCurrentUser()
+			if (!user || user.role !== 'admin') {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: 'Unauthorized access',
+				})
+				return z.NEVER
+			}
+
+			const proposition = await prisma.proposition.findUnique({
+				where: { id: data.propositionId },
+				select: { gameSessionId: true },
+			})
+
+			if (!proposition) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: 'Proposition not found',
+					path: ['propositionId'],
+				})
+				return z.NEVER
+			}
+
+			if (proposition.gameSessionId !== data.gameSessionId) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: 'Proposition does not belong to this game session',
+					path: ['propositionId'],
+				})
+				return z.NEVER
+			}
+
+			const gameSession = await prisma.gameSession.findUnique({
+				where: { id: data.gameSessionId },
+				select: { selectedPropositionId: true },
+			})
+
+			if (!gameSession) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: 'Game session not found',
+					path: ['gameSessionId'],
+				})
+				return z.NEVER
+			}
+
+			if (gameSession.selectedPropositionId !== null) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message:
+						'A proposition has already been selected for this game session',
+					path: ['propositionId'],
+				})
+				return z.NEVER
+			}
+
+			return data
+		}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { gameSessionId, propositionId } = submission.value
+
+	try {
+		await prisma.gameSession.update({
+			where: { id: gameSessionId },
+			data: { selectedPropositionId: propositionId },
+		})
+	} catch (error) {
+		console.error('Error selecting proposition:', error)
+		throw new Error('Failed to select proposition')
+	}
+
+	revalidatePath(`/games/${gameSessionId}`)
+	redirect(`/games/${gameSessionId}`)
 }

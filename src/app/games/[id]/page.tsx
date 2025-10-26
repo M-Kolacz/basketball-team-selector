@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { GameDetailsHeader } from '#app/app/games/[id]/components/game-details-header'
 import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-section'
+import { PropositionsSection } from '#app/app/games/[id]/components/propositions-section'
 import { SelectedTeamsSection } from '#app/app/games/[id]/components/selected-teams-section'
 import { getGameSession } from '#app/lib/actions/game-sessions'
 import { getCurrentUser } from '#app/lib/auth.server'
@@ -27,6 +28,14 @@ export default async function GameDetailsPage({ params }: PageProps) {
 					gameDatetime={gameSession.gameDatetime}
 					description={gameSession.description}
 				/>
+
+				{gameSession.propositions.length > 0 && (
+					<PropositionsSection
+					propositions={gameSession.propositions}
+					gameSessionId={gameSession.id}
+					hasSelectedProposition={gameSession.selectedProposition !== null}
+				/>
+				)}
 
 				{gameSession.selectedProposition ? (
 					<SelectedTeamsSection teams={gameSession.selectedProposition.teams} />

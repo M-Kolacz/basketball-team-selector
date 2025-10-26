@@ -31,3 +31,10 @@ export const CreateGameSessionSchema = z.object({
 })
 
 export type CreateGameSessionCommand = z.infer<typeof CreateGameSessionSchema>
+
+export const SelectPropositionSchema = z.object({
+	gameSessionId: z.string().uuid('Invalid game session ID'),
+	propositionId: z.string().uuid('Invalid proposition ID'),
+})
+
+export type SelectPropositionCommand = z.infer<typeof SelectPropositionSchema>
