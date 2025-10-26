@@ -1,6 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { GameHistoryRow } from '#app/app/games/components/GameHistoryRow'
+import { Button } from '#app/components/ui/button'
 import {
 	Empty,
 	EmptyHeader,
@@ -18,9 +20,13 @@ import { type GameSessions } from '#app/lib/actions/game-sessions'
 
 interface GameHistoryListProps {
 	gameSessions: GameSessions
+	isAdmin: boolean
 }
 
-export function GameHistoryList({ gameSessions }: GameHistoryListProps) {
+export function GameHistoryList({
+	gameSessions,
+	isAdmin,
+}: GameHistoryListProps) {
 	if (gameSessions.length === 0) {
 		return (
 			<Empty>
@@ -30,17 +36,29 @@ export function GameHistoryList({ gameSessions }: GameHistoryListProps) {
 						There are no game sessions recorded yet.
 					</EmptyDescription>
 				</EmptyHeader>
+				{isAdmin && (
+					<Button asChild>
+						<Link href="/games/new">Create Game</Link>
+					</Button>
+				)}
 			</Empty>
 		)
 	}
 
 	return (
 		<div className="w-full">
-			<div className="mb-6">
-				<h1 className="text-3xl font-bold tracking-tight">Game History</h1>
-				<p className="text-muted-foreground">
-					View all past basketball game sessions
-				</p>
+			<div className="mb-6 flex items-center justify-between">
+				<div>
+					<h1 className="text-3xl font-bold tracking-tight">Game History</h1>
+					<p className="text-muted-foreground">
+						View all past basketball game sessions
+					</p>
+				</div>
+				{isAdmin && (
+					<Button asChild>
+						<Link href="/games/new">Create Game</Link>
+					</Button>
+				)}
 			</div>
 
 			<Table>

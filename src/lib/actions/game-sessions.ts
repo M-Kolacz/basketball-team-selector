@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { getCurrentUser, requireAdminUser } from '#app/lib/auth.server'
+import { generatePropositions } from '#app/lib/createTeamPropositions'
 import { prisma } from '#app/lib/db.server'
 import {
 	UpdateGameScoreSchema,
@@ -194,9 +195,15 @@ export async function createGameSessionAction(
 		return { result: submission.reply() }
 	}
 
-	const { gameDatetime, description } = submission.value
+	const { gameDatetime, description, playerIds } = submission.value
 
-	await prisma.gameSession.create({
+	const players = await prisma.player.findMany({
+		where: { id: { in: playerIds } },
+	})
+
+	const propositions = await generatePropositions(players)
+
+	const gameSession = await prisma.gameSession.create({
 		data: {
 			gameDatetime: new Date(gameDatetime),
 			description: description ?? null,
@@ -205,6 +212,35 @@ export async function createGameSessionAction(
 			id: true,
 		},
 	})
+
+	for (const proposition of propositions.object.propositions) {
+		const teams = []
+		for (const team of proposition.teams) {
+			const newTeam = await prisma.team.create({
+				data: {
+					players: {
+						connect: team.map((playerName) => {
+							const player = players.find((p) => p.name === playerName)!
+							return { id: player.id }
+						}),
+					},
+				},
+			})
+			teams.push(newTeam.id)
+		}
+
+		await prisma.proposition.create({
+			data: {
+				type: 'general',
+				teams: {
+					connect: teams.map((teamId) => ({ id: teamId })),
+				},
+				gameSession: {
+					connect: { id: gameSession.id },
+				},
+			},
+		})
+	}
 
 	revalidatePath('/games')
 	redirect('/games')

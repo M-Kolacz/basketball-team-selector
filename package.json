@@ -25,6 +25,7 @@
     "db:studio": "prisma studio"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.23",
     "@conform-to/react": "^1.12.1",
     "@conform-to/zod": "^1.12.1",
     "@epic-web/remember": "^1.1.0",
@@ -58,6 +59,7 @@
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@t3-oss/env-nextjs": "^0.13.8",
+    "ai": "^5.0.80",
     "bcryptjs": "^3.0.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

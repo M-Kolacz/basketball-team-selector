@@ -15,7 +15,17 @@ export const GetGameSessionSchema = z.object({
 export type GetGameSessionQuery = z.infer<typeof GetGameSessionSchema>
 
 export const CreateGameSessionSchema = z.object({
-	gameDatetime: z.string().datetime('Invalid datetime format'),
+	gameDatetime: z
+		.string()
+		.min(1, 'Game date and time is required')
+		.refine((datetime) => {
+			const selectedDate = new Date(datetime)
+			return !isNaN(selectedDate.getTime())
+		}, 'Invalid date format')
+		.refine(
+			(datetime) => new Date(datetime) >= new Date(),
+			'Game date cannot be in the past',
+		),
 	description: z.string().max(500).optional(),
 	playerIds: z.array(z.string().uuid()),
 })
