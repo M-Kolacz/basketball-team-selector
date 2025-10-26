@@ -1,14 +1,41 @@
-import { type GameSession } from '#app/lib/actions/game-sessions'
+import { useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 type PlayerBadgeProps = {
-	player: NonNullable<
-		GameSession['selectedProposition']
-	>['teams'][number]['players'][number]
+	player: { id: string; name: string }
+	propositionId: string
+	teamId: string
 }
 
-export function PlayerBadge({ player }: PlayerBadgeProps) {
+export function PlayerBadge({
+	player,
+	propositionId,
+	teamId,
+}: PlayerBadgeProps) {
+	const sortableId = `${propositionId}::${teamId}::${player.id}`
+	const {
+		attributes,
+		listeners,
+		setNodeRef,
+		transform,
+		transition,
+		isDragging,
+	} = useSortable({ id: sortableId })
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	}
+
 	return (
-		<div className="flex items-center gap-2 rounded-lg border bg-card p-3">
+		<div
+			ref={setNodeRef}
+			style={style}
+			{...attributes}
+			{...listeners}
+			className="flex cursor-grab items-center gap-2 rounded-lg border bg-card p-3 active:cursor-grabbing"
+		>
 			<div className="flex-1">
 				<div className="font-medium">{player.name}</div>
 			</div>

@@ -368,3 +368,28 @@ export async function selectPropositionAction(
 	revalidatePath(`/games/${gameSessionId}`)
 	redirect(`/games/${gameSessionId}`)
 }
+
+export async function updatePropositionTeams(
+	propositionId: string,
+	teamUpdates: Array<{ teamId: string; playerIds: string[] }>,
+) {
+	await requireAdminUser()
+
+	try {
+		for (const update of teamUpdates) {
+			await prisma.team.update({
+				where: { id: update.teamId },
+				data: {
+					players: {
+						set: update.playerIds.map((id) => ({ id })),
+					},
+				},
+			})
+		}
+
+		revalidatePath(`/games`)
+	} catch (error) {
+		console.error('Error updating proposition teams:', error)
+		throw new Error('Failed to update proposition teams')
+	}
+}

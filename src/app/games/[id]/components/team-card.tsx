@@ -5,14 +5,21 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type TeamCardProps = {
-	team: NonNullable<GameSession['selectedProposition']>['teams'][number]
+	team: {
+		id: string
+		players: Array<{ id: string; name: string }>
+	}
 	teamLabel: 'Team A' | 'Team B'
+	propositionId: string
 }
 
-export function TeamCard({ team, teamLabel }: TeamCardProps) {
+export function TeamCard({
+	team,
+	teamLabel,
+	propositionId,
+}: TeamCardProps) {
 	return (
 		<Card>
 			<CardHeader>
@@ -24,7 +31,11 @@ export function TeamCard({ team, teamLabel }: TeamCardProps) {
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<PlayerList players={team.players} />
+				<PlayerList
+					players={team.players}
+					teamId={team.id}
+					propositionId={propositionId}
+				/>
 			</CardContent>
 		</Card>
 	)
