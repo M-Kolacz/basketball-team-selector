@@ -93,7 +93,6 @@ export async function deletePlayer(_prevState: unknown, formData: FormData) {
 			DeletePlayerSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				// 1. Authentication check
 				const currentUser = await getCurrentUser()
 
 				if (!currentUser || currentUser.role !== 'admin') {
@@ -104,7 +103,6 @@ export async function deletePlayer(_prevState: unknown, formData: FormData) {
 					return z.NEVER
 				}
 
-				// 2. Existence check
 				const player = await prisma.player.findUnique({
 					where: { id: data.id },
 					select: { id: true },

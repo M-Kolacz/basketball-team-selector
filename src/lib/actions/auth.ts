@@ -10,7 +10,7 @@ import { prisma } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import { LoginSchema, RegisterSchema } from '#app/lib/validations/auth'
 
-export const loginAction = async (_prevState: unknown, formData: FormData) => {
+export const login = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			LoginSchema.transform(async (data, ctx) => {

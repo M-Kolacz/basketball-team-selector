@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import { GameDetailsHeader } from '#app/app/games/[id]/components/game-details-header'
 import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-section'
 import { SelectedTeamsSection } from '#app/app/games/[id]/components/selected-teams-section'
-import { getGameSessionAction } from '#app/lib/actions/game-sessions'
+import { getGameSession } from '#app/lib/actions/game-sessions'
 import { getCurrentUser } from '#app/lib/auth.server'
 
 type PageProps = {
@@ -11,7 +11,7 @@ type PageProps = {
 
 export default async function GameDetailsPage({ params }: PageProps) {
 	const { id } = await params
-	const gameSession = await getGameSessionAction(id)
+	const gameSession = await getGameSession(id)
 
 	if (!gameSession) {
 		notFound()

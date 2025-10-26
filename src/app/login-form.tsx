@@ -19,12 +19,12 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { loginAction } from '#app/lib/actions/auth'
+import { login } from '#app/lib/actions/auth'
 import { LoginSchema } from '#app/lib/validations/auth'
 
 export function LoginForm() {
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		loginAction,
+		login,
 		undefined,
 	)
 	const [form, fields] = useForm({

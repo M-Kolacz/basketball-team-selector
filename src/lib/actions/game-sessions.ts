@@ -9,7 +9,7 @@ import {
 	GetGameSessionSchema,
 } from '#app/lib/validations/game-session'
 
-export async function getGameSessionsAction() {
+export async function getGameSessions() {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
@@ -60,9 +60,9 @@ export async function getGameSessionsAction() {
 	}
 }
 
-export type GameSessions = Awaited<ReturnType<typeof getGameSessionsAction>>
+export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>
 
-export async function getGameSessionAction(gameSessionId: string) {
+export async function getGameSession(gameSessionId: string) {
 	await requireAdminUser()
 
 	const { gameSessionId: validatedId } = GetGameSessionSchema.parse({
@@ -121,9 +121,9 @@ export async function getGameSessionAction(gameSessionId: string) {
 	return gameSession
 }
 
-export type GameSession = Awaited<ReturnType<typeof getGameSessionAction>>
+export type GameSession = Awaited<ReturnType<typeof getGameSession>>
 
-export async function updateGameScoreAction(formData: FormData) {
+export async function updateGameScore(formData: FormData) {
 	await requireAdminUser()
 
 	const submission = parseWithZod(formData, {
