@@ -123,7 +123,7 @@ export async function getGameSession(gameSessionId: string) {
 
 export type GameSession = Awaited<ReturnType<typeof getGameSession>>
 
-export async function updateGameScore(formData: FormData) {
+export async function updateGameScore(_prevState: unknown, formData: FormData) {
 	await requireAdminUser()
 
 	const submission = parseWithZod(formData, {
@@ -134,36 +134,25 @@ export async function updateGameScore(formData: FormData) {
 		return submission.reply()
 	}
 
-	const { gameSessionId, gameIndex, scores } = submission.value
+	const { firstScoreId, firstScorePoints, secondScoreId, secondScorePoints } =
+		submission.value
 
-	const gameSession = await prisma.gameSession.findUnique({
-		where: { id: gameSessionId },
-		select: { games: true },
+	await prisma.score.update({
+		where: {
+			id: firstScoreId,
+		},
+		data: {
+			points: firstScorePoints,
+		},
 	})
 
-	if (!gameSession) {
-		return submission.reply({
-			formErrors: ['Game session not found'],
-		})
-	}
-
-	const games = Array.isArray(gameSession.games)
-		? // @ts-ignore
-			(gameSession.games as Array<Array<{ score: number; teamId: string }>>)
-		: []
-
-	if (gameIndex >= games.length) {
-		return submission.reply({
-			formErrors: ['Invalid game index'],
-		})
-	}
-
-	games[gameIndex] = scores
-
-	await prisma.gameSession.update({
-		where: { id: gameSessionId },
-		// @ts-ignore
-		data: { games },
+	await prisma.score.update({
+		where: {
+			id: secondScoreId,
+		},
+		data: {
+			points: secondScorePoints,
+		},
 	})
 
 	return submission.reply()

@@ -35,9 +35,7 @@ export function GameScoreCard({
 				</CardHeader>
 				<CardContent>
 					<ScoreInputForm
-						gameSessionId={gameSessionId}
-						gameIndex={gameIndex}
-						score={[]}
+						scores={game.scores}
 						onCancel={() => setIsEditing(false)}
 					/>
 				</CardContent>
