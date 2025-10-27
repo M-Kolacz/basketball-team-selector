@@ -12,6 +12,7 @@ export function SelectedTeamsSection({ teams }: SelectedTeamsSectionProps) {
 			<div className="grid gap-6 md:grid-cols-2">
 				{teams.map((team, index) => (
 					<TeamCard
+						propositionId={team.id}
 						key={team.id}
 						team={team}
 						teamLabel={index === 0 ? 'Team A' : 'Team B'}

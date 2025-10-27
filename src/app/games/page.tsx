@@ -1,5 +1,6 @@
 import { type Metadata } from 'next'
 import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
+import { getCurrentUser } from '#app/lib/auth.server'
 import { getGameSessions } from '#app/lib/actions/game-sessions'
 
 export const metadata: Metadata = {
@@ -8,11 +9,16 @@ export const metadata: Metadata = {
 }
 
 export default async function GamesPage() {
-	const gameSessions = await getGameSessions()
+	const [gameSessions, currentUser] = await Promise.all([
+		getGameSessions(),
+		getCurrentUser(),
+	])
+
+	const isAdmin = currentUser?.role === 'admin'
 
 	return (
 		<main className="container mx-auto px-4 py-8">
-			<GameHistoryList gameSessions={gameSessions} />
+			<GameHistoryList gameSessions={gameSessions} isAdmin={isAdmin} />
 		</main>
 	)
 }

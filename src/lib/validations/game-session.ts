@@ -13,3 +13,51 @@ export const GetGameSessionSchema = z.object({
 	gameSessionId: z.string().uuid('Invalid game session ID'),
 })
 export type GetGameSessionQuery = z.infer<typeof GetGameSessionSchema>
+
+export const CreateGameSessionSchema = z.object({
+	gameDatetime: z
+		.string()
+		.min(1, 'Game date and time is required')
+		.refine((datetime) => {
+			const selectedDate = new Date(datetime)
+			return !isNaN(selectedDate.getTime())
+		}, 'Invalid date format')
+		.refine(
+			(datetime) => new Date(datetime) >= new Date(),
+			'Game date cannot be in the past',
+		),
+	description: z.string().max(500).optional(),
+	playerIds: z.array(z.string().uuid()),
+})
+
+export type CreateGameSessionCommand = z.infer<typeof CreateGameSessionSchema>
+
+export const SelectPropositionSchema = z.object({
+	gameSessionId: z.string().uuid('Invalid game session ID'),
+	propositionId: z.string().uuid('Invalid proposition ID'),
+})
+
+export type SelectPropositionCommand = z.infer<typeof SelectPropositionSchema>
+
+export const GameResultSchema = z.object({
+	gameSessionId: z.string().uuid('Invalid game session ID'),
+	gameId: z.string().uuid('Invalid game ID').optional(),
+	scores: z
+		.array(
+			z.object({
+				teamId: z.string().uuid('Invalid team ID'),
+				points: z.coerce
+					.number({
+						required_error: 'Score is required',
+						invalid_type_error: 'Score must be a number',
+					})
+					.int('Score must be a whole number')
+					.min(0, 'Score cannot be negative')
+					.max(300, 'Score cannot exceed 300'),
+			}),
+		)
+		.min(2, 'At least 2 team scores required'),
+})
+
+export type GameResultInput = z.input<typeof GameResultSchema>
+export type GameResultOutput = z.output<typeof GameResultSchema>

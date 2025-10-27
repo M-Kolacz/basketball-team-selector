@@ -5,7 +5,7 @@ all logical steps described in the plan.
 
 First, carefully review the provided implementation plan:
 
-<implementation_plan> @docs/backend/actions/user-register.md
+<implementation_plan> @docs/backend/actions/create-game-session-action.md
 </implementation_plan>
 
 <implementation_approach> Implement a maximum of 3 steps from the implementation

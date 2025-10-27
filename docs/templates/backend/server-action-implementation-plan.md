@@ -6,49 +6,6 @@ Before we begin, review the following information:
 
 1. Server action specification: <server_action_specification>
 
-#### registerUser(data: RegisterUserInput): Promise<RegisterUserResult>
-
-- **Description:** Register new user account (server action)
-- **Location:** `src/actions/auth.ts`
-- **Input Parameters:**
-
-```typescript
-{
-	username: string // max 50 chars
-	password: string // min 8 chars
-	confirmPassword: string // must match password
-}
-```
-
-- **Return Value:**
-
-```typescript
-{
-	success: true;
-	data: {
-		user: {
-			id: string; // uuid
-			username: string;
-			role: "user";
-		}
-	}
-}
-// OR
-{
-	success: false;
-	error: {
-		code: "USERNAME_EXISTS" | "VALIDATION_ERROR";
-		message: string;
-		fields?: Record<string, string>; // field-specific errors
-	}
-}
-```
-
-- **Side Effects:** JWT token saved in cookie
-- **Error Scenarios:**
-  - Username already exists
-  - Validation errors (password mismatch, invalid format, missing fields)
-
 </server_action_specification>
 
 2. Related database resources: <related_db_resources> @docs/backend/db.md
