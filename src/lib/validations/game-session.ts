@@ -38,3 +38,26 @@ export const SelectPropositionSchema = z.object({
 })
 
 export type SelectPropositionCommand = z.infer<typeof SelectPropositionSchema>
+
+export const GameResultSchema = z.object({
+	gameSessionId: z.string().uuid('Invalid game session ID'),
+	gameId: z.string().uuid('Invalid game ID').optional(),
+	scores: z
+		.array(
+			z.object({
+				teamId: z.string().uuid('Invalid team ID'),
+				points: z.coerce
+					.number({
+						required_error: 'Score is required',
+						invalid_type_error: 'Score must be a number',
+					})
+					.int('Score must be a whole number')
+					.min(0, 'Score cannot be negative')
+					.max(300, 'Score cannot exceed 300'),
+			}),
+		)
+		.min(2, 'At least 2 team scores required'),
+})
+
+export type GameResultInput = z.input<typeof GameResultSchema>
+export type GameResultOutput = z.output<typeof GameResultSchema>

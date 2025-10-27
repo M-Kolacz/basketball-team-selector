@@ -400,22 +400,73 @@ async function recordGameResultAction(prevState: unknown, formData: FormData)
 - **Purpose**: Record game scores (Admin only)
 - **Input Parameters**:
   - prevState: unknown
-  - formData: Contains gameSessionId, games
+  - formData: Contains gameSessionId, gameId (optional for update), scores[]
 - **Validation Schema**:
   ```typescript
   const GameResultSchema = z
   	.object({
   		gameSessionId: z.string().uuid(),
-  		games: Array<Array<{ score: number; teamId: string }>>,
+  		gameId: z.string().uuid().optional(), // If updating existing game
+  		scores: z.array(
+  			z.object({
+  				teamId: z.string().uuid(),
+  				points: z.coerce.number().int().min(0).max(300),
+  			})
+  		).min(2, 'At least 2 team scores required'),
   	})
   	.transform(async (data, ctx) => {
-  		// Admin check
-  		// Session exists check
-  		// Teams belong to session check
+  		if (intent !== null) return data
+
+  		// Admin authorization check
+  		const user = await getCurrentUser()
+  		if (!user || user.role !== 'admin') {
+  			ctx.addIssue({
+  				code: z.ZodIssueCode.custom,
+  				message: 'Unauthorized access',
+  			})
+  			return z.NEVER
+  		}
+
+  		// Validate game session exists
+  		const gameSession = await prisma.gameSession.findUnique({
+  			where: { id: data.gameSessionId },
+  			include: {
+  				selectedProposition: {
+  					include: { teams: true }
+  				}
+  			}
+  		})
+
+  		if (!gameSession) {
+  			ctx.addIssue({
+  				code: z.ZodIssueCode.custom,
+  				message: 'Game session not found',
+  				path: ['gameSessionId'],
+  			})
+  			return z.NEVER
+  		}
+
+  		// Validate teams belong to selected proposition
+  		const propositionTeamIds = gameSession.selectedProposition?.teams.map(t => t.id) || []
+  		const invalidTeams = data.scores.filter(s => !propositionTeamIds.includes(s.teamId))
+
+  		if (invalidTeams.length > 0) {
+  			ctx.addIssue({
+  				code: z.ZodIssueCode.custom,
+  				message: 'Some teams do not belong to the selected proposition',
+  				path: ['scores'],
+  			})
+  			return z.NEVER
+  		}
+
+  		return { ...data, gameSession }
   	})
   ```
 - **Return Type**: `{ result: SubmissionResult } | redirect`
-- **Database Operations**: Append to games JSONB array
+- **Database Operations**:
+  - Create new `Game` record linked to `gameSessionId`
+  - Create multiple `Score` records (one per team) linked to the new `Game`
+  - If `gameId` provided, update existing `Score` records instead
 - **Revalidation**: `revalidatePath('/games/[id]')` before redirect
 - **Error Handling**: Via ctx.addIssue
 
@@ -627,10 +678,13 @@ export const CreateGameSessionSchema = z.object({
 
 export const GameResultSchema = z.object({
 	gameSessionId: z.string().uuid(),
-	team1Id: z.string().uuid(),
-	team1Score: z.coerce.number().min(0).max(200),
-	team2Id: z.string().uuid(),
-	team2Score: z.coerce.number().min(0).max(200),
+	gameId: z.string().uuid().optional(),
+	scores: z.array(
+		z.object({
+			teamId: z.string().uuid(),
+			points: z.coerce.number().int().min(0).max(300),
+		})
+	).min(2, 'At least 2 team scores required'),
 })
 
 export const GeneratePropositionsSchema = z.object({

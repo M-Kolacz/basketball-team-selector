@@ -31,10 +31,10 @@ export default async function GameDetailsPage({ params }: PageProps) {
 
 				{gameSession.propositions.length > 0 && (
 					<PropositionsSection
-					propositions={gameSession.propositions}
-					gameSessionId={gameSession.id}
-					hasSelectedProposition={gameSession.selectedProposition !== null}
-				/>
+						propositions={gameSession.propositions}
+						gameSessionId={gameSession.id}
+						hasSelectedProposition={gameSession.selectedProposition !== null}
+					/>
 				)}
 
 				{gameSession.selectedProposition ? (
@@ -48,6 +48,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
 				<GameScoresSection
 					gameSessionId={gameSession.id}
 					games={gameSession.games}
+					teams={gameSession.selectedProposition?.teams ?? null}
 					isAdmin={isAdmin}
 				/>
 			</div>
