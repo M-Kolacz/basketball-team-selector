@@ -22,7 +22,6 @@ export function PlayerStatsTable({ playerStats }: PlayerStatsTableProps) {
 						<TableHead>Player Name</TableHead>
 						<TableHead className="text-right">Total Games</TableHead>
 						<TableHead className="text-right">Games Won</TableHead>
-						<TableHead className="text-right">Games Lost</TableHead>
 						<TableHead className="text-right">Win Ratio</TableHead>
 					</TableRow>
 				</TableHeader>
@@ -42,7 +41,6 @@ export function PlayerStatsTable({ playerStats }: PlayerStatsTableProps) {
 								<TableCell className="font-medium">{stat.name}</TableCell>
 								<TableCell className="text-right">{stat.totalGames}</TableCell>
 								<TableCell className="text-right">{stat.gamesWon}</TableCell>
-								<TableCell className="text-right">{stat.gamesLost}</TableCell>
 								<TableCell className="text-right">
 									{stat.winRatio.toFixed(1)}%
 								</TableCell>
