@@ -59,6 +59,21 @@ breakpoint.
 - **Considerations**: Immediate deletion without confirm, role-based column
   visibility
 
+### Player Statistics (/players/stats)
+
+- **Path**: /players/stats
+- **Purpose**: View player performance metrics
+- **Key information**: Win ratio, games played, games won per player
+- **Components**:
+  - Shadcn Table with sortable columns
+  - Player name column
+  - Games played count
+  - Games won count
+  - Win ratio percentage
+  - Optional filters/sorting controls
+- **Considerations**: Calculate from completed games only, handle players with
+  zero games, sort by win ratio by default (descending)
+
 ### Create Game (/games/new)
 
 - **Path**: /games/new
@@ -129,6 +144,7 @@ breakpoint.
 
 - User views games: Login → Dashboard → Game History → Game Details (read-only)
 - Admin manages roster: Dashboard → Players → Add/Edit/Delete operations
+- View player stats: Dashboard/Players → Player Stats → Sort/filter performance
 - Quick game check: Dashboard shows next game + recent results
 
 ## 4. Layout and Navigation Structure
@@ -139,6 +155,7 @@ breakpoint.
 - Hamburger menu (mobile/desktop):
   - Dashboard
   - Players
+  - Player Stats
   - Games
   - New Game (admin only)
   - Logout
