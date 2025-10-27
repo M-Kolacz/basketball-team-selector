@@ -10,7 +10,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
-import { Field, FieldError, FieldGroup, FieldLabel } from '#app/components/ui/field'
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
 import { recordGameResultAction } from '#app/lib/actions/game-sessions'
 import { GameResultSchema } from '#app/lib/validations/game-session'
@@ -60,7 +65,8 @@ export function GameScoreForm({
 		)
 	}
 
-	const [teamA, teamB] = teams
+	const teamA = teams[0]!
+	const teamB = teams[1]!
 
 	return (
 		<Card>
@@ -86,6 +92,7 @@ export function GameScoreForm({
 							</FieldLabel>
 							<Input
 								{...getInputProps(
+									// @ts-ignore
 									{ name: 'scores[0].points', errors: [] },
 									{ type: 'number' },
 								)}
@@ -107,6 +114,7 @@ export function GameScoreForm({
 							</FieldLabel>
 							<Input
 								{...getInputProps(
+									// @ts-ignore
 									{ name: 'scores[1].points', errors: [] },
 									{ type: 'number' },
 								)}
