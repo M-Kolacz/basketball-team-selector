@@ -1,5 +1,6 @@
 import epicWeb from '@epic-web/config/eslint'
 import noRelativeImportPaths from 'eslint-plugin-no-relative-import-paths'
+import preferArrowFunctions from 'eslint-plugin-prefer-arrow-functions'
 import storybook from 'eslint-plugin-storybook'
 
 const eslintConfig = [
@@ -17,6 +18,7 @@ const eslintConfig = [
 	{
 		plugins: {
 			'no-relative-import-paths': noRelativeImportPaths,
+			'prefer-arrow-functions': preferArrowFunctions,
 		},
 	},
 	{
@@ -25,6 +27,15 @@ const eslintConfig = [
 			'no-relative-import-paths/no-relative-import-paths': [
 				'error',
 				{ rootDir: 'src', prefix: '#app' },
+			],
+			'prefer-arrow-functions/prefer-arrow-functions': [
+				'error',
+				{
+					classPropertiesAllowed: false,
+					disallowPrototype: false,
+					returnStyle: 'unchanged',
+					singleReturnOnly: false,
+				},
 			],
 		},
 	},

@@ -68,6 +68,12 @@ export const login = async (_prevState: unknown, formData: FormData) => {
 	redirect('/games')
 }
 
+export const logout = async () => {
+	const cookieStore = await cookies()
+	cookieStore.delete('bts-session')
+	redirect('/')
+}
+
 export const register = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: RegisterSchema.superRefine(async (data, ctx) => {
