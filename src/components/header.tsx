@@ -5,6 +5,7 @@ import { Button } from '#app/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
+	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
@@ -42,7 +43,7 @@ export const Header = async () => {
 
 	return (
 		<header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-			<div className="container flex h-14 items-center">
+			<div className="container mx-auto flex h-14 items-center px-6">
 				<div className="mr-4 flex">
 					<Link href="/games" className="mr-6 flex items-center gap-2">
 						<span className="font-bold">Basketball Teams</span>
@@ -53,11 +54,12 @@ export const Header = async () => {
 					<NavigationMenuList>
 						{navLinks.map((link) => (
 							<NavigationMenuItem key={link.href}>
-								<Link href={link.href} legacyBehavior passHref>
-									<NavigationMenuLink className={navigationMenuTriggerStyle()}>
-										{link.label}
-									</NavigationMenuLink>
-								</Link>
+								<NavigationMenuLink
+									className={navigationMenuTriggerStyle()}
+									asChild
+								>
+									<Link href={link.href}>{link.label}</Link>
+								</NavigationMenuLink>
 							</NavigationMenuItem>
 						))}
 					</NavigationMenuList>
@@ -81,7 +83,9 @@ export const Header = async () => {
 								</div>
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
-							<LogoutButton />
+							<DropdownMenuItem asChild>
+								<LogoutButton userId={currentUser.id} />
+							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
 
@@ -113,7 +117,7 @@ export const Header = async () => {
 									))}
 								</div>
 								<div className="border-t pt-4">
-									<LogoutButton />
+									<LogoutButton userId={currentUser.id} />
 								</div>
 							</div>
 						</SheetContent>

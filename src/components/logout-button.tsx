@@ -1,36 +1,47 @@
 'use client'
 
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { parseWithZod } from '@conform-to/zod'
 import { LogOutIcon } from 'lucide-react'
+import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
-import { DropdownMenuItem } from '#app/components/ui/dropdown-menu'
+import { FieldError } from '#app/components/ui/field'
 import { logout } from '#app/lib/actions/auth'
+import { LogoutSchema } from '#app/lib/validations/auth'
 
-export const LogoutButton = ({
-	variant = 'dropdown',
-}: {
-	variant?: 'dropdown' | 'button'
-}) => {
-	const handleLogout = async () => {
-		await logout()
-	}
+type LogoutButtonProps = {
+	userId: string
+}
 
-	if (variant === 'dropdown') {
-		return (
-			<DropdownMenuItem onClick={handleLogout}>
-				<LogOutIcon className="size-4" />
-				Logout
-			</DropdownMenuItem>
-		)
-	}
+export const LogoutButton = ({ userId }: LogoutButtonProps) => {
+	const [lastResult, formAction, isSubmitting] = useActionState(
+		logout,
+		undefined,
+	)
+	const [form, fields] = useForm({
+		defaultValue: {
+			userId,
+		},
+		lastResult: lastResult?.result,
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: LogoutSchema }),
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+	})
 
 	return (
-		<Button
-			variant="ghost"
-			className="w-full justify-start"
-			onClick={handleLogout}
-		>
-			<LogOutIcon className="size-4" />
-			Logout
-		</Button>
+		<form action={formAction} {...getFormProps(form)}>
+			<input {...getInputProps(fields.userId, { type: 'hidden' })} />
+			<Button
+				variant="ghost"
+				className="w-full justify-start"
+				disabled={isSubmitting}
+				type="submit"
+			>
+				<LogOutIcon className="size-4" />
+				{isSubmitting ? 'Logging out...' : 'Logout'}
+			</Button>
+			<FieldError errors={form.errors} />
+		</form>
 	)
 }

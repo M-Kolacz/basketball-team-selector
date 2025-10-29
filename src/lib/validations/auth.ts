@@ -29,3 +29,8 @@ export const RegisterSchema = z
 	})
 
 export type RegisterCommand = z.infer<typeof RegisterSchema>
+
+export const LogoutSchema = z.object({
+	userId: z.string().uuid(),
+})
+export type LogoutCommand = z.infer<typeof LogoutSchema>

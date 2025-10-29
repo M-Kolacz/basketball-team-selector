@@ -8,7 +8,11 @@ import { redirect } from 'next/navigation'
 import z from 'zod'
 import { prisma } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
-import { LoginSchema, RegisterSchema } from '#app/lib/validations/auth'
+import {
+	LoginSchema,
+	LogoutSchema,
+	RegisterSchema,
+} from '#app/lib/validations/auth'
 
 export const login = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
@@ -68,7 +72,34 @@ export const login = async (_prevState: unknown, formData: FormData) => {
 	redirect('/games')
 }
 
-export const logout = async () => {
+export const logout = async (_prevState: unknown, formData: FormData) => {
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			LogoutSchema.transform(async (data, ctx) => {
+				if (intent !== null) return null
+
+				const user = await prisma.user.findUnique({
+					where: { id: data.userId },
+					select: { id: true },
+				})
+
+				if (!user) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Invalid user',
+					})
+					return z.NEVER
+				}
+
+				return {}
+			}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
 	const cookieStore = await cookies()
 	cookieStore.delete('bts-session')
 	redirect('/')
