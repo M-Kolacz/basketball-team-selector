@@ -7,11 +7,11 @@ type PlayerBadgeProps = {
 	teamId: string
 }
 
-export function PlayerBadge({
+export const PlayerBadge = ({
 	player,
 	propositionId,
 	teamId,
-}: PlayerBadgeProps) {
+}: PlayerBadgeProps) => {
 	const sortableId = `${propositionId}::${teamId}::${player.id}`
 	const {
 		attributes,
@@ -41,4 +41,4 @@ export function PlayerBadge({
 			</div>
 		</div>
 	)
-}
+};

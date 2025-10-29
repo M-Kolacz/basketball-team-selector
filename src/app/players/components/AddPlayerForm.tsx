@@ -37,7 +37,7 @@ import { CreatePlayerSchema } from '#app/lib/validations/player'
 const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
 
-export function AddPlayerForm() {
+export const AddPlayerForm = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		createPlayer,
@@ -46,9 +46,7 @@ export function AddPlayerForm() {
 
 	const [form, fields] = useForm({
 		lastResult: lastResult?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: CreatePlayerSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: CreatePlayerSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -141,4 +139,4 @@ export function AddPlayerForm() {
 			</Collapsible>
 		</Card>
 	)
-}
+};

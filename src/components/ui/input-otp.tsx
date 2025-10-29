@@ -6,15 +6,13 @@ import * as React from 'react'
 
 import { cn } from '#app/lib/utils'
 
-function InputOTP({
+const InputOTP = ({
 	className,
 	containerClassName,
 	...props
 }: React.ComponentProps<typeof OTPInput> & {
 	containerClassName?: string
-}) {
-	return (
-		<OTPInput
+}) => <OTPInput
 			data-slot="input-otp"
 			containerClassName={cn(
 				'flex items-center gap-2 has-disabled:opacity-50',
@@ -22,27 +20,21 @@ function InputOTP({
 			)}
 			className={cn('disabled:cursor-not-allowed', className)}
 			{...props}
-		/>
-	)
-}
+		/>;
 
-function InputOTPGroup({ className, ...props }: React.ComponentProps<'div'>) {
-	return (
-		<div
+const InputOTPGroup = ({ className, ...props }: React.ComponentProps<'div'>) => <div
 			data-slot="input-otp-group"
 			className={cn('flex items-center', className)}
 			{...props}
-		/>
-	)
-}
+		/>;
 
-function InputOTPSlot({
+const InputOTPSlot = ({
 	index,
 	className,
 	...props
 }: React.ComponentProps<'div'> & {
 	index: number
-}) {
+}) => {
 	const inputOTPContext = React.useContext(OTPInputContext)
 	const { char, hasFakeCaret, isActive } = inputOTPContext?.slots[index] ?? {}
 
@@ -64,14 +56,10 @@ function InputOTPSlot({
 			)}
 		</div>
 	)
-}
+};
 
-function InputOTPSeparator({ ...props }: React.ComponentProps<'div'>) {
-	return (
-		<div data-slot="input-otp-separator" role="separator" {...props}>
+const InputOTPSeparator = ({ ...props }: React.ComponentProps<'div'>) => <div data-slot="input-otp-separator" role="separator" {...props}>
 			<MinusIcon />
-		</div>
-	)
-}
+		</div>;
 
 export { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator }

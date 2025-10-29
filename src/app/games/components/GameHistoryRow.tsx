@@ -9,7 +9,7 @@ interface GameHistoryRowProps {
 	gameSession: GameSessions[number]
 }
 
-export function GameHistoryRow({ gameSession }: GameHistoryRowProps) {
+export const GameHistoryRow = ({ gameSession }: GameHistoryRowProps) => {
 	const router = useRouter()
 
 	const handleRowClick = () => {
@@ -30,4 +30,4 @@ export function GameHistoryRow({ gameSession }: GameHistoryRowProps) {
 			<TableCell>{gameSession.games.length}</TableCell>
 		</TableRow>
 	)
-}
+};

@@ -9,7 +9,7 @@ import {
 } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useRouter } from 'next/navigation'
-import { useActionState, useMemo, useState } from 'react'
+import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
 	Card,
@@ -40,35 +40,33 @@ interface PlayerCheckboxListProps {
 	disabled: boolean
 }
 
-function PlayerCheckboxList({
+const PlayerCheckboxList = ({
 	players,
 	fieldMeta,
 	disabled,
-}: PlayerCheckboxListProps) {
-	return (
-		<div className="grid max-h-96 grid-cols-1 gap-3 overflow-y-auto rounded-md border p-4 md:grid-cols-2">
-			{players.map((player) => (
-				<div key={player.id} className="flex items-center gap-2">
-					<Checkbox
-						id={`player-${player.id}`}
-						name={fieldMeta.name}
-						value={player.id}
-						defaultChecked={fieldMeta.initialValue?.includes(player.id)}
-						disabled={disabled}
-					/>
-					<label
-						htmlFor={`player-${player.id}`}
-						className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{player.name}
-					</label>
-				</div>
-			))}
-		</div>
-	)
-}
+}: PlayerCheckboxListProps) => (
+	<div className="grid max-h-96 grid-cols-1 gap-3 overflow-y-auto rounded-md border p-4 md:grid-cols-2">
+		{players.map((player) => (
+			<div key={player.id} className="flex items-center gap-2">
+				<Checkbox
+					id={`player-${player.id}`}
+					name={fieldMeta.name}
+					value={player.id}
+					defaultChecked={fieldMeta.initialValue?.includes(player.id)}
+					disabled={disabled}
+				/>
+				<label
+					htmlFor={`player-${player.id}`}
+					className="cursor-pointer text-sm leading-none font-medium peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+				>
+					{player.name}
+				</label>
+			</div>
+		))}
+	</div>
+)
 
-export function CreateGameForm({ players }: CreateGameFormProps) {
+export const CreateGameForm = ({ players }: CreateGameFormProps) => {
 	const router = useRouter()
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		createGameSessionAction,
@@ -76,9 +74,8 @@ export function CreateGameForm({ players }: CreateGameFormProps) {
 	)
 	const [form, fields] = useForm({
 		lastResult: lastResult?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: CreateGameSessionSchema })
-		},
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: CreateGameSessionSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})

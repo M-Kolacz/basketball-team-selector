@@ -13,12 +13,12 @@ type GameScoresSectionProps = {
 	isAdmin: boolean
 }
 
-export function GameScoresSection({
+export const GameScoresSection = ({
 	gameSessionId,
 	games,
 	teams,
 	isAdmin,
-}: GameScoresSectionProps) {
+}: GameScoresSectionProps) => {
 	const [showAddForm, setShowAddForm] = useState(false)
 
 	if (!isAdmin) {
@@ -66,4 +66,4 @@ export function GameScoresSection({
 			)}
 		</section>
 	)
-}
+};

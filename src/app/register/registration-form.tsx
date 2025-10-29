@@ -22,16 +22,14 @@ import { Input } from '#app/components/ui/input'
 import { register } from '#app/lib/actions/auth'
 import { RegisterSchema } from '#app/lib/validations/auth'
 
-export function RegistrationForm() {
+export const RegistrationForm = () => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		register,
 		undefined,
 	)
 	const [form, fields] = useForm({
 		lastResult,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: RegisterSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: RegisterSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -103,4 +101,4 @@ export function RegistrationForm() {
 			</Card>
 		</div>
 	)
-}
+};

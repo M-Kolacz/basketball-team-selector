@@ -38,11 +38,11 @@ type EditPlayerDialogProps = {
 const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
 
-export function EditPlayerDialog({
+export const EditPlayerDialog = ({
 	isOpen,
 	onCancel,
 	player,
-}: EditPlayerDialogProps) {
+}: EditPlayerDialogProps) => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		updatePlayer,
 		undefined,
@@ -56,9 +56,7 @@ export function EditPlayerDialog({
 			positions: player?.positions ?? [],
 		},
 		lastResult: lastResult?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: UpdatePlayerSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: UpdatePlayerSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -131,4 +129,4 @@ export function EditPlayerDialog({
 			</DialogContent>
 		</Dialog>
 	)
-}
+};

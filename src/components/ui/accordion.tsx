@@ -6,32 +6,24 @@ import * as React from 'react'
 
 import { cn } from '#app/lib/utils'
 
-function Accordion({
+const Accordion = ({
 	...props
-}: React.ComponentProps<typeof AccordionPrimitive.Root>) {
-	return <AccordionPrimitive.Root data-slot="accordion" {...props} />
-}
+}: React.ComponentProps<typeof AccordionPrimitive.Root>) => <AccordionPrimitive.Root data-slot="accordion" {...props} />;
 
-function AccordionItem({
+const AccordionItem = ({
 	className,
 	...props
-}: React.ComponentProps<typeof AccordionPrimitive.Item>) {
-	return (
-		<AccordionPrimitive.Item
+}: React.ComponentProps<typeof AccordionPrimitive.Item>) => <AccordionPrimitive.Item
 			data-slot="accordion-item"
 			className={cn('border-b last:border-b-0', className)}
 			{...props}
-		/>
-	)
-}
+		/>;
 
-function AccordionTrigger({
+const AccordionTrigger = ({
 	className,
 	children,
 	...props
-}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) {
-	return (
-		<AccordionPrimitive.Header className="flex">
+}: React.ComponentProps<typeof AccordionPrimitive.Trigger>) => <AccordionPrimitive.Header className="flex">
 			<AccordionPrimitive.Trigger
 				data-slot="accordion-trigger"
 				className={cn(
@@ -43,24 +35,18 @@ function AccordionTrigger({
 				{children}
 				<ChevronDownIcon className="pointer-events-none size-4 shrink-0 translate-y-0.5 text-muted-foreground transition-transform duration-200" />
 			</AccordionPrimitive.Trigger>
-		</AccordionPrimitive.Header>
-	)
-}
+		</AccordionPrimitive.Header>;
 
-function AccordionContent({
+const AccordionContent = ({
 	className,
 	children,
 	...props
-}: React.ComponentProps<typeof AccordionPrimitive.Content>) {
-	return (
-		<AccordionPrimitive.Content
+}: React.ComponentProps<typeof AccordionPrimitive.Content>) => <AccordionPrimitive.Content
 			data-slot="accordion-content"
 			className="overflow-hidden text-sm data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down"
 			{...props}
 		>
 			<div className={cn('pt-0 pb-4', className)}>{children}</div>
-		</AccordionPrimitive.Content>
-	)
-}
+		</AccordionPrimitive.Content>;
 
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent }

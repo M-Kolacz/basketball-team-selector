@@ -23,10 +23,10 @@ interface GameHistoryListProps {
 	isAdmin: boolean
 }
 
-export function GameHistoryList({
+export const GameHistoryList = ({
 	gameSessions,
 	isAdmin,
-}: GameHistoryListProps) {
+}: GameHistoryListProps) => {
 	if (gameSessions.length === 0) {
 		return (
 			<Empty>
@@ -76,4 +76,4 @@ export function GameHistoryList({
 			</Table>
 		</div>
 	)
-}
+};

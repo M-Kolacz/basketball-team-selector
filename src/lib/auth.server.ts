@@ -11,7 +11,7 @@ export interface AuthenticatedUser {
 	updatedAt: Date
 }
 
-export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
+export const getCurrentUser = async (): Promise<AuthenticatedUser | null> => {
 	const cookieStore = await cookies()
 	const token = cookieStore.get('bts-session')
 
@@ -41,9 +41,9 @@ export async function getCurrentUser(): Promise<AuthenticatedUser | null> {
 		createdAt: user.createdAt,
 		updatedAt: user.updatedAt,
 	}
-}
+};
 
-export async function requireAdminUser(): Promise<AuthenticatedUser> {
+export const requireAdminUser = async (): Promise<AuthenticatedUser> => {
 	const user = await getCurrentUser()
 
 	if (!user) {
@@ -55,9 +55,9 @@ export async function requireAdminUser(): Promise<AuthenticatedUser> {
 	}
 
 	return user
-}
+};
 
-export async function requireUser(): Promise<AuthenticatedUser> {
+export const requireUser = async (): Promise<AuthenticatedUser> => {
 	const user = await getCurrentUser()
 
 	if (!user) {
@@ -65,4 +65,4 @@ export async function requireUser(): Promise<AuthenticatedUser> {
 	}
 
 	return user
-}
+};

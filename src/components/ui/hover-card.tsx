@@ -5,28 +5,20 @@ import * as React from 'react'
 
 import { cn } from '#app/lib/utils'
 
-function HoverCard({
+const HoverCard = ({
 	...props
-}: React.ComponentProps<typeof HoverCardPrimitive.Root>) {
-	return <HoverCardPrimitive.Root data-slot="hover-card" {...props} />
-}
+}: React.ComponentProps<typeof HoverCardPrimitive.Root>) => <HoverCardPrimitive.Root data-slot="hover-card" {...props} />;
 
-function HoverCardTrigger({
+const HoverCardTrigger = ({
 	...props
-}: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) {
-	return (
-		<HoverCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />
-	)
-}
+}: React.ComponentProps<typeof HoverCardPrimitive.Trigger>) => <HoverCardPrimitive.Trigger data-slot="hover-card-trigger" {...props} />;
 
-function HoverCardContent({
+const HoverCardContent = ({
 	className,
 	align = 'center',
 	sideOffset = 4,
 	...props
-}: React.ComponentProps<typeof HoverCardPrimitive.Content>) {
-	return (
-		<HoverCardPrimitive.Portal data-slot="hover-card-portal">
+}: React.ComponentProps<typeof HoverCardPrimitive.Content>) => <HoverCardPrimitive.Portal data-slot="hover-card-portal">
 			<HoverCardPrimitive.Content
 				data-slot="hover-card-content"
 				align={align}
@@ -37,8 +29,6 @@ function HoverCardContent({
 				)}
 				{...props}
 			/>
-		</HoverCardPrimitive.Portal>
-	)
-}
+		</HoverCardPrimitive.Portal>;
 
 export { HoverCard, HoverCardTrigger, HoverCardContent }

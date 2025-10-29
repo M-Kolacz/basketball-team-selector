@@ -11,7 +11,7 @@ import {
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
 
-export async function getPlayers() {
+export const getPlayers = async () => {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
@@ -30,11 +30,11 @@ export async function getPlayers() {
 	})
 
 	return players
-}
+};
 
 export type Players = Awaited<ReturnType<typeof getPlayers>>
 
-export async function createPlayer(_prevState: unknown, formData: FormData) {
+export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreatePlayerSchema.transform(async (data, ctx) => {
@@ -85,9 +85,9 @@ export async function createPlayer(_prevState: unknown, formData: FormData) {
 	})
 
 	return { success: true }
-}
+};
 
-export async function deletePlayer(_prevState: unknown, formData: FormData) {
+export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			DeletePlayerSchema.transform(async (data, ctx) => {
@@ -133,9 +133,9 @@ export async function deletePlayer(_prevState: unknown, formData: FormData) {
 	})
 
 	return { success: true }
-}
+};
 
-export async function updatePlayer(_prevState: unknown, formData: FormData) {
+export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			UpdatePlayerSchema.transform(async (data, ctx) => {
@@ -203,4 +203,4 @@ export async function updatePlayer(_prevState: unknown, formData: FormData) {
 	})
 
 	return { success: true }
-}
+};

@@ -5,9 +5,7 @@ type SelectedTeamsSectionProps = {
 	teams: NonNullable<GameSession['selectedProposition']>['teams']
 }
 
-export function SelectedTeamsSection({ teams }: SelectedTeamsSectionProps) {
-	return (
-		<section className="space-y-4">
+export const SelectedTeamsSection = ({ teams }: SelectedTeamsSectionProps) => <section className="space-y-4">
 			<h2 className="text-2xl font-bold">Final Teams</h2>
 			<div className="grid gap-6 md:grid-cols-2">
 				{teams.map((team, index) => (
@@ -19,6 +17,4 @@ export function SelectedTeamsSection({ teams }: SelectedTeamsSectionProps) {
 					/>
 				))}
 			</div>
-		</section>
-	)
-}
+		</section>;

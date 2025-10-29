@@ -10,11 +10,11 @@ type PlayerListProps = {
 	propositionId: string
 }
 
-export function PlayerList({
+export const PlayerList = ({
 	players,
 	teamId,
 	propositionId,
-}: PlayerListProps) {
+}: PlayerListProps) => {
 	const dropId = `${propositionId}::${teamId}::drop`
 	const { setNodeRef, isOver } = useDroppable({ id: dropId })
 
@@ -38,4 +38,4 @@ export function PlayerList({
 			</div>
 		</SortableContext>
 	)
-}
+};

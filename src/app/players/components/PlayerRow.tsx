@@ -23,7 +23,7 @@ type PlayerRowProps = {
 	onEdit?: (player: Player) => void
 }
 
-export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
+export const PlayerRow = ({ player, isAdmin, onEdit }: PlayerRowProps) => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		deletePlayer,
 		undefined,
@@ -33,9 +33,7 @@ export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
 		defaultValue: {
 			id: player.id,
 		},
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: DeletePlayerSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: DeletePlayerSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -106,4 +104,4 @@ export function PlayerRow({ player, isAdmin, onEdit }: PlayerRowProps) {
 			)}
 		</TableRow>
 	)
-}
+};

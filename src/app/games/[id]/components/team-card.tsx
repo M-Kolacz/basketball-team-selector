@@ -15,13 +15,11 @@ type TeamCardProps = {
 	propositionId: string
 }
 
-export function TeamCard({
+export const TeamCard = ({
 	team,
 	teamLabel,
 	propositionId,
-}: TeamCardProps) {
-	return (
-		<Card>
+}: TeamCardProps) => <Card>
 			<CardHeader>
 				<CardTitle className="flex items-center justify-between">
 					<span>{teamLabel}</span>
@@ -37,6 +35,4 @@ export function TeamCard({
 					propositionId={propositionId}
 				/>
 			</CardContent>
-		</Card>
-	)
-}
+		</Card>;

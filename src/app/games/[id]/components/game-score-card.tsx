@@ -19,12 +19,11 @@ type GameScoreCardProps = {
 	isAdmin: boolean
 }
 
-export function GameScoreCard({
-	gameSessionId,
+export const GameScoreCard = ({
 	gameIndex,
 	game,
 	isAdmin,
-}: GameScoreCardProps) {
+}: GameScoreCardProps) => {
 	const [isEditing, setIsEditing] = useState(false)
 
 	if (isEditing) {

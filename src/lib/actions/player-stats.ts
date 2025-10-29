@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 
-export async function getPlayerStats() {
+export const getPlayerStats = async () => {
 	const currentUser = await getCurrentUser()
 
 	if (!currentUser) redirect('/login')
@@ -94,6 +94,6 @@ export async function getPlayerStats() {
 	})
 
 	return playerStats
-}
+};
 
 export type PlayerStats = Awaited<ReturnType<typeof getPlayerStats>>

@@ -18,9 +18,7 @@ type PlayersTableProps = {
 	onEdit?: (player: Player) => void
 }
 
-export function PlayersTable({ players, isAdmin, onEdit }: PlayersTableProps) {
-	return (
-		<Card>
+export const PlayersTable = ({ players, isAdmin, onEdit }: PlayersTableProps) => <Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -57,6 +55,4 @@ export function PlayersTable({ players, isAdmin, onEdit }: PlayersTableProps) {
 					)}
 				</TableBody>
 			</Table>
-		</Card>
-	)
-}
+		</Card>;
