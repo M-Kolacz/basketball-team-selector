@@ -5,43 +5,31 @@ import * as React from 'react'
 
 import { cn } from '#app/lib/utils'
 
-function TooltipProvider({
+const TooltipProvider = ({
 	delayDuration = 0,
 	...props
-}: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
-	return (
-		<TooltipPrimitive.Provider
+}: React.ComponentProps<typeof TooltipPrimitive.Provider>) => <TooltipPrimitive.Provider
 			data-slot="tooltip-provider"
 			delayDuration={delayDuration}
 			{...props}
-		/>
-	)
-}
+		/>;
 
-function Tooltip({
+const Tooltip = ({
 	...props
-}: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-	return (
-		<TooltipProvider>
+}: React.ComponentProps<typeof TooltipPrimitive.Root>) => <TooltipProvider>
 			<TooltipPrimitive.Root data-slot="tooltip" {...props} />
-		</TooltipProvider>
-	)
-}
+		</TooltipProvider>;
 
-function TooltipTrigger({
+const TooltipTrigger = ({
 	...props
-}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
-	return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />
-}
+}: React.ComponentProps<typeof TooltipPrimitive.Trigger>) => <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 
-function TooltipContent({
+const TooltipContent = ({
 	className,
 	sideOffset = 0,
 	children,
 	...props
-}: React.ComponentProps<typeof TooltipPrimitive.Content>) {
-	return (
-		<TooltipPrimitive.Portal>
+}: React.ComponentProps<typeof TooltipPrimitive.Content>) => <TooltipPrimitive.Portal>
 			<TooltipPrimitive.Content
 				data-slot="tooltip-content"
 				sideOffset={sideOffset}
@@ -54,8 +42,6 @@ function TooltipContent({
 				{children}
 				<TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%_-_2px)] rotate-45 rounded-[2px] bg-foreground fill-foreground" />
 			</TooltipPrimitive.Content>
-		</TooltipPrimitive.Portal>
-	)
-}
+		</TooltipPrimitive.Portal>;
 
 export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider }

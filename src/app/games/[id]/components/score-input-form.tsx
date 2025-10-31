@@ -22,7 +22,7 @@ type ScoreInputFormProps = {
 	onCancel: () => void
 }
 
-export function ScoreInputForm({ scores, onCancel }: ScoreInputFormProps) {
+export const ScoreInputForm = ({ scores, onCancel }: ScoreInputFormProps) => {
 	const firstScore = scores[0]!
 	const secondScore = scores[1]!
 
@@ -33,9 +33,7 @@ export function ScoreInputForm({ scores, onCancel }: ScoreInputFormProps) {
 
 	const [form, fields] = useForm({
 		lastResult: lastResult,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: UpdateGameScoreSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: UpdateGameScoreSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 		defaultValue: {
@@ -96,4 +94,4 @@ export function ScoreInputForm({ scores, onCancel }: ScoreInputFormProps) {
 			</FieldGroup>
 		</form>
 	)
-}
+};

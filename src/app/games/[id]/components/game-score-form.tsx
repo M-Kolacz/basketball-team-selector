@@ -32,12 +32,12 @@ type GameScoreFormProps = {
 	onCancel?: () => void
 }
 
-export function GameScoreForm({
+export const GameScoreForm = ({
 	gameSessionId,
 	teams,
 	gameId,
 	onCancel,
-}: GameScoreFormProps) {
+}: GameScoreFormProps) => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		recordGameResultAction,
 		undefined,
@@ -45,9 +45,7 @@ export function GameScoreForm({
 
 	const [form, fields] = useForm({
 		lastResult: lastResult?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: GameResultSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: GameResultSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -159,4 +157,4 @@ export function GameScoreForm({
 			</CardContent>
 		</Card>
 	)
-}
+};

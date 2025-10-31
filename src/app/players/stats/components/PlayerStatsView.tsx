@@ -7,9 +7,7 @@ type PlayerStatsViewProps = {
 	playerStats: PlayerStats
 }
 
-export function PlayerStatsView({ playerStats }: PlayerStatsViewProps) {
-	return (
-		<div className="container mx-auto max-w-7xl px-4 py-8">
+export const PlayerStatsView = ({ playerStats }: PlayerStatsViewProps) => <div className="container mx-auto max-w-7xl px-4 py-8">
 			<div className="mb-8">
 				<h1 className="text-3xl font-bold">Player Statistics</h1>
 				<p className="mt-2 text-sm text-muted-foreground">
@@ -18,6 +16,4 @@ export function PlayerStatsView({ playerStats }: PlayerStatsViewProps) {
 			</div>
 
 			<PlayerStatsTable playerStats={playerStats} />
-		</div>
-	)
-}
+		</div>;

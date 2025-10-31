@@ -22,16 +22,15 @@ import { Input } from '#app/components/ui/input'
 import { login } from '#app/lib/actions/auth'
 import { LoginSchema } from '#app/lib/validations/auth'
 
-export function LoginForm() {
+export const LoginForm = () => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		login,
 		undefined,
 	)
 	const [form, fields] = useForm({
 		lastResult: lastResult?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: LoginSchema })
-		},
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: LoginSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})

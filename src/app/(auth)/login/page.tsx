@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { redirect } from 'next/navigation'
+import { LoginForm } from '#app/app/(auth)/login/login-form'
 
 export const metadata: Metadata = {
 	title: 'Login - Basketball Team Selector',
@@ -7,5 +7,9 @@ export const metadata: Metadata = {
 }
 
 export default function LoginPage() {
-	redirect('/games')
+	return (
+		<main className="flex min-h-screen items-center justify-center p-4">
+			<LoginForm />
+		</main>
+	)
 }

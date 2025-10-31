@@ -13,11 +13,11 @@ type SelectPropositionButtonProps = {
 	disabled?: boolean
 }
 
-export function SelectPropositionButton({
+export const SelectPropositionButton = ({
 	gameSessionId,
 	propositionId,
 	disabled = false,
-}: SelectPropositionButtonProps) {
+}: SelectPropositionButtonProps) => {
 	const [state, formAction, isPending] = useActionState(
 		selectPropositionAction,
 		undefined,
@@ -25,9 +25,7 @@ export function SelectPropositionButton({
 
 	const [form, fields] = useForm({
 		lastResult: state?.result,
-		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: SelectPropositionSchema })
-		},
+		onValidate: ({ formData }) => parseWithZod(formData, { schema: SelectPropositionSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 		defaultValue: {
@@ -45,4 +43,4 @@ export function SelectPropositionButton({
 			</Button>
 		</form>
 	)
-}
+};

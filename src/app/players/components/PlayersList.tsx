@@ -13,7 +13,7 @@ type PlayersListProps = {
 
 type Player = Players[number]
 
-export function PlayersList({ players, isAdmin }: PlayersListProps) {
+export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
 	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null)
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
 
@@ -51,4 +51,4 @@ export function PlayersList({ players, isAdmin }: PlayersListProps) {
 			)}
 		</div>
 	)
-}
+};

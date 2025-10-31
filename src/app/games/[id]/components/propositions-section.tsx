@@ -35,11 +35,11 @@ type TeamComposition = {
 	}>
 }
 
-export function PropositionsSection({
+export const PropositionsSection = ({
 	propositions,
 	gameSessionId,
 	hasSelectedProposition,
-}: PropositionsSectionProps) {
+}: PropositionsSectionProps) => {
 	const [teamCompositions, setTeamCompositions] = useState<TeamComposition[]>(
 		propositions.map((prop) => ({
 			propositionId: prop.id,
@@ -206,4 +206,4 @@ export function PropositionsSection({
 			</DragOverlay>
 		</DndContext>
 	)
-}
+};

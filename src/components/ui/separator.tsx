@@ -5,14 +5,12 @@ import * as React from 'react'
 
 import { cn } from '#app/lib/utils'
 
-function Separator({
+const Separator = ({
 	className,
 	orientation = 'horizontal',
 	decorative = true,
 	...props
-}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {
-	return (
-		<SeparatorPrimitive.Root
+}: React.ComponentProps<typeof SeparatorPrimitive.Root>) => <SeparatorPrimitive.Root
 			data-slot="separator"
 			decorative={decorative}
 			orientation={orientation}
@@ -21,8 +19,6 @@ function Separator({
 				className,
 			)}
 			{...props}
-		/>
-	)
-}
+		/>;
 
 export { Separator }

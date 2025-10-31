@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { RegistrationForm } from '#app/app/register/registration-form'
+import { RegistrationForm } from '#app/app/(auth)/register/registration-form'
 import { env } from '#app/lib/env.mjs'
 
 export default async function RegisterPage() {

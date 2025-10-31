@@ -1,15 +1,8 @@
 'use server'
 
-import { redirect } from 'next/navigation'
-import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 
-export async function getPlayerStats() {
-	const currentUser = await getCurrentUser()
-
-	if (!currentUser) redirect('/login')
-
-	// Get all players with their teams and game results
+export const getPlayerStats = async () => {
 	const players = await prisma.player.findMany({
 		select: {
 			id: true,

@@ -7,7 +7,7 @@ import {
 	type Team,
 } from '#app/lib/db.server'
 
-async function seed() {
+const seed = async () => {
 	console.log('🌱 Seeding database...')
 
 	try {
@@ -172,7 +172,7 @@ async function seed() {
 		console.error('❌ Error seeding database:', error)
 		process.exit(1)
 	}
-}
+};
 
 if (require.main === module) {
 	seed()

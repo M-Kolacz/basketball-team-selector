@@ -11,10 +11,10 @@ type GameDetailsHeaderProps = {
 	description: GameSession['description']
 }
 
-export function GameDetailsHeader({
+export const GameDetailsHeader = ({
 	gameDatetime,
 	description,
-}: GameDetailsHeaderProps) {
+}: GameDetailsHeaderProps) => {
 	const router = useRouter()
 
 	return (
@@ -38,4 +38,4 @@ export function GameDetailsHeader({
 			</div>
 		</header>
 	)
-}
+};

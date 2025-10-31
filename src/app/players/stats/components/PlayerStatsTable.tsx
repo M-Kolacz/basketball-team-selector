@@ -13,9 +13,7 @@ type PlayerStatsTableProps = {
 	playerStats: PlayerStats
 }
 
-export function PlayerStatsTable({ playerStats }: PlayerStatsTableProps) {
-	return (
-		<Card>
+export const PlayerStatsTable = ({ playerStats }: PlayerStatsTableProps) => <Card>
 			<Table>
 				<TableHeader>
 					<TableRow>
@@ -49,6 +47,4 @@ export function PlayerStatsTable({ playerStats }: PlayerStatsTableProps) {
 					)}
 				</TableBody>
 			</Table>
-		</Card>
-	)
-}
+		</Card>;

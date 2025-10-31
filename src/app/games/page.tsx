@@ -1,7 +1,7 @@
 import { type Metadata } from 'next'
 import { GameHistoryList } from '#app/app/games/components/GameHistoryList'
-import { getCurrentUser } from '#app/lib/auth.server'
 import { getGameSessions } from '#app/lib/actions/game-sessions'
+import { getCurrentUser } from '#app/lib/auth.server'
 
 export const metadata: Metadata = {
 	title: 'Games - Basketball Team Selector',

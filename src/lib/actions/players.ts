@@ -1,7 +1,6 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
-import { redirect } from 'next/navigation'
 import z from 'zod'
 import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
@@ -11,12 +10,10 @@ import {
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
 
-export async function getPlayers() {
+export const getPlayers = async () => {
 	const currentUser = await getCurrentUser()
 
-	if (!currentUser) redirect('/login')
-
-	const isAdminUser = currentUser.role === 'admin'
+	const isAdminUser = currentUser?.role === 'admin'
 
 	const players = await prisma.player.findMany({
 		select: {
@@ -34,7 +31,7 @@ export async function getPlayers() {
 
 export type Players = Awaited<ReturnType<typeof getPlayers>>
 
-export async function createPlayer(_prevState: unknown, formData: FormData) {
+export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreatePlayerSchema.transform(async (data, ctx) => {
@@ -87,7 +84,7 @@ export async function createPlayer(_prevState: unknown, formData: FormData) {
 	return { success: true }
 }
 
-export async function deletePlayer(_prevState: unknown, formData: FormData) {
+export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			DeletePlayerSchema.transform(async (data, ctx) => {
@@ -135,7 +132,7 @@ export async function deletePlayer(_prevState: unknown, formData: FormData) {
 	return { success: true }
 }
 
-export async function updatePlayer(_prevState: unknown, formData: FormData) {
+export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			UpdatePlayerSchema.transform(async (data, ctx) => {

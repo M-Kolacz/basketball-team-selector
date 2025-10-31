@@ -15,62 +15,31 @@ import {
 	GameResultSchema,
 } from '#app/lib/validations/game-session'
 
-export async function getGameSessions() {
-	const currentUser = await getCurrentUser()
-
-	if (!currentUser) redirect('/login')
-
-	try {
-		const rawGameSessions = await prisma.gameSession.findMany({
-			orderBy: { gameDatetime: 'desc' },
-			include: {
-				selectedProposition: {
-					include: {
-						teams: {
-							include: {
-								players: true,
-							},
-						},
-					},
-				},
-				games: {
-					include: {
-						scores: {
-							select: {
-								id: true,
-								points: true,
-								teamId: true,
-							},
+export const getGameSessions = async () => {
+	const gameSessions = await prisma.gameSession.findMany({
+		orderBy: { gameDatetime: 'desc' },
+		include: {
+			selectedProposition: {
+				select: { id: true },
+			},
+			games: {
+				include: {
+					scores: {
+						select: {
+							id: true,
 						},
 					},
 				},
 			},
-		})
+		},
+	})
 
-		const gameSessions = rawGameSessions.map((rawGameSession) => {
-			const hasProposition = rawGameSession.selectedProposition !== null
-
-			return {
-				id: rawGameSession.id,
-				gameDatetime: rawGameSession.gameDatetime,
-				description: rawGameSession.description,
-				games: rawGameSession.games,
-				hasSelectedProposition: hasProposition,
-			}
-		})
-
-		return gameSessions
-	} catch (error) {
-		console.error('Error fetching game sessions:', error)
-		throw new Error('Failed to fetch game sessions')
-	}
+	return gameSessions
 }
 
 export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>
 
-export async function getGameSession(gameSessionId: string) {
-	await requireAdminUser()
-
+export const getGameSession = async (gameSessionId: string) => {
 	const { gameSessionId: validatedId } = GetGameSessionSchema.parse({
 		gameSessionId,
 	})
@@ -121,7 +90,7 @@ export async function getGameSession(gameSessionId: string) {
 	})
 
 	if (!gameSession) {
-		redirect('/games')
+		throw new Error('Game session not found')
 	}
 
 	return gameSession
@@ -129,10 +98,10 @@ export async function getGameSession(gameSessionId: string) {
 
 export type GameSession = Awaited<ReturnType<typeof getGameSession>>
 
-export async function createGameSessionAction(
+export const createGameSessionAction = async (
 	_prevState: unknown,
 	formData: FormData,
-) {
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreateGameSessionSchema.transform(async (data, ctx) => {
@@ -248,7 +217,10 @@ export async function createGameSessionAction(
 	redirect('/games')
 }
 
-export async function updateGameScore(_prevState: unknown, formData: FormData) {
+export const updateGameScore = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	await requireAdminUser()
 
 	const submission = parseWithZod(formData, {
@@ -283,10 +255,10 @@ export async function updateGameScore(_prevState: unknown, formData: FormData) {
 	return submission.reply()
 }
 
-export async function selectPropositionAction(
+export const selectPropositionAction = async (
 	_prevState: unknown,
 	formData: FormData,
-) {
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: SelectPropositionSchema.transform(async (data, ctx) => {
 			const user = await getCurrentUser()
@@ -370,10 +342,10 @@ export async function selectPropositionAction(
 	redirect(`/games/${gameSessionId}`)
 }
 
-export async function updatePropositionTeams(
+export const updatePropositionTeams = async (
 	propositionId: string,
 	teamUpdates: Array<{ teamId: string; playerIds: string[] }>,
-) {
+) => {
 	await requireAdminUser()
 
 	try {
@@ -395,10 +367,10 @@ export async function updatePropositionTeams(
 	}
 }
 
-export async function recordGameResultAction(
+export const recordGameResultAction = async (
 	_prevState: unknown,
 	formData: FormData,
-) {
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			GameResultSchema.transform(async (data, ctx) => {
