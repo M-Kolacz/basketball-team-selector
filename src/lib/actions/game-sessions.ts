@@ -16,61 +16,30 @@ import {
 } from '#app/lib/validations/game-session'
 
 export const getGameSessions = async () => {
-	const currentUser = await getCurrentUser()
-
-	if (!currentUser) redirect('/login')
-
-	try {
-		const rawGameSessions = await prisma.gameSession.findMany({
-			orderBy: { gameDatetime: 'desc' },
-			include: {
-				selectedProposition: {
-					include: {
-						teams: {
-							include: {
-								players: true,
-							},
-						},
-					},
-				},
-				games: {
-					include: {
-						scores: {
-							select: {
-								id: true,
-								points: true,
-								teamId: true,
-							},
+	const gameSessions = await prisma.gameSession.findMany({
+		orderBy: { gameDatetime: 'desc' },
+		include: {
+			selectedProposition: {
+				select: { id: true },
+			},
+			games: {
+				include: {
+					scores: {
+						select: {
+							id: true,
 						},
 					},
 				},
 			},
-		})
+		},
+	})
 
-		const gameSessions = rawGameSessions.map((rawGameSession) => {
-			const hasProposition = rawGameSession.selectedProposition !== null
-
-			return {
-				id: rawGameSession.id,
-				gameDatetime: rawGameSession.gameDatetime,
-				description: rawGameSession.description,
-				games: rawGameSession.games,
-				hasSelectedProposition: hasProposition,
-			}
-		})
-
-		return gameSessions
-	} catch (error) {
-		console.error('Error fetching game sessions:', error)
-		throw new Error('Failed to fetch game sessions')
-	}
-};
+	return gameSessions
+}
 
 export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>
 
 export const getGameSession = async (gameSessionId: string) => {
-	await requireAdminUser()
-
 	const { gameSessionId: validatedId } = GetGameSessionSchema.parse({
 		gameSessionId,
 	})
@@ -121,15 +90,18 @@ export const getGameSession = async (gameSessionId: string) => {
 	})
 
 	if (!gameSession) {
-		redirect('/games')
+		throw new Error('Game session not found')
 	}
 
 	return gameSession
-};
+}
 
 export type GameSession = Awaited<ReturnType<typeof getGameSession>>
 
-export const createGameSessionAction = async (_prevState: unknown, formData: FormData) => {
+export const createGameSessionAction = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreateGameSessionSchema.transform(async (data, ctx) => {
@@ -243,9 +215,12 @@ export const createGameSessionAction = async (_prevState: unknown, formData: For
 
 	revalidatePath('/games')
 	redirect('/games')
-};
+}
 
-export const updateGameScore = async (_prevState: unknown, formData: FormData) => {
+export const updateGameScore = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	await requireAdminUser()
 
 	const submission = parseWithZod(formData, {
@@ -278,9 +253,12 @@ export const updateGameScore = async (_prevState: unknown, formData: FormData) =
 	})
 
 	return submission.reply()
-};
+}
 
-export const selectPropositionAction = async (_prevState: unknown, formData: FormData) => {
+export const selectPropositionAction = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: SelectPropositionSchema.transform(async (data, ctx) => {
 			const user = await getCurrentUser()
@@ -362,9 +340,12 @@ export const selectPropositionAction = async (_prevState: unknown, formData: For
 
 	revalidatePath(`/games/${gameSessionId}`)
 	redirect(`/games/${gameSessionId}`)
-};
+}
 
-export const updatePropositionTeams = async (propositionId: string, teamUpdates: Array<{ teamId: string; playerIds: string[] }>) => {
+export const updatePropositionTeams = async (
+	propositionId: string,
+	teamUpdates: Array<{ teamId: string; playerIds: string[] }>,
+) => {
 	await requireAdminUser()
 
 	try {
@@ -384,9 +365,12 @@ export const updatePropositionTeams = async (propositionId: string, teamUpdates:
 		console.error('Error updating proposition teams:', error)
 		throw new Error('Failed to update proposition teams')
 	}
-};
+}
 
-export const recordGameResultAction = async (_prevState: unknown, formData: FormData) => {
+export const recordGameResultAction = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			GameResultSchema.transform(async (data, ctx) => {
@@ -521,4 +505,4 @@ export const recordGameResultAction = async (_prevState: unknown, formData: Form
 
 	revalidatePath(`/games/${gameSessionId}`)
 	redirect(`/games/${gameSessionId}`)
-};
+}

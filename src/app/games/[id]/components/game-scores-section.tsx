@@ -21,12 +21,7 @@ export const GameScoresSection = ({
 }: GameScoresSectionProps) => {
 	const [showAddForm, setShowAddForm] = useState(false)
 
-	if (!isAdmin) {
-		return null
-	}
-
-	// Can only add games if teams are selected
-	const canAddGames = teams !== null && teams.length === 2
+	const canAddGames = isAdmin && teams !== null && teams.length === 2
 
 	return (
 		<section className="space-y-4">
@@ -66,4 +61,4 @@ export const GameScoresSection = ({
 			)}
 		</section>
 	)
-};
+}

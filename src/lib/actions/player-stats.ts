@@ -1,15 +1,8 @@
 'use server'
 
-import { redirect } from 'next/navigation'
-import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 
 export const getPlayerStats = async () => {
-	const currentUser = await getCurrentUser()
-
-	if (!currentUser) redirect('/login')
-
-	// Get all players with their teams and game results
 	const players = await prisma.player.findMany({
 		select: {
 			id: true,
@@ -94,6 +87,6 @@ export const getPlayerStats = async () => {
 	})
 
 	return playerStats
-};
+}
 
 export type PlayerStats = Awaited<ReturnType<typeof getPlayerStats>>

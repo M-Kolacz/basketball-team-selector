@@ -1,7 +1,6 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
-import { redirect } from 'next/navigation'
 import z from 'zod'
 import { getCurrentUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
@@ -14,9 +13,7 @@ import {
 export const getPlayers = async () => {
 	const currentUser = await getCurrentUser()
 
-	if (!currentUser) redirect('/login')
-
-	const isAdminUser = currentUser.role === 'admin'
+	const isAdminUser = currentUser?.role === 'admin'
 
 	const players = await prisma.player.findMany({
 		select: {
@@ -30,7 +27,7 @@ export const getPlayers = async () => {
 	})
 
 	return players
-};
+}
 
 export type Players = Awaited<ReturnType<typeof getPlayers>>
 
@@ -85,7 +82,7 @@ export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 	})
 
 	return { success: true }
-};
+}
 
 export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
@@ -133,7 +130,7 @@ export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 	})
 
 	return { success: true }
-};
+}
 
 export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
@@ -203,4 +200,4 @@ export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 	})
 
 	return { success: true }
-};
+}

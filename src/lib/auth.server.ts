@@ -32,16 +32,8 @@ export const getCurrentUser = async (): Promise<AuthenticatedUser | null> => {
 		},
 	})
 
-	if (!user) return null
-
-	return {
-		id: user.id,
-		username: user.username,
-		role: user.role,
-		createdAt: user.createdAt,
-		updatedAt: user.updatedAt,
-	}
-};
+	return user
+}
 
 export const requireAdminUser = async (): Promise<AuthenticatedUser> => {
 	const user = await getCurrentUser()
@@ -55,7 +47,7 @@ export const requireAdminUser = async (): Promise<AuthenticatedUser> => {
 	}
 
 	return user
-};
+}
 
 export const requireUser = async (): Promise<AuthenticatedUser> => {
 	const user = await getCurrentUser()
@@ -65,4 +57,4 @@ export const requireUser = async (): Promise<AuthenticatedUser> => {
 	}
 
 	return user
-};
+}

@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation'
 import { GameDetailsHeader } from '#app/app/games/[id]/components/game-details-header'
 import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-section'
 import { PropositionsSection } from '#app/app/games/[id]/components/propositions-section'
@@ -13,10 +12,6 @@ type PageProps = {
 export default async function GameDetailsPage({ params }: PageProps) {
 	const { id } = await params
 	const gameSession = await getGameSession(id)
-
-	if (!gameSession) {
-		notFound()
-	}
 
 	const currentUser = await getCurrentUser()
 	const isAdmin = currentUser?.role === 'admin'
