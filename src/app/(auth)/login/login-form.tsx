@@ -1,7 +1,7 @@
 'use client'
 
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
-import { parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import Link from 'next/link'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
@@ -9,6 +9,7 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
+	CardFooter,
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
@@ -19,20 +20,22 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { login } from '#app/lib/actions/auth'
+import { Spinner } from '#app/components/ui/spinner'
+import { loginAction } from '#app/lib/actions/auth'
 import { LoginSchema } from '#app/lib/validations/auth'
 
 export const LoginForm = () => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		login,
+		loginAction,
 		undefined,
 	)
 	const [form, fields] = useForm({
+		id: 'login-form',
+		constraint: getZodConstraint(LoginSchema),
 		lastResult: lastResult?.result,
 		onValidate: ({ formData }) =>
 			parseWithZod(formData, { schema: LoginSchema }),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
+		shouldRevalidate: 'onBlur',
 	})
 
 	return (
@@ -48,36 +51,49 @@ export const LoginForm = () => {
 			<CardContent>
 				<form action={formAction} {...getFormProps(form)}>
 					<FieldGroup>
-						<Field>
+						<Field data-invalid={Boolean(fields.username.errors)}>
 							<FieldLabel htmlFor={fields.username.id}>Username</FieldLabel>
 							<Input
 								{...getInputProps(fields.username, { type: 'text' })}
-								defaultValue={fields.username.defaultValue}
+								autoComplete="username"
 								disabled={isSubmitting}
 								autoFocus
 							/>
 							<FieldError errors={fields.username.errors} />
 						</Field>
 
-						<Field>
+						<Field data-invalid={Boolean(fields.password.errors)}>
 							<FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
 							<Input
-								type="password"
-								id={fields.password.id}
-								name={fields.password.name}
-								defaultValue={fields.password.defaultValue}
+								{...getInputProps(fields.password, { type: 'password' })}
+								autoComplete="current-password"
 								disabled={isSubmitting}
 							/>
 							<FieldError errors={fields.password.errors} />
 						</Field>
 						<FieldError errors={form.errors} />
-
-						<Button type="submit" disabled={isSubmitting} className="w-full">
-							{isSubmitting ? 'Logging in...' : 'Login'}
-						</Button>
 					</FieldGroup>
+				</form>
+			</CardContent>
+			<CardFooter>
+				<Field orientation={'vertical'}>
+					<Button
+						type="submit"
+						form={form.id}
+						disabled={isSubmitting}
+						className="w-full"
+					>
+						{isSubmitting ? (
+							<>
+								<Spinner />
+								<span>Logging in...</span>
+							</>
+						) : (
+							<span>Login</span>
+						)}
+					</Button>
 
-					<div className="text-center text-sm text-muted-foreground">
+					<span className="text-center text-sm text-muted-foreground">
 						Don't have an account?{' '}
 						<Link
 							href="/register"
@@ -85,9 +101,9 @@ export const LoginForm = () => {
 						>
 							Create new account
 						</Link>
-					</div>
-				</form>
-			</CardContent>
+					</span>
+				</Field>
+			</CardFooter>
 		</Card>
 	)
 }

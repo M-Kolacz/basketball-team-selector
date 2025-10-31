@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import z from 'zod'
+import { login, requireAnonymous, saveAuthSession } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import {
@@ -14,37 +15,24 @@ import {
 	RegisterSchema,
 } from '#app/lib/validations/auth'
 
-export const login = async (_prevState: unknown, formData: FormData) => {
+export const loginAction = async (_prevState: unknown, formData: FormData) => {
+	await requireAnonymous()
+
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			LoginSchema.transform(async (data, ctx) => {
-				if (intent !== null) return { ...data, user: null }
+				if (intent !== null) return { ...data, userId: null }
 
-				const userWithPassword = await prisma.user.findUnique({
-					where: {
-						username: data.username,
-					},
-					select: {
-						id: true,
-						password: {
-							select: { hash: true },
-						},
-					},
-				})
+				const session = await login(data)
 
-				const isValidPassword = await bcrypt.compare(
-					data.password,
-					userWithPassword?.password?.hash || '',
-				)
-
-				if (!userWithPassword || !isValidPassword) {
+				if (!session) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: 'Invalid username or password',
 					})
 					return z.NEVER
 				}
-				return { userId: userWithPassword.id }
+				return { ...data, userId: session.id }
 			}),
 		async: true,
 	})
@@ -55,19 +43,7 @@ export const login = async (_prevState: unknown, formData: FormData) => {
 
 	const { userId } = submission.value
 
-	const token = jwt.sign({ userId }, env.JWT_SECRET, {
-		algorithm: 'HS256',
-		expiresIn: '7d',
-	})
-
-	const cookieStore = await cookies()
-	cookieStore.set('bts-session', token, {
-		sameSite: 'lax',
-		path: '/',
-		httpOnly: true,
-		secure: env.NODE_ENV === 'production',
-		maxAge: 7 * 24 * 60 * 60,
-	})
+	await saveAuthSession(userId)
 
 	redirect('/games')
 }
