@@ -1,7 +1,10 @@
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { prisma, type User } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
+import { type Login } from '#app/lib/validations/auth'
 
 export interface AuthenticatedUser {
 	id: string
@@ -10,10 +13,11 @@ export interface AuthenticatedUser {
 	createdAt: Date
 	updatedAt: Date
 }
+export const AUTH_SESSION_KEY = 'bts-session'
 
 export const getCurrentUser = async (): Promise<AuthenticatedUser | null> => {
 	const cookieStore = await cookies()
-	const token = cookieStore.get('bts-session')
+	const token = cookieStore.get(AUTH_SESSION_KEY)
 
 	if (!token) return null
 
@@ -57,4 +61,52 @@ export const requireUser = async (): Promise<AuthenticatedUser> => {
 	}
 
 	return user
+}
+
+export const requireAnonymous = async (): Promise<void> => {
+	const user = await getCurrentUser()
+
+	if (user) {
+		redirect('/')
+	}
+}
+
+export const login = async ({ username, password }: Login) => {
+	const user = await verifyUserPassword(username, password)
+	if (!user) return null
+	return user
+}
+
+export const verifyUserPassword = async (
+	username: Login['username'],
+	password: Login['password'],
+) => {
+	const userWithPassword = await prisma.user.findUnique({
+		where: { username },
+		select: { id: true, password: { select: { hash: true } } },
+	})
+
+	if (!userWithPassword || !userWithPassword.password) return null
+
+	const isValid = await bcrypt.compare(password, userWithPassword.password.hash)
+
+	if (!isValid) return null
+
+	return { id: userWithPassword.id }
+}
+
+export const saveAuthSession = async (userId: string) => {
+	const token = jwt.sign({ userId }, env.JWT_SECRET, {
+		algorithm: 'HS256',
+		expiresIn: '7d',
+	})
+
+	const cookieStore = await cookies()
+	cookieStore.set(AUTH_SESSION_KEY, token, {
+		sameSite: 'lax',
+		path: '/',
+		httpOnly: true,
+		secure: env.NODE_ENV === 'production',
+		maxAge: 7 * 24 * 60 * 60,
+	})
 }
