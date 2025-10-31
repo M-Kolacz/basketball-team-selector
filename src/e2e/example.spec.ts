@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test'
 
-test('has deploy button', async ({ page }) => {
+test('has title', async ({ page }) => {
 	await page.goto('/')
 
-	const loginHeader = page.getByRole('heading', { name: 'Login', level: 1 })
+	const loginHeader = page.getByRole('heading', {
+		name: 'Game History',
+		level: 1,
+	})
 
 	await expect(loginHeader).toBeVisible()
 })
