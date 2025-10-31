@@ -21,7 +21,7 @@ jobs:
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
@@ -35,19 +35,18 @@ jobs:
   typecheck:
     name: ʦ TypeScript
     runs-on: ubuntu-22.04
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 🤐 Create .env file
-        uses: ./.github/actions/create-env-file
-        with:
-          env-variables: ${{secrets.SECRETS}}
-
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
@@ -71,7 +70,7 @@ jobs:
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
@@ -89,19 +88,18 @@ jobs:
     name: 🎭 Playwright
     runs-on: ubuntu-22.04
     timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
 
-      - name: 🤐 Create .env file
-        uses: ./.github/actions/create-env-file
-        with:
-          env-variables: ${{secrets.SECRETS}}
-
       - name: ⎔ Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: '.nvmrc'
+          node-version-file: ".nvmrc"
 
       - name: 📥 Download deps
         uses: bahmutov/npm-install@v1
