@@ -4,7 +4,7 @@ import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma, type User } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
-import { type Login } from '#app/lib/validations/auth'
+import { type Register, type Login } from '#app/lib/validations/auth'
 
 export interface AuthenticatedUser {
 	id: string
@@ -67,7 +67,7 @@ export const requireAnonymous = async (): Promise<void> => {
 	const user = await getCurrentUser()
 
 	if (user) {
-		redirect('/')
+		redirect('/games')
 	}
 }
 
@@ -75,6 +75,29 @@ export const login = async ({ username, password }: Login) => {
 	const user = await verifyUserPassword(username, password)
 	if (!user) return null
 	return user
+}
+
+export const register = async ({ username, password }: Register) => {
+	const hashedPassword = await getPasswordHash(password)
+
+	const user = await prisma.user.create({
+		data: {
+			username,
+			password: {
+				create: {
+					hash: hashedPassword,
+				},
+			},
+		},
+		select: { id: true },
+	})
+
+	return user
+}
+
+export const getPasswordHash = async (password: string) => {
+	const hash = await bcrypt.hash(password, 10)
+	return hash
 }
 
 export const verifyUserPassword = async (
