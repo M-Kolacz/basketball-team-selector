@@ -87,6 +87,8 @@ export const registerAction = async (
 	_prevState: unknown,
 	formData: FormData,
 ) => {
+	await requireAnonymous()
+
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			RegisterSchema.superRefine(async (data, ctx) => {
@@ -113,7 +115,9 @@ export const registerAction = async (
 	})
 
 	if (submission.status !== 'success' || !submission.value.session) {
-		return { result: submission.reply() }
+		return {
+			result: submission.reply({ hideFields: ['password', 'confirmPassword'] }),
+		}
 	}
 
 	const { session } = submission.value
