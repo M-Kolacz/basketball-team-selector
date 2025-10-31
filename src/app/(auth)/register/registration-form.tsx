@@ -1,7 +1,7 @@
 'use client'
 
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
-import { parseWithZod } from '@conform-to/zod'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import Link from 'next/link'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
@@ -11,6 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 	CardDescription,
+	CardFooter,
 } from '#app/components/ui/card'
 import {
 	Field,
@@ -19,19 +20,22 @@ import {
 	FieldLabel,
 } from '#app/components/ui/field'
 import { Input } from '#app/components/ui/input'
-import { register } from '#app/lib/actions/auth'
+import { Spinner } from '#app/components/ui/spinner'
+import { registerAction } from '#app/lib/actions/auth'
 import { RegisterSchema } from '#app/lib/validations/auth'
 
 export const RegistrationForm = () => {
-	const [lastResult, formAction, isSubmitting] = useActionState(
-		register,
+	const [state, formAction, isSubmitting] = useActionState(
+		registerAction,
 		undefined,
 	)
 	const [form, fields] = useForm({
-		lastResult,
-		onValidate: ({ formData }) => parseWithZod(formData, { schema: RegisterSchema }),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
+		id: 'register-form',
+		constraint: getZodConstraint(RegisterSchema),
+		lastResult: state?.result,
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: RegisterSchema }),
+		shouldRevalidate: 'onBlur',
 	})
 
 	return (
@@ -45,29 +49,29 @@ export const RegistrationForm = () => {
 				</CardHeader>
 				<CardContent>
 					<form action={formAction} {...getFormProps(form)}>
-						<FieldGroup className="space-y-2">
-							<Field>
+						<FieldGroup>
+							<Field data-invalid={Boolean(fields.username.errors)}>
 								<FieldLabel htmlFor={fields.username.id}>Username</FieldLabel>
 								<Input
 									{...getInputProps(fields.username, { type: 'text' })}
-									defaultValue={fields.username.defaultValue}
 									disabled={isSubmitting}
+									autoComplete="username"
 									autoFocus
 								/>
 								<FieldError errors={fields.username.errors} />
 							</Field>
 
-							<Field>
+							<Field data-invalid={Boolean(fields.password.errors)}>
 								<FieldLabel htmlFor={fields.password.id}>Password</FieldLabel>
 								<Input
 									{...getInputProps(fields.password, { type: 'password' })}
-									defaultValue={fields.password.defaultValue}
+									autoComplete="new-password"
 									disabled={isSubmitting}
 								/>
 								<FieldError errors={fields.password.errors} />
 							</Field>
 
-							<Field>
+							<Field data-invalid={Boolean(fields.confirmPassword.errors)}>
 								<FieldLabel htmlFor={fields.confirmPassword.id}>
 									Confirm Password
 								</FieldLabel>
@@ -75,17 +79,32 @@ export const RegistrationForm = () => {
 									{...getInputProps(fields.confirmPassword, {
 										type: 'password',
 									})}
-									defaultValue={fields.confirmPassword.defaultValue}
+									autoComplete="new-password"
 									disabled={isSubmitting}
 								/>
 								<FieldError errors={fields.confirmPassword.errors} />
 							</Field>
 							<FieldError errors={form.errors} />
-
-							<Button type="submit" className="w-full" disabled={isSubmitting}>
-								{isSubmitting ? 'Creating account...' : 'Create account'}
-							</Button>
 						</FieldGroup>
+					</form>
+				</CardContent>
+				<CardFooter>
+					<Field>
+						<Button
+							type="submit"
+							form={form.id}
+							disabled={isSubmitting}
+							className="w-full"
+						>
+							{isSubmitting ? (
+								<>
+									<Spinner />
+									<span>Creating account...</span>
+								</>
+							) : (
+								<span>Create account</span>
+							)}
+						</Button>
 
 						<p className="text-center text-sm text-muted-foreground">
 							Already have an account?{' '}
@@ -96,9 +115,9 @@ export const RegistrationForm = () => {
 								Sign in
 							</Link>
 						</p>
-					</form>
-				</CardContent>
+					</Field>
+				</CardFooter>
 			</Card>
 		</div>
 	)
-};
+}

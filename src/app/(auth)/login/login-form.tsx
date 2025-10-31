@@ -25,14 +25,14 @@ import { loginAction } from '#app/lib/actions/auth'
 import { LoginSchema } from '#app/lib/validations/auth'
 
 export const LoginForm = () => {
-	const [lastResult, formAction, isSubmitting] = useActionState(
+	const [state, formAction, isSubmitting] = useActionState(
 		loginAction,
 		undefined,
 	)
 	const [form, fields] = useForm({
 		id: 'login-form',
 		constraint: getZodConstraint(LoginSchema),
-		lastResult: lastResult?.result,
+		lastResult: state?.result,
 		onValidate: ({ formData }) =>
 			parseWithZod(formData, { schema: LoginSchema }),
 		shouldRevalidate: 'onBlur',

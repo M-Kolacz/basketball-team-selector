@@ -28,7 +28,7 @@ export const RegisterSchema = z
 		path: ['confirmPassword'],
 	})
 
-export type RegisterCommand = z.infer<typeof RegisterSchema>
+export type Register = z.infer<typeof RegisterSchema>
 
 export const LogoutSchema = z.object({
 	userId: z.string().uuid(),

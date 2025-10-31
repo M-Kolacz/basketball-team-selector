@@ -1,14 +1,16 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import z from 'zod'
-import { login, requireAnonymous, saveAuthSession } from '#app/lib/auth.server'
+import {
+	login,
+	register,
+	requireAnonymous,
+	saveAuthSession,
+} from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
-import { env } from '#app/lib/env.mjs'
 import {
 	LoginSchema,
 	LogoutSchema,
@@ -81,58 +83,42 @@ export const logout = async (_prevState: unknown, formData: FormData) => {
 	redirect('/')
 }
 
-export const register = async (_prevState: unknown, formData: FormData) => {
+export const registerAction = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
 	const submission = await parseWithZod(formData, {
-		schema: RegisterSchema.superRefine(async (data, ctx) => {
-			const existingUser = await prisma.user.findUnique({
-				where: { username: data.username },
-				select: { id: true },
-			})
-
-			if (existingUser) {
-				ctx.addIssue({
-					path: ['username'],
-					code: z.ZodIssueCode.custom,
-					message: 'A user already exists with this username',
+		schema: (intent) =>
+			RegisterSchema.superRefine(async (data, ctx) => {
+				const existingUser = await prisma.user.findUnique({
+					where: { username: data.username },
+					select: { id: true },
 				})
-				return
-			}
-		}),
+
+				if (existingUser) {
+					ctx.addIssue({
+						path: ['username'],
+						code: z.ZodIssueCode.custom,
+						message: 'A user already exists with this username',
+					})
+					return
+				}
+			}).transform(async (data) => {
+				if (intent !== null) return { ...data, session: null }
+
+				const session = await register(data)
+				return { ...data, session }
+			}),
 		async: true,
 	})
 
-	if (submission.status !== 'success') {
-		return submission.reply()
+	if (submission.status !== 'success' || !submission.value.session) {
+		return { result: submission.reply() }
 	}
 
-	const { username, password } = submission.value
+	const { session } = submission.value
 
-	const hashedPassword = await bcrypt.hash(password, 10)
-
-	const user = await prisma.user.create({
-		data: {
-			username,
-			role: 'user',
-			password: {
-				create: { hash: hashedPassword },
-			},
-		},
-		select: { id: true },
-	})
-
-	const token = jwt.sign({ userId: user.id }, env.JWT_SECRET, {
-		algorithm: 'HS256',
-		expiresIn: '7d',
-	})
-
-	const cookieStore = await cookies()
-	cookieStore.set('bts-session', token, {
-		sameSite: 'lax',
-		path: '/',
-		httpOnly: true,
-		secure: env.NODE_ENV === 'production',
-		maxAge: 7 * 24 * 60 * 60,
-	})
+	await saveAuthSession(session.id)
 
 	redirect('/games')
 }
