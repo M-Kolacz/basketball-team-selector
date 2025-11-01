@@ -3,7 +3,7 @@ import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-se
 import { PropositionsSection } from '#app/app/games/[id]/components/propositions-section'
 import { SelectedTeamsSection } from '#app/app/games/[id]/components/selected-teams-section'
 import { getGameSession } from '#app/lib/actions/game-sessions'
-import { getCurrentUser } from '#app/lib/auth.server'
+import { getOptionalUser } from '#app/lib/auth.server'
 
 type PageProps = {
 	params: Promise<{ id: string }>
@@ -13,7 +13,7 @@ export default async function GameDetailsPage({ params }: PageProps) {
 	const { id } = await params
 	const gameSession = await getGameSession(id)
 
-	const currentUser = await getCurrentUser()
+	const currentUser = await getOptionalUser()
 	const isAdmin = currentUser?.role === 'admin'
 
 	return (

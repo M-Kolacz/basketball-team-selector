@@ -30,4 +30,4 @@ export const GameHistoryRow = ({ gameSession }: GameHistoryRowProps) => {
 			<TableCell>{gameSession.games.length}</TableCell>
 		</TableRow>
 	)
-};
+}

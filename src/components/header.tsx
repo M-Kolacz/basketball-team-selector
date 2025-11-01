@@ -24,10 +24,10 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from '#app/components/ui/sheet'
-import { getCurrentUser } from '#app/lib/auth.server'
+import { getOptionalUser } from '#app/lib/auth.server'
 
 export const Header = async () => {
-	const currentUser = await getCurrentUser()
+	const currentUser = await getOptionalUser()
 
 	const navLinks = [
 		{ href: '/games', label: 'Games' },

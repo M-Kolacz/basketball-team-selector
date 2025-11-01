@@ -4,7 +4,7 @@ import { parseWithZod } from '@conform-to/zod'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
-import { getCurrentUser, requireAdminUser } from '#app/lib/auth.server'
+import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/createTeamPropositions'
 import { prisma } from '#app/lib/db.server'
 import {
@@ -18,17 +18,12 @@ import {
 export const getGameSessions = async () => {
 	const gameSessions = await prisma.gameSession.findMany({
 		orderBy: { gameDatetime: 'desc' },
-		include: {
-			selectedProposition: {
-				select: { id: true },
-			},
+		select: {
+			id: true,
+			gameDatetime: true,
 			games: {
-				include: {
-					scores: {
-						select: {
-							id: true,
-						},
-					},
+				select: {
+					id: true,
 				},
 			},
 		},
@@ -107,7 +102,7 @@ export const createGameSessionAction = async (
 			CreateGameSessionSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const user = await getCurrentUser()
+				const user = await getOptionalUser()
 				if (!user || user.role !== 'admin') {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
@@ -261,7 +256,7 @@ export const selectPropositionAction = async (
 ) => {
 	const submission = await parseWithZod(formData, {
 		schema: SelectPropositionSchema.transform(async (data, ctx) => {
-			const user = await getCurrentUser()
+			const user = await getOptionalUser()
 			if (!user || user.role !== 'admin') {
 				ctx.addIssue({
 					code: z.ZodIssueCode.custom,
@@ -378,7 +373,7 @@ export const recordGameResultAction = async (
 				if (intent !== null) return data
 
 				// Admin authorization check
-				const user = await getCurrentUser()
+				const user = await getOptionalUser()
 				if (!user || user.role !== 'admin') {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,

@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import z from 'zod'
-import { getCurrentUser } from '#app/lib/auth.server'
+import { getOptionalUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import {
 	CreatePlayerSchema,
@@ -11,7 +11,7 @@ import {
 } from '#app/lib/validations/player'
 
 export const getPlayers = async () => {
-	const currentUser = await getCurrentUser()
+	const currentUser = await getOptionalUser()
 
 	const isAdminUser = currentUser?.role === 'admin'
 
@@ -37,7 +37,7 @@ export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 			CreatePlayerSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const currentUser = await getCurrentUser()
+				const currentUser = await getOptionalUser()
 
 				if (!currentUser || currentUser.role !== 'admin') {
 					ctx.addIssue({
@@ -90,7 +90,7 @@ export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 			DeletePlayerSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const currentUser = await getCurrentUser()
+				const currentUser = await getOptionalUser()
 
 				if (!currentUser || currentUser.role !== 'admin') {
 					ctx.addIssue({
@@ -138,7 +138,7 @@ export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 			UpdatePlayerSchema.transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const currentUser = await getCurrentUser()
+				const currentUser = await getOptionalUser()
 
 				if (!currentUser || currentUser.role !== 'admin') {
 					ctx.addIssue({
