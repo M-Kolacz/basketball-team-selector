@@ -2,7 +2,7 @@ import { type Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { CreateGameForm } from '#app/app/games/new/create-game-form'
 import { getPlayers } from '#app/lib/actions/players'
-import { getCurrentUser } from '#app/lib/auth.server'
+import { getOptionalUser } from '#app/lib/auth.server'
 
 export const metadata: Metadata = {
 	title: 'Create Game - Basketball Team Selector',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 }
 
 export default async function CreateGamePage() {
-	const currentUser = await getCurrentUser()
+	const currentUser = await getOptionalUser()
 
 	if (!currentUser || currentUser.role !== 'admin') {
 		redirect('/games')

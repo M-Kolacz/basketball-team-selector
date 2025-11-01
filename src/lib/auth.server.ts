@@ -6,27 +6,15 @@ import { prisma, type User } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import { type Register, type Login } from '#app/lib/validations/auth'
 
-export interface AuthenticatedUser {
-	id: string
-	username: string
-	role: User['role']
-	createdAt: Date
-	updatedAt: Date
-}
 export const AUTH_SESSION_KEY = 'bts-session'
 
-export const getCurrentUser = async (): Promise<AuthenticatedUser | null> => {
-	const cookieStore = await cookies()
-	const token = cookieStore.get(AUTH_SESSION_KEY)
+export const getOptionalUser = async (): Promise<User | null> => {
+	const authSession = await getAuthSession()
 
-	if (!token) return null
-
-	const decoded = jwt.verify(token.value, env.JWT_SECRET, {
-		algorithms: ['HS256'],
-	}) as { userId: string }
+	if (!authSession) return null
 
 	const user = await prisma.user.findUnique({
-		where: { id: decoded.userId },
+		where: { id: authSession.userId },
 		select: {
 			id: true,
 			username: true,
@@ -39,22 +27,18 @@ export const getCurrentUser = async (): Promise<AuthenticatedUser | null> => {
 	return user
 }
 
-export const requireAdminUser = async (): Promise<AuthenticatedUser> => {
-	const user = await getCurrentUser()
+export const requireAdminUser = async (): Promise<User> => {
+	const user = await getOptionalUser()
 
-	if (!user) {
-		throw new Error('Unauthorized: Admin access required')
-	}
-
-	if (user.role !== 'admin') {
+	if (!user || user.role !== 'admin') {
 		throw new Error('Unauthorized: Admin access required')
 	}
 
 	return user
 }
 
-export const requireUser = async (): Promise<AuthenticatedUser> => {
-	const user = await getCurrentUser()
+export const requireUser = async (): Promise<User> => {
+	const user = await getOptionalUser()
 
 	if (!user) {
 		throw new Error('Unauthorized: User access required')
@@ -64,7 +48,7 @@ export const requireUser = async (): Promise<AuthenticatedUser> => {
 }
 
 export const requireAnonymous = async (): Promise<void> => {
-	const user = await getCurrentUser()
+	const user = await getOptionalUser()
 
 	if (user) {
 		redirect('/games')
@@ -118,8 +102,10 @@ export const verifyUserPassword = async (
 	return { id: userWithPassword.id }
 }
 
+type AuthCookie = { userId: string }
+
 export const saveAuthSession = async (userId: string) => {
-	const token = jwt.sign({ userId }, env.JWT_SECRET, {
+	const token = jwt.sign({ userId } as AuthCookie, env.JWT_SECRET, {
 		algorithm: 'HS256',
 		expiresIn: '7d',
 	})
@@ -132,4 +118,17 @@ export const saveAuthSession = async (userId: string) => {
 		secure: env.NODE_ENV === 'production',
 		maxAge: 7 * 24 * 60 * 60,
 	})
+}
+
+export const getAuthSession = async () => {
+	const cookieStore = await cookies()
+	const token = cookieStore.get(AUTH_SESSION_KEY)
+
+	if (!token) return null
+
+	const decoded = jwt.verify(token.value, env.JWT_SECRET, {
+		algorithms: ['HS256'],
+	}) as AuthCookie
+
+	return decoded
 }
