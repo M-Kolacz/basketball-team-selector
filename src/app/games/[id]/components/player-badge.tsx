@@ -41,4 +41,4 @@ export const PlayerBadge = ({
 			</div>
 		</div>
 	)
-};
+}

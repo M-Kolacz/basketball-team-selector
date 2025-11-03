@@ -4,14 +4,12 @@ import {
 	DndContext,
 	DragOverlay,
 	closestCenter,
-	KeyboardSensor,
 	PointerSensor,
 	useSensor,
 	useSensors,
 	type DragEndEvent,
 	type DragStartEvent,
 } from '@dnd-kit/core'
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { useState } from 'react'
 import { SelectPropositionButton } from '#app/app/games/[id]/components/select-proposition-button'
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
@@ -27,42 +25,22 @@ type PropositionsSectionProps = {
 	hasSelectedProposition: boolean
 }
 
-type TeamComposition = {
-	propositionId: string
-	teams: Array<{
-		id: string
-		players: Array<{ id: string; name: string }>
-	}>
-}
-
 export const PropositionsSection = ({
 	propositions,
 	gameSessionId,
 	hasSelectedProposition,
 }: PropositionsSectionProps) => {
-	const [teamCompositions, setTeamCompositions] = useState<TeamComposition[]>(
-		propositions.map((prop) => ({
-			propositionId: prop.id,
-			teams: prop.teams.map((team) => ({
-				id: team.id,
-				players: [...team.players],
-			})),
-		})),
-	)
+	const [teamPropositions, setTeamPropositions] =
+		useState<GameSession['propositions']>(propositions)
 
-	const [activeId, setActiveId] = useState<string | null>(null)
+	const [activeId, setActiveId] = useState<string | number | null>(null)
 	const [isSaving, setIsSaving] = useState(false)
 	const [hasChanges, setHasChanges] = useState(false)
 
-	const sensors = useSensors(
-		useSensor(PointerSensor),
-		useSensor(KeyboardSensor, {
-			coordinateGetter: sortableKeyboardCoordinates,
-		}),
-	)
+	const sensors = useSensors(useSensor(PointerSensor))
 
 	const handleDragStart = (event: DragStartEvent) => {
-		setActiveId(event.active.id as string)
+		setActiveId(event.active.id)
 	}
 
 	const handleDragEnd = (event: DragEndEvent) => {
@@ -71,8 +49,8 @@ export const PropositionsSection = ({
 
 		if (!over) return
 
-		const activeParts = (active.id as string).split('::')
-		const overParts = (over.id as string).split('::')
+		const activeParts = String(active.id).split('::')
+		const overParts = String(over.id).split('::')
 
 		if (activeParts.length !== 3 || overParts.length !== 3) return
 
@@ -81,23 +59,27 @@ export const PropositionsSection = ({
 
 		if (activePropositionId !== overPropositionId) return
 
-		setTeamCompositions((prev) => {
-			const updated = prev.map((comp) => {
-				if (comp.propositionId !== activePropositionId) return comp
+		setTeamPropositions((previousPropositions) => {
+			const updated = previousPropositions.map((prevProposition) => {
+				if (prevProposition.id !== activePropositionId) return prevProposition
 
-				if (activeTeamId === overTeamId) return comp
+				if (activeTeamId === overTeamId) return prevProposition
 
-				const sourceTeam = comp.teams.find((t) => t.id === activeTeamId)
-				const targetTeam = comp.teams.find((t) => t.id === overTeamId)
+				const sourceTeam = prevProposition.teams.find(
+					(t) => t.id === activeTeamId,
+				)
+				const targetTeam = prevProposition.teams.find(
+					(t) => t.id === overTeamId,
+				)
 
-				if (!sourceTeam || !targetTeam) return comp
+				if (!sourceTeam || !targetTeam) return prevProposition
 
 				const player = sourceTeam.players.find((p) => p.id === activePlayerId)
-				if (!player) return comp
+				if (!player) return prevProposition
 
 				return {
-					...comp,
-					teams: comp.teams.map((team) => {
+					...prevProposition,
+					teams: prevProposition.teams.map((team) => {
 						if (team.id === activeTeamId) {
 							return {
 								...team,
@@ -123,13 +105,13 @@ export const PropositionsSection = ({
 	const handleSave = async () => {
 		setIsSaving(true)
 		try {
-			for (const composition of teamCompositions) {
+			for (const composition of teamPropositions) {
 				const teamUpdates = composition.teams.map((team) => ({
 					teamId: team.id,
 					playerIds: team.players.map((p) => p.id),
 				}))
 
-				await updatePropositionTeams(composition.propositionId, teamUpdates)
+				await updatePropositionTeams(composition.id, teamUpdates)
 			}
 			setHasChanges(false)
 		} catch (error) {
@@ -139,19 +121,23 @@ export const PropositionsSection = ({
 		}
 	}
 
-	const activePlayer = activeId
-		? (() => {
-				const parts = activeId.split('::')
-				if (parts.length === 3) {
-					const playerId = parts[2]
-					return teamCompositions
-						.flatMap((c) => c.teams)
-						.flatMap((t) => t.players)
-						.find((p) => p.id === playerId)
-				}
-				return undefined
-			})()
-		: undefined
+	const getActivePlayer = (activeId: string | number | null) => {
+		if (!activeId) return null
+
+		const [ignoredPropositionId, ignoredTeamId, playerId] =
+			String(activeId).split('::')
+
+		if (!playerId) return null
+
+		return (
+			teamPropositions
+				.flatMap((c) => c.teams)
+				.flatMap((t) => t.players)
+				.find((p) => p.id === playerId) || null
+		)
+	}
+
+	const activePlayer = getActivePlayer(activeId)
 
 	return (
 		<DndContext
@@ -170,8 +156,8 @@ export const PropositionsSection = ({
 					)}
 				</div>
 				<div className="space-y-8">
-					{teamCompositions.map((composition, propIndex) => (
-						<div key={composition.propositionId} className="space-y-4">
+					{teamPropositions.map((composition, propIndex) => (
+						<div key={composition.id} className="space-y-4">
 							<h3 className="text-lg font-semibold">
 								Proposition {propIndex + 1}
 							</h3>
@@ -181,14 +167,14 @@ export const PropositionsSection = ({
 										key={team.id}
 										team={team}
 										teamLabel={teamIndex === 0 ? 'Team A' : 'Team B'}
-										propositionId={composition.propositionId}
+										propositionId={composition.id}
 									/>
 								))}
 							</div>
 							{!hasSelectedProposition && (
 								<SelectPropositionButton
 									gameSessionId={gameSessionId}
-									propositionId={composition.propositionId}
+									propositionId={composition.id}
 								/>
 							)}
 						</div>
@@ -206,4 +192,4 @@ export const PropositionsSection = ({
 			</DragOverlay>
 		</DndContext>
 	)
-};
+}

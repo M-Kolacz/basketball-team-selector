@@ -2,7 +2,7 @@
 
 import { parseWithZod } from '@conform-to/zod'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/createTeamPropositions'
@@ -34,14 +34,19 @@ export const getGameSessions = async () => {
 
 export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>
 
-export const getGameSession = async (gameSessionId: string) => {
-	const { gameSessionId: validatedId } = GetGameSessionSchema.parse({
-		gameSessionId,
+export const getGameSession = async (id: string) => {
+	const { gameSessionId } = await GetGameSessionSchema.parseAsync({
+		gameSessionId: id,
 	})
 
 	const gameSession = await prisma.gameSession.findUnique({
-		where: { id: validatedId },
-		include: {
+		where: { id: gameSessionId },
+
+		select: {
+			id: true,
+			gameDatetime: true,
+			description: true,
+
 			selectedProposition: {
 				include: {
 					teams: {
@@ -84,9 +89,7 @@ export const getGameSession = async (gameSessionId: string) => {
 		},
 	})
 
-	if (!gameSession) {
-		throw new Error('Game session not found')
-	}
+	if (!gameSession) notFound()
 
 	return gameSession
 }

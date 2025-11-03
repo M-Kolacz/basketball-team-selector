@@ -24,13 +24,11 @@ export default async function GameDetailsPage({ params }: PageProps) {
 					description={gameSession.description}
 				/>
 
-				{gameSession.propositions.length > 0 && (
-					<PropositionsSection
-						propositions={gameSession.propositions}
-						gameSessionId={gameSession.id}
-						hasSelectedProposition={gameSession.selectedProposition !== null}
-					/>
-				)}
+				<PropositionsSection
+					propositions={gameSession.propositions}
+					gameSessionId={gameSession.id}
+					hasSelectedProposition={gameSession.selectedProposition !== null}
+				/>
 
 				{gameSession.selectedProposition ? (
 					<SelectedTeamsSection teams={gameSession.selectedProposition.teams} />
