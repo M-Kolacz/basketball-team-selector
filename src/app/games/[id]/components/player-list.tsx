@@ -8,11 +8,13 @@ type PlayerListProps = {
 	players: Array<{ id: string; name: string }>
 	teamId: string
 	propositionId: string
+	isAdmin: boolean
 }
 
 export const PlayerList = ({
 	players,
 	teamId,
+	isAdmin,
 	propositionId,
 }: PlayerListProps) => {
 	const dropId = `${propositionId}::${teamId}::drop`
@@ -33,9 +35,10 @@ export const PlayerList = ({
 						player={player}
 						propositionId={propositionId}
 						teamId={teamId}
+						isAdmin={isAdmin}
 					/>
 				))}
 			</div>
 		</SortableContext>
 	)
-};
+}

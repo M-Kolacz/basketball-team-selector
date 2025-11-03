@@ -28,10 +28,14 @@ export default async function GameDetailsPage({ params }: PageProps) {
 					propositions={gameSession.propositions}
 					gameSessionId={gameSession.id}
 					hasSelectedProposition={gameSession.selectedProposition !== null}
+					isAdmin={isAdmin}
 				/>
 
 				{gameSession.selectedProposition ? (
-					<SelectedTeamsSection teams={gameSession.selectedProposition.teams} />
+					<SelectedTeamsSection
+						teams={gameSession.selectedProposition.teams}
+						isAdmin={isAdmin}
+					/>
 				) : (
 					<div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
 						No teams finalized yet

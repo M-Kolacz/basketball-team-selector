@@ -13,27 +13,32 @@ import {
 import { useState } from 'react'
 import { SelectPropositionButton } from '#app/app/games/[id]/components/select-proposition-button'
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
-import { type GameSession } from '#app/lib/actions/game-sessions'
+import { Button } from '#app/components/ui/button'
+import {
+	type GameSession,
+	updatePropositionTeams,
+} from '#app/lib/actions/game-sessions'
 
 type PropositionItemProps = {
 	proposition: GameSession['propositions'][number]
 	propIndex: number
-	gameSessionId: string
+	gameSessionId: GameSession['id']
 	hasSelectedProposition: boolean
-	onPropositionChange: (
-		propositionId: string,
-		updatedProposition: GameSession['propositions'][number],
-	) => void
+	isAdmin: boolean
 }
 
 export const PropositionItem = ({
-	proposition,
+	proposition: initialProposition,
 	propIndex,
 	gameSessionId,
 	hasSelectedProposition,
-	onPropositionChange,
+	isAdmin,
 }: PropositionItemProps) => {
+	const [proposition, setProposition] =
+		useState<GameSession['propositions'][number]>(initialProposition)
 	const [activeId, setActiveId] = useState<string | number | null>(null)
+	const [isSaving, setIsSaving] = useState(false)
+	const [hasChanges, setHasChanges] = useState(false)
 
 	const sensors = useSensors(useSensor(PointerSensor))
 
@@ -55,11 +60,9 @@ export const PropositionItem = ({
 		const [activePropositionId, activeTeamId, activePlayerId] = activeParts
 		const [overPropositionId, overTeamId] = overParts
 
-		// Ensure we're working within the same proposition
 		if (activePropositionId !== overPropositionId) return
 		if (activePropositionId !== proposition.id) return
 
-		// If dropping on the same team, do nothing
 		if (activeTeamId === overTeamId) return
 
 		const sourceTeam = proposition.teams.find((t) => t.id === activeTeamId)
@@ -70,7 +73,6 @@ export const PropositionItem = ({
 		const player = sourceTeam.players.find((p) => p.id === activePlayerId)
 		if (!player) return
 
-		// Create updated proposition
 		const updatedProposition = {
 			...proposition,
 			teams: proposition.teams.map((team) => {
@@ -90,7 +92,27 @@ export const PropositionItem = ({
 			}),
 		}
 
-		onPropositionChange(proposition.id, updatedProposition)
+		setProposition(updatedProposition)
+		setHasChanges(true)
+	}
+
+	const handleSave = async () => {
+		if (!isAdmin) return
+
+		setIsSaving(true)
+		try {
+			const teamUpdates = proposition.teams.map((team) => ({
+				teamId: team.id,
+				playerIds: team.players.map((p) => p.id),
+			}))
+
+			await updatePropositionTeams(proposition.id, teamUpdates)
+			setHasChanges(false)
+		} catch (error) {
+			console.error('Failed to save team composition:', error)
+		} finally {
+			setIsSaving(false)
+		}
 	}
 
 	const getActivePlayer = (activeId: string | number | null) => {
@@ -118,18 +140,26 @@ export const PropositionItem = ({
 			onDragEnd={handleDragEnd}
 		>
 			<div className="space-y-4">
-				<h3 className="text-lg font-semibold">Proposition {propIndex + 1}</h3>
+				<div className="flex items-center justify-between">
+					<h3 className="text-lg font-semibold">Proposition {propIndex + 1}</h3>
+					{hasChanges && isAdmin && (
+						<Button onClick={handleSave} disabled={isSaving} size="sm">
+							{isSaving ? 'Saving...' : 'Save Changes'}
+						</Button>
+					)}
+				</div>
 				<div className="grid gap-6 md:grid-cols-2">
-					{proposition.teams.map((team, teamIndex) => (
+					{proposition.teams.map((team) => (
 						<TeamCard
 							key={team.id}
 							team={team}
-							teamLabel={teamIndex === 0 ? 'Team A' : 'Team B'}
+							teamLabel={team.name}
 							propositionId={proposition.id}
+							isAdmin={isAdmin}
 						/>
 					))}
 				</div>
-				{!hasSelectedProposition && (
+				{!hasSelectedProposition && isAdmin && (
 					<SelectPropositionButton
 						gameSessionId={gameSessionId}
 						propositionId={proposition.id}

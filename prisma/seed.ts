@@ -82,6 +82,7 @@ const seed = async () => {
 		console.log('📝 Inserting seed teams data...')
 		const teams: Team[] = Array.from({ length: 6 }, () => ({
 			id: faker.string.uuid(),
+			name: faker.animal.type(),
 			createdAt: faker.date.recent({ days: 10 }),
 			updatedAt: faker.date.recent({ days: 5 }),
 		}))
@@ -172,7 +173,7 @@ const seed = async () => {
 		console.error('❌ Error seeding database:', error)
 		process.exit(1)
 	}
-};
+}
 
 if (require.main === module) {
 	seed()

@@ -11,28 +11,33 @@ type TeamCardProps = {
 		id: string
 		players: Array<{ id: string; name: string }>
 	}
-	teamLabel: 'Team A' | 'Team B'
+	teamLabel: string
 	propositionId: string
+	isAdmin: boolean
 }
 
 export const TeamCard = ({
 	team,
 	teamLabel,
 	propositionId,
-}: TeamCardProps) => <Card>
-			<CardHeader>
-				<CardTitle className="flex items-center justify-between">
-					<span>{teamLabel}</span>
-					<span className="text-sm font-normal text-muted-foreground">
-						{team.players.length} players
-					</span>
-				</CardTitle>
-			</CardHeader>
-			<CardContent>
-				<PlayerList
-					players={team.players}
-					teamId={team.id}
-					propositionId={propositionId}
-				/>
-			</CardContent>
-		</Card>;
+	isAdmin,
+}: TeamCardProps) => (
+	<Card>
+		<CardHeader>
+			<CardTitle className="flex items-center justify-between">
+				<span>{teamLabel}</span>
+				<span className="text-sm font-normal text-muted-foreground">
+					{team.players.length} players
+				</span>
+			</CardTitle>
+		</CardHeader>
+		<CardContent>
+			<PlayerList
+				players={team.players}
+				teamId={team.id}
+				propositionId={propositionId}
+				isAdmin={isAdmin}
+			/>
+		</CardContent>
+	</Card>
+)
