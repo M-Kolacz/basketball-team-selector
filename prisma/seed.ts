@@ -52,7 +52,7 @@ const seed = async () => {
 		})
 
 		console.log('📝 Inserting seed players data...')
-		const players: Player[] = Array.from({ length: 10 }, () => ({
+		const players: Player[] = Array.from({ length: 20 }, () => ({
 			id: faker.string.uuid(),
 			name: faker.person.fullName(),
 			skillTier: faker.helpers.arrayElement(['S', 'A', 'B', 'C', 'D']),
@@ -82,6 +82,7 @@ const seed = async () => {
 		console.log('📝 Inserting seed teams data...')
 		const teams: Team[] = Array.from({ length: 6 }, () => ({
 			id: faker.string.uuid(),
+			name: faker.animal.type(),
 			createdAt: faker.date.recent({ days: 10 }),
 			updatedAt: faker.date.recent({ days: 5 }),
 		}))
@@ -105,8 +106,9 @@ const seed = async () => {
 				id: faker.string.uuid(),
 			}),
 		)
+		let propositionResult
 		for (const proposition of numberOfPropositions) {
-			await prisma.proposition.create({
+			propositionResult = await prisma.proposition.create({
 				data: {
 					id: proposition.id,
 					createdAt: faker.date.recent({ days: 10 }),
@@ -116,6 +118,11 @@ const seed = async () => {
 						connect: faker.helpers
 							.arrayElements(teams, { min: 2, max: 2 })
 							.map((team) => ({ id: team.id })),
+					},
+				},
+				select: {
+					teams: {
+						select: { id: true },
 					},
 				},
 			})
@@ -137,7 +144,7 @@ const seed = async () => {
 					points: faker.number.int({ min: 0, max: 30 }),
 					game: { connect: { id: game.id } },
 					team: {
-						connect: { id: teams[0]!.id },
+						connect: { id: propositionResult!.teams[0]!.id },
 					},
 				},
 			})
@@ -147,7 +154,7 @@ const seed = async () => {
 					points: faker.number.int({ min: 0, max: 30 }),
 					game: { connect: { id: game.id } },
 					team: {
-						connect: { id: teams[1]!.id },
+						connect: { id: propositionResult!.teams[1]!.id },
 					},
 				},
 			})
@@ -172,7 +179,7 @@ const seed = async () => {
 		console.error('❌ Error seeding database:', error)
 		process.exit(1)
 	}
-};
+}
 
 if (require.main === module) {
 	seed()

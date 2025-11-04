@@ -1,7 +1,5 @@
 'use client'
 
-import { getFormProps, getInputProps, useForm } from '@conform-to/react'
-import { parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
@@ -15,7 +13,6 @@ import {
 	updateGameScore,
 	type GameSession,
 } from '#app/lib/actions/game-sessions'
-import { UpdateGameScoreSchema } from '#app/lib/validations/game-session'
 
 type ScoreInputFormProps = {
 	scores: GameSession['games'][number]['scores']
@@ -23,60 +20,58 @@ type ScoreInputFormProps = {
 }
 
 export const ScoreInputForm = ({ scores, onCancel }: ScoreInputFormProps) => {
-	const firstScore = scores[0]!
-	const secondScore = scores[1]!
-
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		updateGameScore,
 		undefined,
 	)
 
-	const [form, fields] = useForm({
-		lastResult: lastResult,
-		onValidate: ({ formData }) => parseWithZod(formData, { schema: UpdateGameScoreSchema }),
-		shouldValidate: 'onBlur',
-		shouldRevalidate: 'onInput',
-		defaultValue: {
-			firstScoreId: firstScore.id,
-			firstScorePoints: firstScore.points,
-			secondScoreId: secondScore.id,
-			secondScorePoints: secondScore.points,
-		},
-	})
+	const getFieldError = (fieldName: string) => {
+		if (lastResult?.status === 'error' && lastResult.error) {
+			return lastResult.error[fieldName as keyof typeof lastResult.error]
+		}
+		return undefined
+	}
 
 	return (
-		<form action={formAction} {...getFormProps(form)} className="space-y-4">
-			<input {...getInputProps(fields.firstScoreId, { type: 'hidden' })} />
-			<input {...getInputProps(fields.secondScoreId, { type: 'hidden' })} />
+		<form action={formAction} className="space-y-4">
+			{/* Hidden field for score count */}
+			<input type="hidden" name="scoreCount" value={scores.length} />
 
 			<FieldGroup>
-				<div className="grid gap-4 sm:grid-cols-2">
-					<Field>
-						<FieldLabel htmlFor={fields.firstScorePoints.id}>
-							Team A Score
-						</FieldLabel>
-						<Input
-							{...getInputProps(fields.firstScorePoints, { type: 'number' })}
-							disabled={isSubmitting}
-						/>
+				<div className="space-y-4">
+					{scores.map((score, index) => {
+						const fieldName = `scorePoints_${index}`
+						const fieldError = getFieldError(fieldName)
 
-						<FieldError errors={fields.firstScorePoints.errors} />
-					</Field>
+						return (
+							<div key={score.id}>
+								<input
+									type="hidden"
+									name={`scoreId_${index}`}
+									value={score.id}
+								/>
 
-					<Field>
-						<FieldLabel htmlFor={fields.secondScorePoints.id}>
-							Team B Score
-						</FieldLabel>
-						<Input
-							{...getInputProps(fields.secondScorePoints, { type: 'number' })}
-							disabled={isSubmitting}
-						/>
-
-						<FieldError errors={fields.secondScorePoints.errors} />
-					</Field>
+								<Field>
+									<FieldLabel htmlFor={fieldName}>
+										Team {index + 1} Score
+									</FieldLabel>
+									<Input
+										type="number"
+										id={fieldName}
+										name={fieldName}
+										defaultValue={score.points}
+										disabled={isSubmitting}
+										min="0"
+										max="300"
+									/>
+									{fieldError && <FieldError errors={fieldError} />}
+								</Field>
+							</div>
+						)
+					})}
 				</div>
 
-				<FieldError errors={form.errors} />
+				{getFieldError('') && <FieldError errors={getFieldError('')} />}
 
 				<div className="flex gap-2">
 					<Button type="submit" disabled={isSubmitting}>
@@ -94,4 +89,4 @@ export const ScoreInputForm = ({ scores, onCancel }: ScoreInputFormProps) => {
 			</FieldGroup>
 		</form>
 	)
-};
+}

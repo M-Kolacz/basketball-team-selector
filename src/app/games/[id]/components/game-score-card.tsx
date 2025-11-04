@@ -17,12 +17,14 @@ type GameScoreCardProps = {
 	gameIndex: number
 	game: GameSession['games'][number]
 	isAdmin: boolean
+	teams: NonNullable<GameSession['selectedProposition']>['teams'] | null
 }
 
 export const GameScoreCard = ({
 	gameIndex,
 	game,
 	isAdmin,
+	teams,
 }: GameScoreCardProps) => {
 	const [isEditing, setIsEditing] = useState(false)
 
@@ -41,6 +43,11 @@ export const GameScoreCard = ({
 			</Card>
 		)
 	}
+
+	// Sort scores by points descending to show winner first
+	const sortedScores = [...game.scores].sort((a, b) => b.points - a.points)
+
+	console.log({ teams, sortedScores })
 
 	return (
 		<Card>
@@ -61,24 +68,22 @@ export const GameScoreCard = ({
 				</CardTitle>
 			</CardHeader>
 			<CardContent>
-				<div className="grid grid-cols-3 gap-4 text-center">
-					<div>
-						<div className="text-sm text-muted-foreground">Team A</div>
-						<div className="text-3xl font-bold">
-							{game.scores[0]?.points ?? 0}
+				<div className="space-y-3">
+					{sortedScores.map((score, index) => (
+						<div
+							key={score.id}
+							className={`flex items-center justify-between rounded-lg border p-3 ${
+								index === 0 ? 'border-primary bg-primary/5' : ''
+							}`}
+						>
+							<div className="flex items-center gap-2">
+								<span className="text-sm font-medium text-muted-foreground">
+									Team {score.team.name}
+								</span>
+							</div>
+							<span className="text-2xl font-bold">{score.points}</span>
 						</div>
-					</div>
-					<div className="flex items-center justify-center">
-						<div className="text-xl font-semibold text-muted-foreground">
-							vs
-						</div>
-					</div>
-					<div>
-						<div className="text-sm text-muted-foreground">Team B</div>
-						<div className="text-3xl font-bold">
-							{game.scores[1]?.points ?? 0}
-						</div>
-					</div>
+					))}
 				</div>
 			</CardContent>
 		</Card>

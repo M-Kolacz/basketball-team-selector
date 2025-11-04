@@ -1,3 +1,4 @@
+import { cn } from '#app/lib/utils'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 
@@ -5,12 +6,14 @@ type PlayerBadgeProps = {
 	player: { id: string; name: string }
 	propositionId: string
 	teamId: string
+	isAdmin: boolean
 }
 
 export const PlayerBadge = ({
 	player,
 	propositionId,
 	teamId,
+	isAdmin,
 }: PlayerBadgeProps) => {
 	const sortableId = `${propositionId}::${teamId}::${player.id}`
 	const {
@@ -20,7 +23,7 @@ export const PlayerBadge = ({
 		transform,
 		transition,
 		isDragging,
-	} = useSortable({ id: sortableId })
+	} = useSortable({ id: sortableId, disabled: !isAdmin })
 
 	const style = {
 		transform: CSS.Transform.toString(transform),
@@ -34,11 +37,13 @@ export const PlayerBadge = ({
 			style={style}
 			{...attributes}
 			{...listeners}
-			className="flex cursor-grab items-center gap-2 rounded-lg border bg-card p-3 active:cursor-grabbing"
+			className={cn('flex items-center gap-2 rounded-lg border bg-card p-3', {
+				'cursor-grab active:cursor-grabbing': isAdmin,
+			})}
 		>
 			<div className="flex-1">
 				<div className="font-medium">{player.name}</div>
 			</div>
 		</div>
 	)
-};
+}
