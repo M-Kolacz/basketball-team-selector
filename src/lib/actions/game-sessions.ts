@@ -8,7 +8,6 @@ import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/createTeamPropositions'
 import { prisma } from '#app/lib/db.server'
 import {
-	UpdateGameScoreSchema,
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
 	SelectPropositionSchema,
@@ -82,6 +81,11 @@ export const getGameSession = async (id: string) => {
 							id: true,
 							points: true,
 							teamId: true,
+							team: {
+								select: {
+									name: true,
+								},
+							},
 						},
 					},
 				},
@@ -183,10 +187,11 @@ export const createGameSessionAction = async (
 	})
 
 	for (const proposition of propositions.object.propositions) {
-		const teams = []
+		const teams: string[] = []
 		for (const team of proposition.teams) {
 			const newTeam = await prisma.team.create({
 				data: {
+					name: `Team ${teams.length + 1}`,
 					players: {
 						connect: team.map((playerName) => {
 							const player = players.find((p) => p.name === playerName)!
@@ -221,36 +226,71 @@ export const updateGameScore = async (
 ) => {
 	await requireAdminUser()
 
-	const submission = parseWithZod(formData, {
-		schema: UpdateGameScoreSchema,
-	})
+	// Extract scoreCount and build dynamic scores array
+	const scoreCount = parseInt(formData.get('scoreCount') as string, 10)
 
-	if (submission.status !== 'success') {
-		return submission.reply()
+	if (isNaN(scoreCount) || scoreCount < 2) {
+		return {
+			status: 'error' as const,
+			error: {
+				'': ['Invalid number of scores'],
+			},
+		}
 	}
 
-	const { firstScoreId, firstScorePoints, secondScoreId, secondScorePoints } =
-		submission.value
+	const scores: Array<{ id: string; points: number }> = []
 
-	await prisma.score.update({
-		where: {
-			id: firstScoreId,
-		},
-		data: {
-			points: firstScorePoints,
-		},
-	})
+	for (let i = 0; i < scoreCount; i++) {
+		const scoreId = formData.get(`scoreId_${i}`) as string
+		const scorePoints = formData.get(`scorePoints_${i}`)
 
-	await prisma.score.update({
-		where: {
-			id: secondScoreId,
-		},
-		data: {
-			points: secondScorePoints,
-		},
-	})
+		if (!scoreId || scorePoints === null) {
+			return {
+				status: 'error' as const,
+				error: {
+					'': ['Missing score data'],
+				},
+			}
+		}
 
-	return submission.reply()
+		const points = parseInt(scorePoints as string, 10)
+
+		if (isNaN(points) || points < 0) {
+			return {
+				status: 'error' as const,
+				error: {
+					[`scorePoints_${i}`]: ['Invalid score value'],
+				},
+			}
+		}
+
+		scores.push({ id: scoreId, points })
+	}
+
+	// Update all scores
+	try {
+		await prisma.$transaction(
+			scores.map((score) =>
+				prisma.score.update({
+					where: { id: score.id },
+					data: { points: score.points },
+				}),
+			),
+		)
+	} catch (error) {
+		console.error('Error updating scores:', error)
+		return {
+			status: 'error' as const,
+			error: {
+				'': ['Failed to update scores'],
+			},
+		}
+	}
+
+	return {
+		status: 'success' as const,
+		error: {},
+	}
 }
 
 export const selectPropositionAction = async (

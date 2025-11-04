@@ -21,7 +21,7 @@ export const GameScoresSection = ({
 }: GameScoresSectionProps) => {
 	const [showAddForm, setShowAddForm] = useState(false)
 
-	const canAddGames = isAdmin && teams !== null && teams.length === 2
+	const canAddGames = isAdmin && teams !== null && teams.length >= 2
 
 	return (
 		<section className="space-y-4">
@@ -55,6 +55,7 @@ export const GameScoresSection = ({
 							gameIndex={index}
 							game={game}
 							isAdmin={isAdmin}
+							teams={teams}
 						/>
 					))}
 				</div>
