@@ -35,6 +35,8 @@ export const Header = async () => {
 		{ href: '/players/stats', label: 'Statistics' },
 	]
 
+	console.log('Current User in Header:', currentUser)
+
 	return (
 		<header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			<div className="container mx-auto flex h-14 items-center px-6">
@@ -59,73 +61,84 @@ export const Header = async () => {
 					</NavigationMenuList>
 				</NavigationMenu>
 
-				{currentUser ? (
-					<div className="ml-auto flex items-center gap-2">
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="ghost" size="icon" className="hidden md:flex">
-									<UserIcon className="size-5" />
-									<span className="sr-only">User menu</span>
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end">
-								<DropdownMenuLabel>
-									<div className="flex flex-col gap-1">
-										<p className="text-sm font-medium">
-											{currentUser.username}
-										</p>
-										<p className="text-xs text-muted-foreground">
-											{currentUser.role === 'admin' ? 'Admin' : 'User'}
-										</p>
-									</div>
-								</DropdownMenuLabel>
-								<DropdownMenuSeparator />
-								<DropdownMenuItem asChild>
-									<LogoutButton userId={currentUser.id} />
-								</DropdownMenuItem>
-							</DropdownMenuContent>
-						</DropdownMenu>
-
-						<Sheet>
-							<SheetTrigger asChild>
-								<Button variant="ghost" size="icon" className="md:hidden">
-									<MenuIcon className="size-5" />
-									<span className="sr-only">Toggle menu</span>
-								</Button>
-							</SheetTrigger>
-							<SheetContent side="right">
-								<SheetHeader>
-									<SheetTitle>Menu</SheetTitle>
-								</SheetHeader>
-								<div className="flex flex-col gap-4 pt-4">
-									<div className="flex flex-col gap-1">
-										<p className="text-sm font-medium">
-											{currentUser.username}
-										</p>
-										<p className="text-xs text-muted-foreground">
-											{currentUser.role === 'admin' ? 'Admin' : 'User'}
-										</p>
-									</div>
-									<div className="flex flex-col gap-2">
-										{navLinks.map((link) => (
-											<Link key={link.href} href={link.href}>
-												<Button
-													variant="ghost"
-													className="w-full justify-start"
-												>
-													{link.label}
-												</Button>
-											</Link>
-										))}
-									</div>
-									<div className="border-t pt-4">
-										<LogoutButton userId={currentUser.id} />
-									</div>
+				<div className="ml-auto flex items-center gap-2">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="ghost" size="icon" className="hidden md:flex">
+								<UserIcon className="size-5" />
+								<span className="sr-only">User menu</span>
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuLabel>
+								<div className="flex flex-col gap-1">
+									<p className="text-sm font-medium">
+										{currentUser?.username || 'Guest'}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										{currentUser?.role === 'admin' ? 'Admin' : 'User'}
+									</p>
 								</div>
-							</SheetContent>
-						</Sheet>
-					</div>
-				) : null}
+							</DropdownMenuLabel>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem asChild>
+								{currentUser?.id ? (
+									<LogoutButton userId={currentUser.id} />
+								) : (
+									<Link href="/login" className="w-full">
+										<Button variant="ghost" className="w-full justify-start">
+											Login
+										</Button>
+									</Link>
+								)}
+							</DropdownMenuItem>
+						</DropdownMenuContent>
+					</DropdownMenu>
+
+					<Sheet>
+						<SheetTrigger asChild>
+							<Button variant="ghost" size="icon" className="md:hidden">
+								<MenuIcon className="size-5" />
+								<span className="sr-only">Toggle menu</span>
+							</Button>
+						</SheetTrigger>
+						<SheetContent side="right">
+							<SheetHeader>
+								<SheetTitle>Menu</SheetTitle>
+							</SheetHeader>
+							<div className="flex flex-col gap-4 pt-4">
+								<div className="flex flex-col gap-1">
+									<p className="text-sm font-medium">
+										{currentUser?.username || 'Guest'}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										{currentUser?.role === 'admin' ? 'Admin' : 'User'}
+									</p>
+								</div>
+								<div className="flex flex-col gap-2">
+									{navLinks.map((link) => (
+										<Link key={link.href} href={link.href}>
+											<Button variant="ghost" className="w-full justify-start">
+												{link.label}
+											</Button>
+										</Link>
+									))}
+								</div>
+								<div className="border-t pt-4">
+									{currentUser?.id ? (
+										<LogoutButton userId={currentUser.id} />
+									) : (
+										<Link href="/login">
+											<Button variant="ghost" className="w-full justify-start">
+												Login
+											</Button>
+										</Link>
+									)}
+								</div>
+							</div>
+						</SheetContent>
+					</Sheet>
+				</div>
 			</div>
 		</header>
 	)
