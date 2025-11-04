@@ -68,17 +68,6 @@ const seed = async () => {
 			await prisma.player.create({ data: player })
 		}
 
-		console.log('📝 Inserting seed game sessions data...')
-		const gameSession = await prisma.gameSession.create({
-			data: {
-				id: faker.string.uuid(),
-				createdAt: faker.date.recent({ days: 10 }),
-				updatedAt: faker.date.recent({ days: 5 }),
-				description: 'Casual Friday Game',
-				gameDatetime: faker.date.soon({ days: 5 }),
-			},
-		})
-
 		console.log('📝 Inserting seed teams data...')
 		const teams: Team[] = Array.from({ length: 6 }, () => ({
 			id: faker.string.uuid(),
@@ -99,6 +88,17 @@ const seed = async () => {
 			})
 		}
 
+		console.log('📝 Inserting seed game session data...')
+		const gameSession = await prisma.gameSession.create({
+			data: {
+				id: faker.string.uuid(),
+				createdAt: faker.date.recent({ days: 10 }),
+				updatedAt: faker.date.recent({ days: 5 }),
+				description: 'Casual Friday Game',
+				gameDatetime: faker.date.soon({ days: 5 }),
+			},
+		})
+
 		console.log('📝 Inserting seed propositions data...')
 		const numberOfPropositions: Pick<Proposition, 'id'>[] = Array.from(
 			{ length: 3 },
@@ -106,9 +106,9 @@ const seed = async () => {
 				id: faker.string.uuid(),
 			}),
 		)
-		let propositionResult
+
 		for (const proposition of numberOfPropositions) {
-			propositionResult = await prisma.proposition.create({
+			await prisma.proposition.create({
 				data: {
 					id: proposition.id,
 					createdAt: faker.date.recent({ days: 10 }),
@@ -120,16 +120,16 @@ const seed = async () => {
 							.map((team) => ({ id: team.id })),
 					},
 				},
-				select: {
-					teams: {
-						select: { id: true },
-					},
-				},
 			})
 		}
+		const selectedPropositionId = numberOfPropositions[0]!.id
+		const selectedProposition = await prisma.proposition.findUnique({
+			where: { id: selectedPropositionId },
+			select: { teams: true },
+		})
 
+		console.log('📝 Inserting seed games and scores data...')
 		const games = Array.from({ length: 5 })
-
 		for (const ignored of games) {
 			const game = await prisma.game.create({
 				data: {
@@ -144,7 +144,7 @@ const seed = async () => {
 					points: faker.number.int({ min: 0, max: 30 }),
 					game: { connect: { id: game.id } },
 					team: {
-						connect: { id: propositionResult!.teams[0]!.id },
+						connect: { id: selectedProposition!.teams[0]!.id },
 					},
 				},
 			})
@@ -154,7 +154,7 @@ const seed = async () => {
 					points: faker.number.int({ min: 0, max: 30 }),
 					game: { connect: { id: game.id } },
 					team: {
-						connect: { id: propositionResult!.teams[1]!.id },
+						connect: { id: selectedProposition!.teams[1]!.id },
 					},
 				},
 			})
