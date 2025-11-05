@@ -61,3 +61,13 @@ export const GameResultSchema = z.object({
 
 export type GameResultInput = z.input<typeof GameResultSchema>
 export type GameResultOutput = z.output<typeof GameResultSchema>
+
+export const SavePropositionSchema = z.object({
+	updatedTeams: z.array(
+		z.object({
+			id: z.string().uuid(),
+			players: z.array(z.object({ id: z.string().uuid() })),
+		}),
+	),
+})
+export type SavePropositionCommand = z.infer<typeof SavePropositionSchema>

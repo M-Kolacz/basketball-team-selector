@@ -12,6 +12,7 @@ import {
 	CreateGameSessionSchema,
 	SelectPropositionSchema,
 	GameResultSchema,
+	SavePropositionSchema,
 } from '#app/lib/validations/game-session'
 
 export const getGameSessions = async () => {
@@ -381,28 +382,36 @@ export const selectPropositionAction = async (
 }
 
 export const updatePropositionTeams = async (
-	propositionId: string,
-	teamUpdates: Array<{ teamId: string; playerIds: string[] }>,
+	prevState: unknown,
+	formData: FormData,
 ) => {
 	await requireAdminUser()
 
-	try {
-		for (const update of teamUpdates) {
-			await prisma.team.update({
-				where: { id: update.teamId },
+	const submission = await parseWithZod(formData, {
+		schema: SavePropositionSchema,
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { updatedTeams } = submission.value
+
+	await prisma.$transaction(
+		updatedTeams.map((updatedTeam) =>
+			prisma.team.update({
+				where: { id: updatedTeam.id },
 				data: {
 					players: {
-						set: update.playerIds.map((id) => ({ id })),
+						set: updatedTeam.players.map((player) => ({ id: player.id })),
 					},
 				},
-			})
-		}
+			}),
+		),
+	)
 
-		revalidatePath(`/games`)
-	} catch (error) {
-		console.error('Error updating proposition teams:', error)
-		throw new Error('Failed to update proposition teams')
-	}
+	revalidatePath(`/games`)
 }
 
 export const recordGameResultAction = async (
