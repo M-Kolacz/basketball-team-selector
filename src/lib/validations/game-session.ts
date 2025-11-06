@@ -40,6 +40,10 @@ export const SelectPropositionSchema = z.object({
 export type SelectPropositionCommand = z.infer<typeof SelectPropositionSchema>
 
 export const GameResultSchema = z.object({
+	selectedTeams: z
+		.array(z.string().uuid())
+		.min(2, 'At least 2 teams must be selected')
+		.max(2, 'No more than 2 teams can play in a game'),
 	gameSessionId: z.string().uuid('Invalid game session ID'),
 	gameId: z.string().uuid('Invalid game ID').optional(),
 	scores: z
