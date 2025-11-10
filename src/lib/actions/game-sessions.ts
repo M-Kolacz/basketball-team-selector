@@ -13,6 +13,7 @@ import {
 	SelectPropositionSchema,
 	GameResultSchema,
 	SavePropositionSchema,
+	EditGameScoreSchema,
 } from '#app/lib/validations/game-session'
 
 export const getGameSessions = async () => {
@@ -228,71 +229,32 @@ export const updateGameScore = async (
 ) => {
 	await requireAdminUser()
 
-	// Extract scoreCount and build dynamic scores array
-	const scoreCount = parseInt(formData.get('scoreCount') as string, 10)
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			EditGameScoreSchema.transform(async (data, ctx) => {
+				return data
+			}),
+		async: true,
+	})
 
-	if (isNaN(scoreCount) || scoreCount < 2) {
-		return {
-			status: 'error' as const,
-			error: {
-				'': ['Invalid number of scores'],
-			},
-		}
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
 	}
 
-	const scores: Array<{ id: string; points: number }> = []
+	const { scores } = submission.value
 
-	for (let i = 0; i < scoreCount; i++) {
-		const scoreId = formData.get(`scoreId_${i}`) as string
-		const scorePoints = formData.get(`scorePoints_${i}`)
+	console.log({ scores })
 
-		if (!scoreId || scorePoints === null) {
-			return {
-				status: 'error' as const,
-				error: {
-					'': ['Missing score data'],
-				},
-			}
-		}
+	await prisma.$transaction(
+		scores.map((score) =>
+			prisma.score.update({
+				where: { id: score.id },
+				data: { points: score.points },
+			}),
+		),
+	)
 
-		const points = parseInt(scorePoints as string, 10)
-
-		if (isNaN(points) || points < 0) {
-			return {
-				status: 'error' as const,
-				error: {
-					[`scorePoints_${i}`]: ['Invalid score value'],
-				},
-			}
-		}
-
-		scores.push({ id: scoreId, points })
-	}
-
-	// Update all scores
-	try {
-		await prisma.$transaction(
-			scores.map((score) =>
-				prisma.score.update({
-					where: { id: score.id },
-					data: { points: score.points },
-				}),
-			),
-		)
-	} catch (error) {
-		console.error('Error updating scores:', error)
-		return {
-			status: 'error' as const,
-			error: {
-				'': ['Failed to update scores'],
-			},
-		}
-	}
-
-	return {
-		status: 'success' as const,
-		error: {},
-	}
+	return {}
 }
 
 export const selectPropositionAction = async (

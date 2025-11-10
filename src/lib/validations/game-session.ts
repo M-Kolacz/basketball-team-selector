@@ -70,3 +70,20 @@ export const SavePropositionSchema = z.object({
 	),
 })
 export type SavePropositionCommand = z.infer<typeof SavePropositionSchema>
+
+export const EditGameScoreSchema = z.object({
+	scores: z.array(
+		z.object({
+			id: z.string().uuid('Invalid score ID'),
+			points: z
+				.number({
+					required_error: 'Score is required',
+					invalid_type_error: 'Score must be a number',
+				})
+				.int('Score must be a whole number')
+				.min(0, 'Score cannot be negative')
+				.max(300, 'Score cannot exceed 300'),
+		}),
+	),
+})
+export type EditGameScoreCommand = z.infer<typeof EditGameScoreSchema>

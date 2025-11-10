@@ -44,10 +44,7 @@ export const GameScoreCard = ({
 		)
 	}
 
-	// Sort scores by points descending to show winner first
 	const sortedScores = [...game.scores].sort((a, b) => b.points - a.points)
-
-	console.log({ teams, sortedScores })
 
 	return (
 		<Card>

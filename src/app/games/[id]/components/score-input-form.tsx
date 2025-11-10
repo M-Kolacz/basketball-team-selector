@@ -1,5 +1,7 @@
 'use client'
 
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
+import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
@@ -13,6 +15,7 @@ import {
 	updateGameScore,
 	type GameSession,
 } from '#app/lib/actions/game-sessions'
+import { EditGameScoreSchema } from '#app/lib/validations/game-session'
 
 type ScoreInputFormProps = {
 	scores: GameSession['games'][number]['scores']
@@ -25,53 +28,42 @@ export const ScoreInputForm = ({ scores, onCancel }: ScoreInputFormProps) => {
 		undefined,
 	)
 
-	const getFieldError = (fieldName: string) => {
-		if (lastResult?.status === 'error' && lastResult.error) {
-			return lastResult.error[fieldName as keyof typeof lastResult.error]
-		}
-		return undefined
-	}
+	const [form, fields] = useForm({
+		constraint: getZodConstraint(EditGameScoreSchema),
+		lastResult: lastResult?.result,
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: EditGameScoreSchema }),
+		shouldValidate: 'onBlur',
+		shouldRevalidate: 'onInput',
+		defaultValue: {
+			scores: scores,
+		},
+	})
+
+	const scoreFields = fields.scores.getFieldList()
 
 	return (
-		<form action={formAction} className="space-y-4">
-			{/* Hidden field for score count */}
-			<input type="hidden" name="scoreCount" value={scores.length} />
-
+		<form {...getFormProps(form)} action={formAction}>
 			<FieldGroup>
 				<div className="space-y-4">
-					{scores.map((score, index) => {
-						const fieldName = `scorePoints_${index}`
-						const fieldError = getFieldError(fieldName)
-
+					{scoreFields.map((score, index) => {
+						const scoreFields = score.getFieldset()
 						return (
 							<div key={score.id}>
-								<input
-									type="hidden"
-									name={`scoreId_${index}`}
-									value={score.id}
-								/>
+								<input {...getInputProps(scoreFields.id, { type: 'hidden' })} />
 
 								<Field>
-									<FieldLabel htmlFor={fieldName}>
+									<FieldLabel htmlFor={scoreFields.points.id}>
 										Team {index + 1} Score
 									</FieldLabel>
 									<Input
-										type="number"
-										id={fieldName}
-										name={fieldName}
-										defaultValue={score.points}
-										disabled={isSubmitting}
-										min="0"
-										max="300"
+										{...getInputProps(scoreFields.points, { type: 'number' })}
 									/>
-									{fieldError && <FieldError errors={fieldError} />}
 								</Field>
 							</div>
 						)
 					})}
 				</div>
-
-				{getFieldError('') && <FieldError errors={getFieldError('')} />}
 
 				<div className="flex gap-2">
 					<Button type="submit" disabled={isSubmitting}>
