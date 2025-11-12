@@ -120,7 +120,10 @@ export const PropositionItem = ({
 				<div className="flex items-center justify-between">
 					<h3 className="text-lg font-semibold">Proposition {propIndex + 1}</h3>
 					{hasChanges && isAdmin && (
-						<SavePropositionForm updatedTeams={proposition.teams} />
+						<SavePropositionForm
+							key={JSON.stringify(proposition.teams)}
+							updatedTeams={proposition.teams}
+						/>
 					)}
 				</div>
 				<div className="grid gap-6 md:grid-cols-2">
