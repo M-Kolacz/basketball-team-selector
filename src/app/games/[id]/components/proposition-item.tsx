@@ -11,13 +11,10 @@ import {
 	type DragStartEvent,
 } from '@dnd-kit/core'
 import { useState } from 'react'
+import { SavePropositionForm } from '#app/app/games/[id]/components/save-proposition-form'
 import { SelectPropositionButton } from '#app/app/games/[id]/components/select-proposition-button'
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
-import { Button } from '#app/components/ui/button'
-import {
-	type GameSession,
-	updatePropositionTeams,
-} from '#app/lib/actions/game-sessions'
+import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type PropositionItemProps = {
 	proposition: GameSession['propositions'][number]
@@ -37,7 +34,6 @@ export const PropositionItem = ({
 	const [proposition, setProposition] =
 		useState<GameSession['propositions'][number]>(initialProposition)
 	const [activeId, setActiveId] = useState<string | number | null>(null)
-	const [isSaving, setIsSaving] = useState(false)
 	const [hasChanges, setHasChanges] = useState(false)
 
 	const sensors = useSensors(useSensor(PointerSensor))
@@ -96,25 +92,6 @@ export const PropositionItem = ({
 		setHasChanges(true)
 	}
 
-	const handleSave = async () => {
-		if (!isAdmin) return
-
-		setIsSaving(true)
-		try {
-			const teamUpdates = proposition.teams.map((team) => ({
-				teamId: team.id,
-				playerIds: team.players.map((p) => p.id),
-			}))
-
-			await updatePropositionTeams(proposition.id, teamUpdates)
-			setHasChanges(false)
-		} catch (error) {
-			console.error('Failed to save team composition:', error)
-		} finally {
-			setIsSaving(false)
-		}
-	}
-
 	const getActivePlayer = (activeId: string | number | null) => {
 		if (!activeId) return null
 
@@ -143,9 +120,10 @@ export const PropositionItem = ({
 				<div className="flex items-center justify-between">
 					<h3 className="text-lg font-semibold">Proposition {propIndex + 1}</h3>
 					{hasChanges && isAdmin && (
-						<Button onClick={handleSave} disabled={isSaving} size="sm">
-							{isSaving ? 'Saving...' : 'Save Changes'}
-						</Button>
+						<SavePropositionForm
+							key={JSON.stringify(proposition.teams)}
+							updatedTeams={proposition.teams}
+						/>
 					)}
 				</div>
 				<div className="grid gap-6 md:grid-cols-2">

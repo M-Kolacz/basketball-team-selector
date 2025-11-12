@@ -41,7 +41,6 @@ export type SelectPropositionCommand = z.infer<typeof SelectPropositionSchema>
 
 export const GameResultSchema = z.object({
 	gameSessionId: z.string().uuid('Invalid game session ID'),
-	gameId: z.string().uuid('Invalid game ID').optional(),
 	scores: z
 		.array(
 			z.object({
@@ -61,3 +60,30 @@ export const GameResultSchema = z.object({
 
 export type GameResultInput = z.input<typeof GameResultSchema>
 export type GameResultOutput = z.output<typeof GameResultSchema>
+
+export const SavePropositionSchema = z.object({
+	updatedTeams: z.array(
+		z.object({
+			id: z.string().uuid(),
+			players: z.array(z.object({ id: z.string().uuid() })),
+		}),
+	),
+})
+export type SavePropositionCommand = z.infer<typeof SavePropositionSchema>
+
+export const EditGameScoreSchema = z.object({
+	scores: z.array(
+		z.object({
+			id: z.string().uuid('Invalid score ID'),
+			points: z
+				.number({
+					required_error: 'Score is required',
+					invalid_type_error: 'Score must be a number',
+				})
+				.int('Score must be a whole number')
+				.min(0, 'Score cannot be negative')
+				.max(300, 'Score cannot exceed 300'),
+		}),
+	),
+})
+export type EditGameScoreCommand = z.infer<typeof EditGameScoreSchema>

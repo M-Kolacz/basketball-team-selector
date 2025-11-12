@@ -1,6 +1,8 @@
-import { cn } from '#app/lib/utils'
+'use client'
+
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { cn } from '#app/lib/utils'
 
 type PlayerBadgeProps = {
 	player: { id: string; name: string }

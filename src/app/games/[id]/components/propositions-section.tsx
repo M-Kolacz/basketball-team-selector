@@ -1,5 +1,3 @@
-'use client'
-
 import { PropositionItem } from '#app/app/games/[id]/components/proposition-item'
 import { type GameSession } from '#app/lib/actions/game-sessions'
 

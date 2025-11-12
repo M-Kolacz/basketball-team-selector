@@ -12,6 +12,8 @@ import {
 	CreateGameSessionSchema,
 	SelectPropositionSchema,
 	GameResultSchema,
+	SavePropositionSchema,
+	EditGameScoreSchema,
 } from '#app/lib/validations/game-session'
 
 export const getGameSessions = async () => {
@@ -49,7 +51,9 @@ export const getGameSession = async (id: string) => {
 			selectedProposition: {
 				include: {
 					teams: {
-						include: {
+						select: {
+							id: true,
+							name: true,
 							players: {
 								select: {
 									id: true,
@@ -61,9 +65,12 @@ export const getGameSession = async (id: string) => {
 				},
 			},
 			propositions: {
-				include: {
+				select: {
+					id: true,
 					teams: {
-						include: {
+						select: {
+							id: true,
+							name: true,
 							players: {
 								select: {
 									id: true,
@@ -226,71 +233,32 @@ export const updateGameScore = async (
 ) => {
 	await requireAdminUser()
 
-	// Extract scoreCount and build dynamic scores array
-	const scoreCount = parseInt(formData.get('scoreCount') as string, 10)
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			EditGameScoreSchema.transform(async (data, ctx) => {
+				return data
+			}),
+		async: true,
+	})
 
-	if (isNaN(scoreCount) || scoreCount < 2) {
-		return {
-			status: 'error' as const,
-			error: {
-				'': ['Invalid number of scores'],
-			},
-		}
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
 	}
 
-	const scores: Array<{ id: string; points: number }> = []
+	const { scores } = submission.value
 
-	for (let i = 0; i < scoreCount; i++) {
-		const scoreId = formData.get(`scoreId_${i}`) as string
-		const scorePoints = formData.get(`scorePoints_${i}`)
+	console.log({ scores })
 
-		if (!scoreId || scorePoints === null) {
-			return {
-				status: 'error' as const,
-				error: {
-					'': ['Missing score data'],
-				},
-			}
-		}
+	await prisma.$transaction(
+		scores.map((score) =>
+			prisma.score.update({
+				where: { id: score.id },
+				data: { points: score.points },
+			}),
+		),
+	)
 
-		const points = parseInt(scorePoints as string, 10)
-
-		if (isNaN(points) || points < 0) {
-			return {
-				status: 'error' as const,
-				error: {
-					[`scorePoints_${i}`]: ['Invalid score value'],
-				},
-			}
-		}
-
-		scores.push({ id: scoreId, points })
-	}
-
-	// Update all scores
-	try {
-		await prisma.$transaction(
-			scores.map((score) =>
-				prisma.score.update({
-					where: { id: score.id },
-					data: { points: score.points },
-				}),
-			),
-		)
-	} catch (error) {
-		console.error('Error updating scores:', error)
-		return {
-			status: 'error' as const,
-			error: {
-				'': ['Failed to update scores'],
-			},
-		}
-	}
-
-	return {
-		status: 'success' as const,
-		error: {},
-	}
+	return {}
 }
 
 export const selectPropositionAction = async (
@@ -381,51 +349,49 @@ export const selectPropositionAction = async (
 }
 
 export const updatePropositionTeams = async (
-	propositionId: string,
-	teamUpdates: Array<{ teamId: string; playerIds: string[] }>,
+	prevState: unknown,
+	formData: FormData,
 ) => {
 	await requireAdminUser()
 
-	try {
-		for (const update of teamUpdates) {
-			await prisma.team.update({
-				where: { id: update.teamId },
+	const submission = await parseWithZod(formData, {
+		schema: SavePropositionSchema,
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { updatedTeams } = submission.value
+
+	await prisma.$transaction(
+		updatedTeams.map((updatedTeam) =>
+			prisma.team.update({
+				where: { id: updatedTeam.id },
 				data: {
 					players: {
-						set: update.playerIds.map((id) => ({ id })),
+						set: updatedTeam.players.map((player) => ({ id: player.id })),
 					},
 				},
-			})
-		}
+			}),
+		),
+	)
 
-		revalidatePath(`/games`)
-	} catch (error) {
-		console.error('Error updating proposition teams:', error)
-		throw new Error('Failed to update proposition teams')
-	}
+	revalidatePath(`/games`)
 }
 
 export const recordGameResultAction = async (
 	_prevState: unknown,
 	formData: FormData,
 ) => {
+	await requireAdminUser()
+
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			GameResultSchema.transform(async (data, ctx) => {
-				// Skip validation for intent submissions (Conform pattern)
 				if (intent !== null) return data
 
-				// Admin authorization check
-				const user = await getOptionalUser()
-				if (!user || user.role !== 'admin') {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Unauthorized access',
-					})
-					return z.NEVER
-				}
-
-				// Validate game session exists with selected proposition
 				const gameSession = await prisma.gameSession.findUnique({
 					where: { id: data.gameSessionId },
 					include: {
@@ -435,65 +401,13 @@ export const recordGameResultAction = async (
 					},
 				})
 
-				if (!gameSession) {
+				if (!gameSession || !gameSession.selectedProposition) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
 						message: 'Game session not found',
 						path: ['gameSessionId'],
 					})
 					return z.NEVER
-				}
-
-				if (!gameSession.selectedProposition) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'No proposition selected for this game session',
-						path: ['gameSessionId'],
-					})
-					return z.NEVER
-				}
-
-				// Validate all teams belong to selected proposition
-				const propositionTeamIds = gameSession.selectedProposition.teams.map(
-					(t) => t.id,
-				)
-				const invalidTeams = data.scores.filter(
-					(s) => !propositionTeamIds.includes(s.teamId),
-				)
-
-				if (invalidTeams.length > 0) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Some teams do not belong to the selected proposition',
-						path: ['scores'],
-					})
-					return z.NEVER
-				}
-
-				// If updating, validate game exists and belongs to session
-				if (data.gameId) {
-					const existingGame = await prisma.game.findUnique({
-						where: { id: data.gameId },
-						select: { gameSessionId: true },
-					})
-
-					if (!existingGame) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Game not found',
-							path: ['gameId'],
-						})
-						return z.NEVER
-					}
-
-					if (existingGame.gameSessionId !== data.gameSessionId) {
-						ctx.addIssue({
-							code: z.ZodIssueCode.custom,
-							message: 'Game does not belong to this game session',
-							path: ['gameId'],
-						})
-						return z.NEVER
-					}
 				}
 
 				return data
@@ -505,41 +419,19 @@ export const recordGameResultAction = async (
 		return { result: submission.reply() }
 	}
 
-	const { gameSessionId, gameId, scores } = submission.value
+	const { gameSessionId, scores } = submission.value
 
-	try {
-		if (!gameId) {
-			// Create Mode - Create new game with scores
-			await prisma.game.create({
-				data: {
-					gameSessionId,
-					scores: {
-						create: scores.map((score) => ({
-							teamId: score.teamId,
-							points: score.points,
-						})),
-					},
-				},
-			})
-		} else {
-			// Update Mode - Delete old scores and create new ones
-			await prisma.$transaction([
-				prisma.score.deleteMany({
-					where: { gameId },
-				}),
-				prisma.score.createMany({
-					data: scores.map((score) => ({
-						gameId,
-						teamId: score.teamId,
-						points: score.points,
-					})),
-				}),
-			])
-		}
-	} catch (error) {
-		console.error('Error recording game result:', error)
-		throw new Error('Failed to record game result')
-	}
+	await prisma.game.create({
+		data: {
+			gameSessionId,
+			scores: {
+				create: scores.map((score) => ({
+					teamId: score.teamId,
+					points: score.points,
+				})),
+			},
+		},
+	})
 
 	revalidatePath(`/games/${gameSessionId}`)
 	redirect(`/games/${gameSessionId}`)
