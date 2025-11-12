@@ -1,0 +1,8 @@
+{
+	"servers": {
+		"10x-mvp-tracker": {
+			"command": "npx",
+			"args": ["@przeprogramowani/10x-mvp-tracker"]
+		}
+	}
+}

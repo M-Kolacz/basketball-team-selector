@@ -247,8 +247,6 @@ export const updateGameScore = async (
 
 	const { scores } = submission.value
 
-	console.log({ scores })
-
 	await prisma.$transaction(
 		scores.map((score) =>
 			prisma.score.update({
