@@ -125,17 +125,6 @@ export const createGameSessionAction = async (
 					return z.NEVER
 				}
 
-				// Future date validation
-				const gameDate = new Date(data.gameDatetime)
-				if (gameDate <= new Date()) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Game date must be in the future',
-						path: ['gameDatetime'],
-					})
-					return z.NEVER
-				}
-
 				// Player count validation
 				if (data.playerIds.length < 10) {
 					ctx.addIssue({

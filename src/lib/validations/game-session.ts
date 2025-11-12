@@ -21,11 +21,8 @@ export const CreateGameSessionSchema = z.object({
 		.refine((datetime) => {
 			const selectedDate = new Date(datetime)
 			return !isNaN(selectedDate.getTime())
-		}, 'Invalid date format')
-		.refine(
-			(datetime) => new Date(datetime) >= new Date(),
-			'Game date cannot be in the past',
-		),
+		}, 'Invalid date format'),
+
 	description: z.string().max(500).optional(),
 	playerIds: z.array(z.string().uuid()),
 })
