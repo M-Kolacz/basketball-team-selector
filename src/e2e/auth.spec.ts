@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 test('Login as admin user', async ({ page }) => {
-	await page.goto('/')
+	await page.goto('/games')
 
 	await page.getByRole('button', { name: 'User menu' }).click()
 	await page.getByRole('button', { name: 'Login' }).click()
@@ -18,7 +18,7 @@ test('Login as admin user', async ({ page }) => {
 })
 
 test('Logout from application', async ({ page }) => {
-	await page.goto('/')
+	await page.goto('/games')
 
 	await page.getByRole('button', { name: 'User menu' }).click()
 	await page.getByRole('button', { name: 'Login' }).click()
