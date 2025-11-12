@@ -6,15 +6,37 @@ import { prisma, type User } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import { type Register, type Login } from '#app/lib/validations/auth'
 
+type AuthCookie = { sessionId: string }
+
+export const SESSION_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30
+export const getSessionExpirationDate = () =>
+	new Date(Date.now() + SESSION_EXPIRATION_TIME)
+
 export const AUTH_SESSION_KEY = 'bts-session'
 
-export const getOptionalUser = async (): Promise<User | null> => {
-	const authSession = await getAuthSession()
+export const getUserId = async () => {
+	const sessionCookie = await getAuthSession()
+	if (!sessionCookie) return null
 
-	if (!authSession) return null
+	const session = await prisma.session.findUnique({
+		where: {
+			id: sessionCookie.sessionId,
+			expirationDate: { gt: new Date() },
+		},
+		select: { userId: true },
+	})
+
+	if (!session?.userId) redirect('/games')
+
+	return session.userId
+}
+
+export const getOptionalUser = async (): Promise<User | null> => {
+	const userId = await getUserId()
+	if (!userId) return null
 
 	const user = await prisma.user.findUnique({
-		where: { id: authSession.userId },
+		where: { id: userId },
 		select: {
 			id: true,
 			username: true,
@@ -58,25 +80,38 @@ export const requireAnonymous = async (): Promise<void> => {
 export const login = async ({ username, password }: Login) => {
 	const user = await verifyUserPassword(username, password)
 	if (!user) return null
-	return user
+	const session = await prisma.session.create({
+		select: { id: true, expirationDate: true, userId: true },
+		data: {
+			expirationDate: getSessionExpirationDate(),
+			userId: user.id,
+		},
+	})
+
+	return session
 }
 
 export const register = async ({ username, password }: Register) => {
 	const hashedPassword = await getPasswordHash(password)
 
-	const user = await prisma.user.create({
+	const session = await prisma.session.create({
 		data: {
-			username,
-			password: {
+			expirationDate: getSessionExpirationDate(),
+			user: {
 				create: {
-					hash: hashedPassword,
+					username,
+					password: {
+						create: {
+							hash: hashedPassword,
+						},
+					},
 				},
 			},
 		},
-		select: { id: true },
+		select: { id: true, expirationDate: true },
 	})
 
-	return user
+	return session
 }
 
 export const getPasswordHash = async (password: string) => {
@@ -102,12 +137,16 @@ export const verifyUserPassword = async (
 	return { id: userWithPassword.id }
 }
 
-type AuthCookie = { userId: string }
-
-export const saveAuthSession = async (userId: string) => {
-	const token = jwt.sign({ userId } as AuthCookie, env.JWT_SECRET, {
+export const handleNewSession = async ({
+	id,
+	expirationDate,
+}: {
+	id: string
+	expirationDate: Date
+}) => {
+	const token = jwt.sign({ sessionId: id } as AuthCookie, env.JWT_SECRET, {
 		algorithm: 'HS256',
-		expiresIn: '7d',
+		expiresIn: '30d',
 	})
 
 	const cookieStore = await cookies()
@@ -116,7 +155,7 @@ export const saveAuthSession = async (userId: string) => {
 		path: '/',
 		httpOnly: true,
 		secure: env.NODE_ENV === 'production',
-		maxAge: 7 * 24 * 60 * 60,
+		expires: expirationDate,
 	})
 }
 

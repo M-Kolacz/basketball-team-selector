@@ -8,7 +8,7 @@ import {
 	login,
 	register,
 	requireAnonymous,
-	saveAuthSession,
+	handleNewSession,
 } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import {
@@ -23,7 +23,7 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			LoginSchema.transform(async (data, ctx) => {
-				if (intent !== null) return { ...data, userId: null }
+				if (intent !== null) return { ...data, session: null }
 
 				const session = await login(data)
 
@@ -34,18 +34,18 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 					})
 					return z.NEVER
 				}
-				return { ...data, userId: session.id }
+				return { ...data, session }
 			}),
 		async: true,
 	})
 
-	if (submission.status !== 'success' || !submission.value.userId) {
+	if (submission.status !== 'success' || !submission.value.session) {
 		return { result: submission.reply({ hideFields: ['password'] }) }
 	}
 
-	const { userId } = submission.value
+	const { session } = submission.value
 
-	await saveAuthSession(userId)
+	await handleNewSession(session)
 
 	redirect('/games')
 }
@@ -122,7 +122,7 @@ export const registerAction = async (
 
 	const { session } = submission.value
 
-	await saveAuthSession(session.id)
+	await handleNewSession(session)
 
 	redirect('/games')
 }
