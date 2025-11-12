@@ -9,8 +9,10 @@ import {
 	register,
 	requireAnonymous,
 	handleNewSession,
+	getAuthSession,
 } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
+import { safeRedirect } from '#app/lib/utils'
 import {
 	LoginSchema,
 	LogoutSchema,
@@ -43,44 +45,34 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 		return { result: submission.reply({ hideFields: ['password'] }) }
 	}
 
-	const { session } = submission.value
+	const { session, redirectTo } = submission.value
 
 	await handleNewSession(session)
 
-	redirect('/games')
+	redirect(safeRedirect(redirectTo))
 }
 
 export const logout = async (_prevState: unknown, formData: FormData) => {
-	const submission = await parseWithZod(formData, {
-		schema: (intent) =>
-			LogoutSchema.transform(async (data, ctx) => {
-				if (intent !== null) return null
+	const authSession = await getAuthSession()
 
-				const user = await prisma.user.findUnique({
-					where: { id: data.userId },
-					select: { id: true },
-				})
+	if (authSession?.sessionId) {
+		void prisma.session
+			.delete({ where: { id: authSession.sessionId } })
+			.catch(() => {})
+	}
 
-				if (!user) {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Invalid user',
-					})
-					return z.NEVER
-				}
-
-				return {}
-			}),
-		async: true,
+	const submission = parseWithZod(formData, {
+		schema: LogoutSchema,
 	})
-
 	if (submission.status !== 'success') {
 		return { result: submission.reply() }
 	}
 
+	const { redirectTo } = submission.value
+
 	const cookieStore = await cookies()
 	cookieStore.delete('bts-session')
-	redirect('/')
+	redirect(safeRedirect(redirectTo))
 }
 
 export const registerAction = async (
@@ -120,9 +112,9 @@ export const registerAction = async (
 		}
 	}
 
-	const { session } = submission.value
+	const { session, redirectTo } = submission.value
 
 	await handleNewSession(session)
 
-	redirect('/games')
+	redirect(safeRedirect(redirectTo))
 }

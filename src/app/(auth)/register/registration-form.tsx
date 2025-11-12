@@ -3,6 +3,7 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
@@ -29,9 +30,14 @@ export const RegistrationForm = () => {
 		registerAction,
 		undefined,
 	)
+
+	const searchParams = useSearchParams()
+	const redirectTo = searchParams.get('redirectTo')
+
 	const [form, fields] = useForm({
 		id: 'register-form',
 		constraint: getZodConstraint(RegisterSchema),
+		defaultValue: { redirectTo },
 		lastResult: state?.result,
 		onValidate: ({ formData }) =>
 			parseWithZod(formData, { schema: RegisterSchema }),
@@ -49,6 +55,7 @@ export const RegistrationForm = () => {
 				</CardHeader>
 				<CardContent>
 					<form action={formAction} {...getFormProps(form)}>
+						<input {...getInputProps(fields.redirectTo, { type: 'hidden' })} />
 						<FieldGroup>
 							<Field data-invalid={Boolean(fields.username.errors)}>
 								<FieldLabel htmlFor={fields.username.id}>Username</FieldLabel>
