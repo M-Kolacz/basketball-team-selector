@@ -51,7 +51,9 @@ export const getGameSession = async (id: string) => {
 			selectedProposition: {
 				include: {
 					teams: {
-						include: {
+						select: {
+							id: true,
+							name: true,
 							players: {
 								select: {
 									id: true,
@@ -63,9 +65,11 @@ export const getGameSession = async (id: string) => {
 				},
 			},
 			propositions: {
-				include: {
+				select: {
+					id: true,
 					teams: {
 						select: {
+							id: true,
 							name: true,
 							players: {
 								select: {
