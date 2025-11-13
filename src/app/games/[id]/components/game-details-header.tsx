@@ -30,7 +30,7 @@ export const GameDetailsHeader = ({
 			</Button>
 			<div>
 				<h1 className="text-3xl font-bold">
-					{format(new Date(gameDatetime), 'PPP p')}
+					{format(new Date(gameDatetime), 'MMMM d, yyyy')}
 				</h1>
 				{description && (
 					<p className="mt-2 text-muted-foreground">{description}</p>
@@ -38,4 +38,4 @@ export const GameDetailsHeader = ({
 			</div>
 		</header>
 	)
-};
+}

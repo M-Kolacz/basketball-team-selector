@@ -1,14 +1,9 @@
 'use client'
 
-import {
-	getCollectionProps,
-	getFormProps,
-	getInputProps,
-	useForm,
-} from '@conform-to/react'
+import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState } from 'react'
-import { SKILL_TIER_LABELS } from '#app/app/players/constants'
+import { Checkbox, Select } from '#app/components/form'
 import { Button } from '#app/components/ui/button'
 import {
 	Dialog,
@@ -56,7 +51,8 @@ export const EditPlayerDialog = ({
 			positions: player?.positions ?? [],
 		},
 		lastResult: lastResult?.result,
-		onValidate: ({ formData }) => parseWithZod(formData, { schema: UpdatePlayerSchema }),
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: UpdatePlayerSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -75,7 +71,7 @@ export const EditPlayerDialog = ({
 					<input {...getInputProps(fields.id, { type: 'hidden' })} />
 					<FieldGroup>
 						<Field>
-							<FieldLabel>Player Name</FieldLabel>
+							<FieldLabel htmlFor={fields.name.id}>Player name</FieldLabel>
 							<Input
 								{...getInputProps(fields.name, { type: 'text' })}
 								disabled={isSubmitting}
@@ -85,31 +81,36 @@ export const EditPlayerDialog = ({
 
 						<Field>
 							<FieldLabel htmlFor={fields.skillTier.id}>Skill tier</FieldLabel>
-							<select
-								name={fields.skillTier.name}
+							<Select
 								id={fields.skillTier.id}
-								defaultValue="C"
-								disabled={isSubmitting}
-							>
-								{skillTiers.map((tier) => (
-									<option key={tier} value={tier}>
-										{SKILL_TIER_LABELS[tier]}
-									</option>
-								))}
-							</select>
+								name={fields.skillTier.name}
+								defaultValue={fields.skillTier.defaultValue}
+								placeholder="Select skill tier"
+								items={skillTiers.map((tier) => ({
+									name: tier,
+									value: tier,
+								}))}
+							/>
+
 							<FieldError errors={fields.skillTier.errors} />
 						</Field>
 
-						<Field orientation="horizontal">
-							<FieldLabel>Positions</FieldLabel>
-							{getCollectionProps(fields.positions, {
-								type: 'checkbox',
-								options: positions,
-							}).map((position) => (
-								<label key={position.id} htmlFor={position.id}>
-									<input {...position} key={position.key} />
-									<span>{position.value}</span>
-								</label>
+						<Field role="group" aria-labelledby={fields.positions.id}>
+							<FieldLabel id={fields.positions.id}>Positions</FieldLabel>
+							{positions.map((position) => (
+								<div key={position} className="flex items-center gap-2">
+									<Checkbox
+										id={`${fields.positions.id}-${position}`}
+										name={fields.positions.name}
+										value={position}
+										defaultChecked={fields.positions.defaultOptions?.includes(
+											position,
+										)}
+									/>
+									<label htmlFor={`${fields.positions.id}-${position}`}>
+										{position}
+									</label>
+								</div>
 							))}
 							<FieldError errors={fields.positions.errors} />
 						</Field>
@@ -118,15 +119,15 @@ export const EditPlayerDialog = ({
 					</FieldGroup>
 
 					<DialogFooter>
-						<Button type="reset" variant="outline" disabled={isSubmitting}>
-							Cancel
-						</Button>
 						<Button type="submit" disabled={isSubmitting}>
 							{isSubmitting ? 'Updating...' : 'Update Player'}
+						</Button>
+						<Button type="reset" variant="outline" disabled={isSubmitting}>
+							Cancel
 						</Button>
 					</DialogFooter>
 				</form>
 			</DialogContent>
 		</Dialog>
 	)
-};
+}
