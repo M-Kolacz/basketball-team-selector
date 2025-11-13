@@ -26,7 +26,7 @@ export const getUserId = async () => {
 		select: { userId: true },
 	})
 
-	if (!session?.userId) redirect('/games')
+	if (!session?.userId) return null
 
 	return session.userId
 }

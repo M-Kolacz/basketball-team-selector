@@ -1,5 +1,6 @@
 import { MenuIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
+import { LoginLink } from '#app/components/login-link'
 import { LogoutButton } from '#app/components/logout-button'
 import { Button } from '#app/components/ui/button'
 import {
@@ -80,15 +81,7 @@ export const Header = async () => {
 							</DropdownMenuLabel>
 							<DropdownMenuSeparator />
 							<DropdownMenuItem asChild>
-								{currentUser?.id ? (
-									<LogoutButton userId={currentUser.id} />
-								) : (
-									<Link href="/login" className="w-full">
-										<Button variant="ghost" className="w-full justify-start">
-											Login
-										</Button>
-									</Link>
-								)}
+								{currentUser?.id ? <LogoutButton /> : <LoginLink />}
 							</DropdownMenuItem>
 						</DropdownMenuContent>
 					</DropdownMenu>
@@ -123,15 +116,7 @@ export const Header = async () => {
 									))}
 								</div>
 								<div className="border-t pt-4">
-									{currentUser?.id ? (
-										<LogoutButton userId={currentUser.id} />
-									) : (
-										<Link href="/login">
-											<Button variant="ghost" className="w-full justify-start">
-												Login
-											</Button>
-										</Link>
-									)}
+									{currentUser?.id ? <LogoutButton /> : <LoginLink />}
 								</div>
 							</div>
 						</SheetContent>

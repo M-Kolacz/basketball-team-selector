@@ -3,6 +3,7 @@
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { getZodConstraint, parseWithZod } from '@conform-to/zod'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { useActionState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
@@ -29,9 +30,14 @@ export const LoginForm = () => {
 		loginAction,
 		undefined,
 	)
+
+	const searchParams = useSearchParams()
+	const redirectTo = searchParams.get('redirectTo')
+
 	const [form, fields] = useForm({
 		id: 'login-form',
 		constraint: getZodConstraint(LoginSchema),
+		defaultValue: { redirectTo },
 		lastResult: state?.result,
 		onValidate: ({ formData }) =>
 			parseWithZod(formData, { schema: LoginSchema }),
@@ -50,6 +56,11 @@ export const LoginForm = () => {
 			</CardHeader>
 			<CardContent>
 				<form action={formAction} {...getFormProps(form)}>
+					<input
+						{...getInputProps(fields.redirectTo, {
+							type: 'hidden',
+						})}
+					/>
 					<FieldGroup>
 						<Field data-invalid={Boolean(fields.username.errors)}>
 							<FieldLabel htmlFor={fields.username.id}>Username</FieldLabel>
@@ -96,7 +107,9 @@ export const LoginForm = () => {
 					<span className="text-center text-sm text-muted-foreground">
 						Don't have an account?{' '}
 						<Link
-							href="/register"
+							href={
+								redirectTo ? `/register?redirectTo=${redirectTo}` : '/register'
+							}
 							className="text-primary underline-offset-4 hover:underline"
 						>
 							Create new account
