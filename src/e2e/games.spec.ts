@@ -15,7 +15,9 @@ test('User can see game history', async ({ page }) => {
 test('User can see game`s details page', async ({ page }) => {
 	await page.goto('/games')
 
-	await page.getByRole('row', { name: /.*\b(AM|PM)\b.*/ }).click()
+	const [ignoredFirstRow, gameRow] = await page.getByRole('row').all()
+	if (!gameRow) throw new Error('No game row found')
+	await gameRow.click()
 
 	await expect(
 		page.getByRole('heading', { level: 2, name: 'Generated Propositions' }),
