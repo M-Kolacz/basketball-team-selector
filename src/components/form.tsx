@@ -1,6 +1,15 @@
 import { useControl } from '@conform-to/react/future'
+import { format } from 'date-fns'
+import { CalendarIcon } from 'lucide-react'
 import { useRef } from 'react'
+import { Button } from '#app/components/ui/button'
+import { Calendar } from '#app/components/ui/calendar'
 import { Checkbox as ShadcnCheckbox } from '#app/components/ui/checkbox'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '#app/components/ui/popover'
 import {
 	SelectTrigger,
 	Select as ShadcnSelect,
@@ -8,6 +17,7 @@ import {
 	SelectContent,
 	SelectItem,
 } from '#app/components/ui/select'
+import { cn } from '#app/lib/utils'
 
 export type SelectProps = {
 	id?: string
@@ -96,6 +106,67 @@ export const Checkbox = ({
 				onBlur={() => control.blur()}
 				className="focus:ring-2 focus:ring-stone-950 focus:ring-offset-2"
 			/>
+		</>
+	)
+}
+
+export type DatePickerProps = {
+	id?: string
+	name: string
+	defaultValue?: string
+	['aria-describedby']?: string
+}
+
+export const DatePicker = ({
+	name,
+	defaultValue,
+	...props
+}: DatePickerProps) => {
+	const triggerRef = useRef<HTMLButtonElement>(null)
+	const control = useControl({
+		defaultValue,
+		onFocus: () => {
+			triggerRef.current?.focus()
+		},
+	})
+
+	return (
+		<>
+			<input ref={control.register} name={name} hidden />
+			<Popover
+				onOpenChange={(open) => {
+					if (!open) {
+						control.blur()
+					}
+				}}
+			>
+				<PopoverTrigger asChild>
+					<Button
+						{...props}
+						ref={triggerRef}
+						variant={'outline'}
+						className={cn(
+							'w-64 justify-start text-left font-normal focus:ring-2 focus:ring-stone-950 focus:ring-offset-2',
+							!control.value && 'text-muted-foreground',
+						)}
+					>
+						<CalendarIcon className="mr-2 h-4 w-4" />
+						{control.value ? (
+							format(control.value, 'PPP')
+						) : (
+							<span>Pick a date</span>
+						)}
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-auto p-0">
+					<Calendar
+						mode="single"
+						selected={new Date(control.value ?? '')}
+						onSelect={(value) => control.change(value?.toISOString() ?? '')}
+						autoFocus
+					/>
+				</PopoverContent>
+			</Popover>
 		</>
 	)
 }

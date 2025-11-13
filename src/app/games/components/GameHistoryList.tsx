@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { AddGameForm } from '#app/app/games/components/AddGameForm'
 import { GameHistoryRow } from '#app/app/games/components/GameHistoryRow'
 import { Button } from '#app/components/ui/button'
 import {
@@ -17,15 +18,17 @@ import {
 	TableRow,
 } from '#app/components/ui/table'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
-
+import { type Players } from '#app/lib/actions/players'
 interface GameHistoryListProps {
 	gameSessions: GameSessions
 	isAdmin: boolean
+	players: Players
 }
 
 export const GameHistoryList = ({
 	gameSessions,
 	isAdmin,
+	players,
 }: GameHistoryListProps) => {
 	if (gameSessions.length === 0) {
 		return (
@@ -36,11 +39,7 @@ export const GameHistoryList = ({
 						There are no game sessions recorded yet.
 					</EmptyDescription>
 				</EmptyHeader>
-				{isAdmin && (
-					<Button asChild>
-						<Link href="/games/new">Create Game</Link>
-					</Button>
-				)}
+				{isAdmin && <AddGameForm players={players} />}
 			</Empty>
 		)
 	}
@@ -54,11 +53,7 @@ export const GameHistoryList = ({
 						View all past basketball game sessions
 					</p>
 				</div>
-				{isAdmin && (
-					<Button asChild>
-						<Link href="/games/new">Create Game</Link>
-					</Button>
-				)}
+				{isAdmin && <AddGameForm players={players} />}
 			</div>
 
 			<Table>
@@ -76,4 +71,4 @@ export const GameHistoryList = ({
 			</Table>
 		</div>
 	)
-};
+}

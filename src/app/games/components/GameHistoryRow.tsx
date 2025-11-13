@@ -16,10 +16,7 @@ export const GameHistoryRow = ({ gameSession }: GameHistoryRowProps) => {
 		router.push(`/games/${gameSession.id}`)
 	}
 
-	const formattedDate = format(
-		gameSession.gameDatetime,
-		"MMM d, yyyy 'at' h:mm a",
-	)
+	const formattedDate = format(gameSession.gameDatetime, 'MMMM d, yyyy')
 
 	return (
 		<TableRow
