@@ -111,7 +111,6 @@ jobs:
         run: npm run test:e2e:install
 
       - name: 🌱 Seed Database
-        if: steps.db-cache.outputs.cache-hit != 'true'
         run: npx prisma migrate reset --force
 
       - name: 🏗 Build
