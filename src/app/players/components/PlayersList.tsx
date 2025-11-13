@@ -29,21 +29,23 @@ export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
 
 	return (
 		<div className="container mx-auto max-w-7xl px-4 py-8">
-			<div className="mb-8">
-				<h1 className="text-3xl font-bold">Players</h1>
-				<p className="mt-2 text-sm text-muted-foreground">
-					{isAdmin
-						? 'Manage your basketball team roster'
-						: 'View basketball team roster'}
-				</p>
+			<div className="mb-6 flex items-center justify-between">
+				<div>
+					<h1 className="text-3xl font-bold">Players</h1>
+					<p className="mt-2 text-sm text-muted-foreground">
+						{isAdmin
+							? 'Manage your basketball team roster'
+							: 'View basketball team roster'}
+					</p>
+				</div>
+				{isAdmin && <AddPlayerForm />}
 			</div>
-
-			{isAdmin && <AddPlayerForm />}
 
 			<PlayersTable players={players} isAdmin={isAdmin} onEdit={handleEdit} />
 
 			{isAdmin && (
 				<EditPlayerDialog
+					key={isEditDialogOpen ? 'open' : `closed`}
 					isOpen={isEditDialogOpen}
 					player={editingPlayer}
 					onCancel={handleEditCancel}
@@ -51,4 +53,4 @@ export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
 			)}
 		</div>
 	)
-};
+}

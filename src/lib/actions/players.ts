@@ -9,6 +9,7 @@ import {
 	DeletePlayerSchema,
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
+import { redirect } from 'next/navigation'
 
 export const getPlayers = async () => {
 	const currentUser = await getOptionalUser()
@@ -81,7 +82,7 @@ export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 		},
 	})
 
-	return { success: true }
+	redirect('/players')
 }
 
 export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
@@ -129,7 +130,7 @@ export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 		where: { id },
 	})
 
-	return { success: true }
+	redirect('/players')
 }
 
 export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
@@ -199,5 +200,5 @@ export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 		},
 	})
 
-	return { success: true }
+	redirect('/players')
 }

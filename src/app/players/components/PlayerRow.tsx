@@ -33,7 +33,8 @@ export const PlayerRow = ({ player, isAdmin, onEdit }: PlayerRowProps) => {
 		defaultValue: {
 			id: player.id,
 		},
-		onValidate: ({ formData }) => parseWithZod(formData, { schema: DeletePlayerSchema }),
+		onValidate: ({ formData }) =>
+			parseWithZod(formData, { schema: DeletePlayerSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
 	})
@@ -67,7 +68,13 @@ export const PlayerRow = ({ player, isAdmin, onEdit }: PlayerRowProps) => {
 
 			{isAdmin && (
 				<TableCell className="text-sm text-muted-foreground">
-					{player.createdAt.toString()}
+					{new Date(player.createdAt).toLocaleDateString('en-US', {
+						year: 'numeric',
+						month: 'short',
+						day: 'numeric',
+						hour: '2-digit',
+						minute: '2-digit',
+					})}
 				</TableCell>
 			)}
 
@@ -104,4 +111,4 @@ export const PlayerRow = ({ player, isAdmin, onEdit }: PlayerRowProps) => {
 			)}
 		</TableRow>
 	)
-};
+}
