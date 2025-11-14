@@ -7,7 +7,9 @@ test('User can see game history', async ({ page }) => {
 		page.getByRole('heading', { name: 'Game History' }),
 	).toBeVisible()
 	await expect(page.getByRole('cell', { name: 'Date' })).toBeVisible()
-	await expect(page.getByRole('cell', { name: 'Games Count' })).toBeVisible()
+	await expect(
+		page.getByRole('cell', { name: 'Number of games' }),
+	).toBeVisible()
 
 	await expect(page.getByRole('row')).toHaveCount(2)
 })
@@ -15,9 +17,12 @@ test('User can see game history', async ({ page }) => {
 test('User can see game`s details page', async ({ page }) => {
 	await page.goto('/games')
 
-	const [ignoredFirstRow, gameRow] = await page.getByRole('row').all()
-	if (!gameRow) throw new Error('No game row found')
-	await gameRow.click()
+	await page
+		.getByRole('button', { name: 'Open game history actions' })
+		.first()
+		.click()
+
+	await page.getByRole('menuitem', { name: 'Check game details' }).click()
 
 	await expect(
 		page.getByRole('heading', { level: 2, name: 'Generated Propositions' }),
