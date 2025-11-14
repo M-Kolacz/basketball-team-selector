@@ -107,7 +107,8 @@ export const columns = [
 	},
 	{
 		accessorKey: 'actions',
-		id: 'actions',
+		id: 'Actions',
+		header: 'Actions',
 		cell: ({ row }) => {
 			const player = row.original
 
