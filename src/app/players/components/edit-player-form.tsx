@@ -2,6 +2,8 @@
 
 import { getFormProps, getInputProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
+import { DialogTrigger } from '@radix-ui/react-dialog'
+import { Pencil } from 'lucide-react'
 import { useActionState } from 'react'
 import { Checkbox, Select } from '#app/components/form'
 import { Button } from '#app/components/ui/button'
@@ -25,19 +27,13 @@ import { type SkillTier, type Position } from '#app/lib/db.server'
 import { UpdatePlayerSchema } from '#app/lib/validations/player'
 
 type EditPlayerDialogProps = {
-	isOpen: boolean
 	player: Players[number] | null
-	onCancel: () => void
 }
 
 const positions: Position[] = ['PG', 'SG', 'SF', 'PF', 'C']
 const skillTiers: SkillTier[] = ['S', 'A', 'B', 'C', 'D']
 
-export const EditPlayerDialog = ({
-	isOpen,
-	onCancel,
-	player,
-}: EditPlayerDialogProps) => {
+export const EditPlayerDialog = ({ player }: EditPlayerDialogProps) => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		updatePlayer,
 		undefined,
@@ -58,7 +54,14 @@ export const EditPlayerDialog = ({
 	})
 
 	return (
-		<Dialog open={isOpen} onOpenChange={(open) => !open && onCancel()}>
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button variant={'ghost'}>
+					<Pencil className="h-4 w-4" />
+					Edit player
+				</Button>
+			</DialogTrigger>
+
 			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>Edit Player</DialogTitle>
