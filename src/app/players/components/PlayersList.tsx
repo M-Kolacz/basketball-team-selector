@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import { AddPlayerForm } from '#app/app/players/components/AddPlayerForm'
-import { EditPlayerDialog } from '#app/app/players/components/EditPlayerDialog'
-import { PlayersTable } from '#app/app/players/components/PlayersTable'
+import { AddPlayerForm } from '#app/app/players/components/add-player-form'
+import { columns } from '#app/app/players/components/columns'
+import { DataTable } from '#app/app/players/components/data-table'
 import { type Players } from '#app/lib/actions/players'
 
 type PlayersListProps = {
@@ -11,21 +10,12 @@ type PlayersListProps = {
 	isAdmin: boolean
 }
 
-type Player = Players[number]
-
 export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
-	const [editingPlayer, setEditingPlayer] = useState<Player | null>(null)
-	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-
-	const handleEdit = (player: Player) => {
-		setEditingPlayer(player)
-		setIsEditDialogOpen(true)
-	}
-
-	const handleEditCancel = () => {
-		setIsEditDialogOpen(false)
-		setEditingPlayer(null)
-	}
+	const playerColumns = isAdmin
+		? columns
+		: columns.filter((column: (typeof columns)[number]) => {
+				return ['name'].includes(column.accessorKey)
+			})
 
 	return (
 		<div className="container mx-auto max-w-7xl px-4 py-8">
@@ -41,16 +31,7 @@ export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
 				{isAdmin && <AddPlayerForm />}
 			</div>
 
-			<PlayersTable players={players} isAdmin={isAdmin} onEdit={handleEdit} />
-
-			{isAdmin && (
-				<EditPlayerDialog
-					key={isEditDialogOpen ? 'open' : `closed`}
-					isOpen={isEditDialogOpen}
-					player={editingPlayer}
-					onCancel={handleEditCancel}
-				/>
-			)}
+			<DataTable columns={playerColumns} data={players} />
 		</div>
 	)
 }
