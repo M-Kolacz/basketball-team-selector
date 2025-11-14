@@ -30,7 +30,10 @@ export const getGameSessions = async () => {
 		},
 	})
 
-	return gameSessions
+	return gameSessions.map(({ games, ...session }) => ({
+		...session,
+		gamesCount: games.length,
+	}))
 }
 
 export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>

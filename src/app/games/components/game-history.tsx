@@ -1,22 +1,15 @@
 'use client'
 
-import Link from 'next/link'
-import { AddGameForm } from '#app/app/games/components/AddGameForm'
-import { GameHistoryRow } from '#app/app/games/components/GameHistoryRow'
-import { Button } from '#app/components/ui/button'
+import { AddGameForm } from '#app/app/games/components/add-game-form'
+import { columns } from '#app/app/games/components/columns'
+import { DataTable } from '#app/app/games/components/data-table'
 import {
 	Empty,
 	EmptyHeader,
 	EmptyTitle,
 	EmptyDescription,
 } from '#app/components/ui/empty'
-import {
-	Table,
-	TableHeader,
-	TableBody,
-	TableHead,
-	TableRow,
-} from '#app/components/ui/table'
+
 import { type GameSessions } from '#app/lib/actions/game-sessions'
 import { type Players } from '#app/lib/actions/players'
 interface GameHistoryListProps {
@@ -25,7 +18,7 @@ interface GameHistoryListProps {
 	players: Players
 }
 
-export const GameHistoryList = ({
+export const GameHistory = ({
 	gameSessions,
 	isAdmin,
 	players,
@@ -56,19 +49,7 @@ export const GameHistoryList = ({
 				{isAdmin && <AddGameForm players={players} />}
 			</div>
 
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead>Date</TableHead>
-						<TableHead>Games Count</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{gameSessions.map((gameSession) => (
-						<GameHistoryRow key={gameSession.id} gameSession={gameSession} />
-					))}
-				</TableBody>
-			</Table>
+			<DataTable columns={columns} data={gameSessions} />
 		</div>
 	)
 }
