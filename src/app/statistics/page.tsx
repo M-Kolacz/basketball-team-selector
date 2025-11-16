@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { PlayerStatsView } from '#app/app/players/stats/components/PlayerStatsView'
+import { PlayerStatsView } from '#app/app/statistics/components/PlayerStatsView'
 import { getPlayerStats } from '#app/lib/actions/player-stats'
 
 export const metadata: Metadata = {
