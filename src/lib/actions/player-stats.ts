@@ -15,6 +15,7 @@ export const getPlayerStats = async () => {
 							points: true,
 							game: {
 								select: {
+									gameSessionId: true,
 									id: true,
 									scores: {
 										select: {
@@ -31,7 +32,6 @@ export const getPlayerStats = async () => {
 		},
 	})
 
-	// Calculate stats for each player
 	const playerStats = players.map((player) => {
 		let gamesPlayed = 0
 		let gamesWon = 0
@@ -39,15 +39,18 @@ export const getPlayerStats = async () => {
 
 		// Track unique games to avoid counting the same game multiple times
 		const processedGames = new Set<string>()
+		const uniqueGameSessions = new Set<string>()
 
 		player.teams.forEach((team) => {
 			team.scores.forEach((score) => {
 				const gameId = score.game.id
+				const gameSessionId = score.game.gameSessionId
 
 				// Skip if we already processed this game
 				if (processedGames.has(gameId)) return
 
 				processedGames.add(gameId)
+				uniqueGameSessions.add(gameSessionId)
 				gamesPlayed++
 
 				// Find all scores for this game
@@ -71,6 +74,7 @@ export const getPlayerStats = async () => {
 		return {
 			id: player.id,
 			name: player.name,
+			gameSessions: uniqueGameSessions.size,
 			totalGames: gamesPlayed,
 			gamesWon,
 			gamesLost,
@@ -89,4 +93,4 @@ export const getPlayerStats = async () => {
 	return playerStats
 }
 
-export type PlayerStats = Awaited<ReturnType<typeof getPlayerStats>>
+export type PlayersStatisticts = Awaited<ReturnType<typeof getPlayerStats>>

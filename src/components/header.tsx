@@ -33,7 +33,7 @@ export const Header = async () => {
 	const navLinks = [
 		{ href: '/games', label: 'Games' },
 		{ href: '/players', label: 'Players' },
-		{ href: '/players/stats', label: 'Statistics' },
+		{ href: '/statistics', label: 'Statistics' },
 	]
 
 	return (
