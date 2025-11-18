@@ -1,5 +1,5 @@
 import { type Meta, type StoryObj } from '@storybook/nextjs-vite'
-import { expect, within } from '@storybook/test'
+import { expect, within } from 'storybook/test'
 import { Plus } from 'lucide-react'
 import { Button, sizeStyles, variantStyles } from '#app/components/ui/button'
 import {
