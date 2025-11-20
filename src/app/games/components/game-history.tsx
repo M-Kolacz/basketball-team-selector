@@ -16,13 +16,6 @@ import { type GameSessions } from '#app/lib/actions/game-sessions'
 import { type Players } from '#app/lib/actions/players'
 import { CreateGameSessionSchema } from '#app/lib/validations/game-session'
 
-type OptimisticGame = {
-	id: string
-	gameDatetime: Date
-	gamesCount: number
-	isOptimistic?: boolean
-}
-
 interface GameHistoryListProps {
 	gameSessions: GameSessions
 	isAdmin: boolean
@@ -35,8 +28,8 @@ export const GameHistory = ({
 	players,
 }: GameHistoryListProps) => {
 	const [optimisticGames, addOptimisticGame] = useOptimistic<
-		OptimisticGame[],
-		OptimisticGame
+		GameSessions,
+		GameSessions[number]
 	>(gameSessions, (state, newGame) => {
 		return [newGame, ...state].sort(
 			(a, b) => b.gameDatetime.getTime() - a.gameDatetime.getTime(),
