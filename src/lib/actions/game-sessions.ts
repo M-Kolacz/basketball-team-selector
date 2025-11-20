@@ -216,7 +216,6 @@ export const createGameSessionAction = async (
 	}
 
 	revalidatePath('/games')
-	redirect('/games')
 }
 
 export const updateGameScore = async (

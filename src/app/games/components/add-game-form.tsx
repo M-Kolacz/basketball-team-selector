@@ -2,7 +2,7 @@
 
 import { getFormProps, getTextareaProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
-import { useActionState } from 'react'
+import { useActionState, useState } from 'react'
 import { Checkbox, DatePicker } from '#app/components/form'
 import { Button } from '#app/components/ui/button'
 import {
@@ -28,11 +28,20 @@ import { CreateGameSessionSchema } from '#app/lib/validations/game-session'
 
 interface AddGameFormProps {
 	players: Players
+	addOptimisticGameSession: (formData: FormData) => void
 }
 
-export const AddGameForm = ({ players }: AddGameFormProps) => {
+export const AddGameForm = ({
+	players,
+	addOptimisticGameSession: addOptimisticGameSession,
+}: AddGameFormProps) => {
+	const [open, setOpen] = useState(false)
+
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		createGameSessionAction,
+		async (prevState: unknown, formData: FormData) => {
+			addOptimisticGameSession(formData)
+			return await createGameSessionAction(prevState, formData)
+		},
 		undefined,
 	)
 	const [form, fields] = useForm({
@@ -41,9 +50,12 @@ export const AddGameForm = ({ players }: AddGameFormProps) => {
 			parseWithZod(formData, { schema: CreateGameSessionSchema }),
 		shouldValidate: 'onBlur',
 		shouldRevalidate: 'onInput',
+		onSubmit: () => {
+			setOpen(false)
+		},
 	})
 	return (
-		<Dialog>
+		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button>Add new game</Button>
 			</DialogTrigger>

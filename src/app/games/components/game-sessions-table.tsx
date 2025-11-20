@@ -25,7 +25,7 @@ interface DataTableProps<TData, TValue> {
 	data: TData[]
 }
 
-export const DataTable = <TData, TValue>({
+export const GameSessionsTable = <TData, TValue>({
 	columns,
 	data,
 }: DataTableProps<TData, TValue>) => {
