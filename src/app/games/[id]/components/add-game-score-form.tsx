@@ -7,7 +7,6 @@ import { useActionState, useState } from 'react'
 import { Button } from '#app/components/ui/button'
 import {
 	Dialog,
-	DialogClose,
 	DialogContent,
 	DialogDescription,
 	DialogFooter,
@@ -32,16 +31,21 @@ import { GameResultSchema } from '#app/lib/validations/game-session'
 interface AddGameFormProps {
 	gameSessionId: string
 	teams: NonNullable<GameSession['selectedProposition']>['teams']
+	addOptimisticScore: (formData: FormData) => void
 }
 
 export const AddGameScoreForm = ({
 	gameSessionId,
 	teams,
+	addOptimisticScore,
 }: AddGameFormProps) => {
 	const [open, setOpen] = useState(false)
 
 	const [lastResult, formAction, isSubmitting] = useActionState(
-		recordGameResultAction,
+		async (prevState: unknown, formData: FormData) => {
+			addOptimisticScore(formData)
+			return recordGameResultAction(prevState, formData)
+		},
 		undefined,
 	)
 
@@ -54,6 +58,9 @@ export const AddGameScoreForm = ({
 		shouldRevalidate: 'onInput',
 		defaultValue: {
 			gameSessionId,
+		},
+		onSubmit: () => {
+			setOpen(false)
 		},
 	})
 
