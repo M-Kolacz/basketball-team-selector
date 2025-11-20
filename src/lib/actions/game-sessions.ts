@@ -423,5 +423,4 @@ export const recordGameResultAction = async (
 	})
 
 	revalidatePath(`/games/${gameSessionId}`)
-	redirect(`/games/${gameSessionId}`)
 }
