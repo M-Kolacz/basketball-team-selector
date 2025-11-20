@@ -14,6 +14,7 @@ import {
 	GameResultSchema,
 	SavePropositionSchema,
 	EditGameScoreSchema,
+	DeleteGameSessionSchema,
 } from '#app/lib/validations/game-session'
 
 export const getGameSessions = async () => {
@@ -423,4 +424,47 @@ export const recordGameResultAction = async (
 	})
 
 	revalidatePath(`/games/${gameSessionId}`)
+}
+
+export const deleteGameSession = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
+	await requireAdminUser()
+
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			DeleteGameSessionSchema.transform(async (data, ctx) => {
+				if (intent !== null) return { ...data }
+
+				const gameSession = await prisma.gameSession.findUnique({
+					where: { id: data.id },
+					select: { id: true },
+				})
+
+				if (!gameSession) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Game session not found',
+						path: ['id'],
+					})
+					return z.NEVER
+				}
+
+				return { ...data }
+			}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { id } = submission.value
+
+	await prisma.gameSession.delete({
+		where: { id },
+	})
+
+	redirect('/games')
 }

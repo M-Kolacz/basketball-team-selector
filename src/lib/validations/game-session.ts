@@ -84,3 +84,9 @@ export const EditGameScoreSchema = z.object({
 	),
 })
 export type EditGameScoreCommand = z.infer<typeof EditGameScoreSchema>
+
+export const DeleteGameSessionSchema = z.object({
+	id: z.string().uuid('Invalid game session ID format'),
+})
+
+export type DeleteGameSessionCommand = z.infer<typeof DeleteGameSessionSchema>

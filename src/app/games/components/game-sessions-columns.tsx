@@ -4,12 +4,14 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ArrowUpDown, MoreHorizontal, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
 import { Button } from '#app/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '#app/components/ui/dropdown-menu'
 import { Spinner } from '#app/components/ui/spinner'
@@ -88,9 +90,10 @@ export const gameSessionColumns = [
 								Check game details
 							</Link>
 						</DropdownMenuItem>
-						{/* TODO: Add delete functionality */}
-						{/* <DropdownMenuSeparator />
-						<DropdownMenuItem>Delete game session</DropdownMenuItem> */}
+						<DropdownMenuSeparator />
+						<DropdownMenuItem asChild>
+							<DeleteGameForm gameId={gameId} />
+						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)
