@@ -10,6 +10,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from '#app/components/ui/card'
+import { Spinner } from '#app/components/ui/spinner'
 import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type GameScoreCardProps = {
@@ -17,14 +18,12 @@ type GameScoreCardProps = {
 	gameIndex: number
 	game: GameSession['games'][number]
 	isAdmin: boolean
-	teams: NonNullable<GameSession['selectedProposition']>['teams'] | null
 }
 
 export const GameScoreCard = ({
 	gameIndex,
 	game,
 	isAdmin,
-	teams,
 }: GameScoreCardProps) => {
 	const [isEditing, setIsEditing] = useState(false)
 
@@ -46,13 +45,21 @@ export const GameScoreCard = ({
 
 	const sortedScores = [...game.scores].sort((a, b) => b.points - a.points)
 
+	const isOptimistic = game.id.startsWith('temp-')
+
 	return (
 		<Card>
 			<CardHeader>
 				<CardTitle className="flex items-center justify-between">
-					<span>Game {gameIndex + 1}</span>
+					<p className="flex gap-4">
+						<span className={isOptimistic ? 'opacity-50' : ''}>
+							Game {gameIndex + 1}
+						</span>
+						{isOptimistic ? <Spinner /> : null}
+					</p>
 					{isAdmin && (
 						<Button
+							disabled={isOptimistic}
 							variant="ghost"
 							size="sm"
 							onClick={() => setIsEditing(true)}
