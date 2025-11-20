@@ -45,8 +45,7 @@ export const AddGameForm = ({
 		undefined,
 	)
 	const [form, fields] = useForm({
-		lastResult:
-			lastResult && 'result' in lastResult ? lastResult.result : undefined,
+		lastResult: lastResult?.result,
 		onValidate: ({ formData }) =>
 			parseWithZod(formData, { schema: CreateGameSessionSchema }),
 		shouldValidate: 'onBlur',
