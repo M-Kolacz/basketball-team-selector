@@ -12,11 +12,12 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from '#app/components/ui/dropdown-menu'
+import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
 
 type GameSession = GameSessions[number]
 
-export const columns = [
+export const gameSessionColumns = [
 	{
 		accessorKey: 'gameDatetime',
 		header: ({ column }) => {
@@ -31,8 +32,18 @@ export const columns = [
 			)
 		},
 		cell: ({ row }) => {
+			const gameId = row.original.id
 			const date = row.getValue<string>('gameDatetime')
-			return format(date, 'MMMM d, yyyy')
+			const isOptimistic = gameId.startsWith('temp-')
+
+			return (
+				<div className="flex items-center gap-4">
+					<span className={isOptimistic ? 'opacity-50' : ''}>
+						{format(date, 'MMMM d, yyyy')}
+					</span>
+					{isOptimistic && <Spinner />}
+				</div>
+			)
 		},
 	},
 	{
@@ -48,6 +59,10 @@ export const columns = [
 					<ArrowUpDown className="ml-2 h-4 w-4" />
 				</Button>
 			)
+		},
+		cell: ({ row }) => {
+			const count = row.getValue<number>('gamesCount')
+			return <span>{count}</span>
 		},
 	},
 	{

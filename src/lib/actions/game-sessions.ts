@@ -216,7 +216,7 @@ export const createGameSessionAction = async (
 	}
 
 	revalidatePath('/games')
-	redirect('/games')
+	return { status: 'success' as const, gameSessionId: gameSession.id }
 }
 
 export const updateGameScore = async (
