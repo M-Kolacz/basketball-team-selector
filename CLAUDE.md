@@ -6,9 +6,9 @@ code in this repository.
 ## Project Overview
 
 Basketball team selection app for organizing amateur basketball games. Single
-admin creates balanced teams for ~20 players using AI algorithms. Built with
-Next.js 15, React 19, TypeScript 5, Tailwind CSS 4, Prisma, PostgreSQL and
-Conform.
+admin creates balanced teams for ~20 players using AI algorithms (Gemini via AI
+SDK v5). Built with Next.js 15, React 19, TypeScript 5, Tailwind CSS 4, Prisma,
+PostgreSQL and Conform.
 
 ## Common Commands
 
@@ -57,11 +57,12 @@ npm run build-storybook     # Build Storybook
 
 Key models:
 
-- **User/Password** - Authentication with role-based access (admin/user)
+- **User/Password/Session** - JWT auth with role-based access (admin/user)
 - **Player** - Name, skillTier (S/A/B/C/D), positions (PG/SG/SF/PF/C)
 - **Team** - Contains players
 - **GameSession** - Game date, description, selected proposition
 - **Proposition** - Three types: position_focused, skill_balanced, general
+- **Game/Score** - Track game results and team scores
 
 ### Authentication
 
@@ -75,11 +76,18 @@ Key models:
 - Validation schemas in `src/lib/validations/` (auth, player, user)
 - Server actions use `parseWithZod` with async transforms for DB checks
 
+### AI Team Generation
+
+- Uses `ai` SDK v5 with `@ai-sdk/google` (Gemini 2.0 Flash)
+- `generatePropositions()` in `src/lib/createTeamPropositions.ts` creates 3
+  balanced team setups
+- Proposition types: skill_balanced, position_focused, general (mixed approach)
+
 ### Testing Setup
 
-- **Vitest** - Two projects: `unit` (Node) and `storybook` (browser with
-  Playwright)
-- **Playwright** - E2E tests in `src/e2e/`, runs on Chromium + Mobile Chrome
+- **Vitest** - Two projects: `unit` (Node env, `*.test.ts`) and `storybook`
+  (browser with Playwright)
+- **Playwright** - E2E tests in `src/e2e/`, runs on Chromium
 - **Storybook** - Component testing with accessibility addon
 
 ### Styling
@@ -87,7 +95,9 @@ Key models:
 - Tailwind CSS 4 with `@import "tailwindcss"` syntax in
   [globals.css](src/app/globals.css)
 - Theme variables defined with `@theme inline` directive
-- Shadcn/ui components in `src/components/ui/`
+- Shadcn/ui components in `src/components/ui/` (configured via
+  [components.json](components.json))
+- Uses `#app/*` aliases for imports (components, utils, ui, lib, hooks)
 - Geist Sans/Mono fonts via Google Fonts
 
 ## Environment Variables
@@ -96,10 +106,10 @@ Required in `.env.local`:
 
 - `DATABASE_URL` - PostgreSQL connection string
 - `JWT_SECRET` - Secret for JWT signing
+- `GOOGLE_GENERATIVE_AI_API_KEY` - Gemini API key for AI team generation
 - `NODE_ENV` - development/test/production
 
-Validated by `@t3-oss/env-nextjs` in [env.mjs](src/lib/env.mjs). Validation
-skipped in CI.
+Validated by `@t3-oss/env-nextjs` in [env.mjs](src/lib/env.mjs).
 
 ## Rules to follow
 

@@ -1,8 +1,13 @@
 {
-	"permissions": {
-		"allow": ["Bash(find:*)"],
-		"deny": [],
-		"ask": []
-	},
-	"enabledMcpjsonServers": ["shadcn"]
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(gh issue create:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enabledMcpjsonServers": [
+    "shadcn"
+  ]
 }
