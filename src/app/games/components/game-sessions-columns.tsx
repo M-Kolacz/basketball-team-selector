@@ -4,20 +4,32 @@ import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
 import { ArrowUpDown, MoreHorizontal, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
+import { EditGameForm } from '#app/app/games/components/edit-game-form'
 import { Button } from '#app/components/ui/button'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '#app/components/ui/dropdown-menu'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
+import { type Players } from '#app/lib/actions/players'
 
 type GameSession = GameSessions[number]
 
-export const gameSessionColumns = [
+interface GameSessionColumnsProps {
+	isAdmin: boolean
+	players: Players
+}
+
+export const createGameSessionColumns = ({
+	isAdmin,
+	players,
+}: GameSessionColumnsProps): ColumnDef<GameSession>[] => [
 	{
 		accessorKey: 'gameDatetime',
 		header: ({ column }) => {
@@ -71,6 +83,7 @@ export const gameSessionColumns = [
 		header: 'Actions',
 		cell: ({ row }) => {
 			const gameId = row.original.id
+			const gameSession = row.original
 
 			return (
 				<DropdownMenu>
@@ -88,12 +101,20 @@ export const gameSessionColumns = [
 								Check game details
 							</Link>
 						</DropdownMenuItem>
-						{/* TODO: Add delete functionality */}
-						{/* <DropdownMenuSeparator />
-						<DropdownMenuItem>Delete game session</DropdownMenuItem> */}
+						<DropdownMenuSeparator />
+						{isAdmin && (
+							<DropdownMenuItem asChild>
+								<EditGameForm gameSession={gameSession} allPlayers={players} />
+							</DropdownMenuItem>
+						)}
+						{isAdmin && (
+							<DropdownMenuItem asChild>
+								<DeleteGameForm gameId={gameId} />
+							</DropdownMenuItem>
+						)}
 					</DropdownMenuContent>
 				</DropdownMenu>
 			)
 		},
 	},
-] satisfies ColumnDef<GameSession>[]
+]

@@ -3,7 +3,7 @@
 import { parseWithZod } from '@conform-to/zod'
 import { useOptimistic } from 'react'
 import { AddGameForm } from '#app/app/games/components/add-game-form'
-import { gameSessionColumns } from '#app/app/games/components/game-sessions-columns'
+import { createGameSessionColumns } from '#app/app/games/components/game-sessions-columns'
 import { GameSessionsTable } from '#app/app/games/components/game-sessions-table'
 import {
 	Empty,
@@ -24,6 +24,7 @@ interface GameHistoryListProps {
 
 export const GameHistory = ({
 	gameSessions,
+
 	isAdmin,
 	players,
 }: GameHistoryListProps) => {
@@ -42,11 +43,20 @@ export const GameHistory = ({
 		})
 		if (submission.status !== 'success') return
 
-		const { gameDatetime } = submission.value
+		const { gameDatetime, playerIds, description } = submission.value
 		addOptimisticGame({
 			id: `temp-${Date.now()}`,
 			gameDatetime: new Date(gameDatetime),
 			gamesCount: 0,
+			players: playerIds.map(
+				(playerId) =>
+					players.find((player) => player.id === playerId) ?? {
+						id: '',
+						name: '',
+					},
+			),
+			description: description ?? null,
+			propositions: [],
 		})
 	}
 
@@ -86,7 +96,13 @@ export const GameHistory = ({
 					/>
 				)}
 			</div>
-			<GameSessionsTable columns={gameSessionColumns} data={optimisticGames} />
+			<GameSessionsTable
+				columns={createGameSessionColumns({
+					isAdmin,
+					players,
+				})}
+				data={optimisticGames}
+			/>
 		</div>
 	)
 }
