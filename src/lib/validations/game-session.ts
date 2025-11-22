@@ -90,3 +90,22 @@ export const DeleteGameSessionSchema = z.object({
 })
 
 export type DeleteGameSessionCommand = z.infer<typeof DeleteGameSessionSchema>
+
+export const UpdateGameSessionSchema = z.object({
+	id: z.string().uuid('Invalid game session ID'),
+	gameDatetime: z
+		.string()
+		.min(1, 'Game date and time is required')
+		.refine((datetime) => {
+			const selectedDate = new Date(datetime)
+			return !isNaN(selectedDate.getTime())
+		}, 'Invalid date format'),
+
+	description: z.string().max(500).optional(),
+	playerIds: z
+		.array(z.string().uuid())
+		.min(10, 'At least 10 players are required')
+		.max(25, 'No more than 25 players are allowed'),
+})
+
+export type UpdateGameSessionCommand = z.infer<typeof UpdateGameSessionSchema>

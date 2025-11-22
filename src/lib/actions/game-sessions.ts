@@ -10,6 +10,7 @@ import { prisma } from '#app/lib/db.server'
 import {
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
+	UpdateGameSessionSchema,
 	SelectPropositionSchema,
 	GameResultSchema,
 	SavePropositionSchema,
@@ -23,9 +24,22 @@ export const getGameSessions = async () => {
 		select: {
 			id: true,
 			gameDatetime: true,
+			description: true,
 			games: {
 				select: {
 					id: true,
+				},
+			},
+			propositions: {
+				take: 1,
+				select: {
+					teams: {
+						select: {
+							players: {
+								select: { id: true, name: true },
+							},
+						},
+					},
 				},
 			},
 		},
@@ -34,6 +48,11 @@ export const getGameSessions = async () => {
 	return gameSessions.map(({ games, ...session }) => ({
 		...session,
 		gamesCount: games.length,
+		players: Array.from(
+			new Set(
+				session.propositions[0]?.teams.flatMap((team) => team.players) ?? [],
+			),
+		),
 	}))
 }
 
@@ -217,6 +236,124 @@ export const createGameSessionAction = async (
 	}
 
 	revalidatePath('/games')
+}
+
+export const updateGameSessionAction = async (
+	_prevState: unknown,
+	formData: FormData,
+) => {
+	await requireAdminUser()
+
+	const submission = await parseWithZod(formData, {
+		schema: (intent) =>
+			UpdateGameSessionSchema.transform(async (data, ctx) => {
+				if (intent !== null) return { ...data }
+
+				const gameSession = await prisma.gameSession.findUnique({
+					where: { id: data.id },
+					select: { id: true },
+				})
+
+				if (!gameSession) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Game session not found',
+						path: ['id'],
+					})
+					return z.NEVER
+				}
+
+				const players = await prisma.player.findMany({
+					where: { id: { in: data.playerIds } },
+				})
+				if (players.length !== data.playerIds.length) {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: 'Some players do not exist',
+						path: ['playerIds'],
+					})
+					return z.NEVER
+				}
+
+				return { ...data, players }
+			}),
+		async: true,
+	})
+
+	if (submission.status !== 'success') {
+		return { result: submission.reply() }
+	}
+
+	const { id, gameDatetime, description, playerIds } = submission.value
+
+	const players = await prisma.player.findMany({
+		where: { id: { in: playerIds } },
+	})
+
+	const propositions = await generatePropositions(players)
+
+	const existingPropositions = await prisma.proposition.findMany({
+		where: { gameSessionId: id },
+		select: {
+			id: true,
+			teams: { select: { id: true } },
+		},
+	})
+
+	const teamIds = existingPropositions.flatMap((prop) =>
+		prop.teams.map((team) => team.id),
+	)
+
+	await prisma.$transaction([
+		prisma.proposition.deleteMany({
+			where: { gameSessionId: id },
+		}),
+
+		prisma.team.deleteMany({
+			where: { id: { in: teamIds } },
+		}),
+
+		prisma.gameSession.update({
+			where: { id },
+			data: {
+				gameDatetime: new Date(gameDatetime),
+				description: description ?? null,
+			},
+		}),
+	])
+
+	for (const proposition of propositions.object.propositions) {
+		const teams: string[] = []
+		for (const team of proposition.teams) {
+			const newTeam = await prisma.team.create({
+				data: {
+					name: `Team ${teams.length + 1}`,
+					players: {
+						connect: team.map((playerName) => {
+							const player = players.find((p) => p.name === playerName)!
+							return { id: player.id }
+						}),
+					},
+				},
+			})
+			teams.push(newTeam.id)
+		}
+
+		await prisma.proposition.create({
+			data: {
+				type: 'general',
+				teams: {
+					connect: teams.map((teamId) => ({ id: teamId })),
+				},
+				gameSession: {
+					connect: { id },
+				},
+			},
+		})
+	}
+
+	revalidatePath('/games')
+	revalidatePath(`/games/${id}`)
 }
 
 export const updateGameScore = async (
