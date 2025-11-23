@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/createTeamPropositions'
 import { prisma } from '#app/lib/db.server'
+import { getPropositionType } from '#app/lib/getPropositionType'
 import {
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
@@ -205,7 +206,7 @@ export const createGameSessionAction = async (
 		},
 	})
 
-	for (const proposition of propositions.object.propositions) {
+	for (const [index, proposition] of propositions.object.propositions.entries()) {
 		const teams: string[] = []
 		for (const team of proposition.teams) {
 			const newTeam = await prisma.team.create({
@@ -224,7 +225,7 @@ export const createGameSessionAction = async (
 
 		await prisma.proposition.create({
 			data: {
-				type: 'general',
+				type: getPropositionType(index),
 				teams: {
 					connect: teams.map((teamId) => ({ id: teamId })),
 				},
@@ -322,7 +323,7 @@ export const updateGameSessionAction = async (
 		}),
 	])
 
-	for (const proposition of propositions.object.propositions) {
+	for (const [index, proposition] of propositions.object.propositions.entries()) {
 		const teams: string[] = []
 		for (const team of proposition.teams) {
 			const newTeam = await prisma.team.create({
@@ -341,7 +342,7 @@ export const updateGameSessionAction = async (
 
 		await prisma.proposition.create({
 			data: {
-				type: 'general',
+				type: getPropositionType(index),
 				teams: {
 					connect: teams.map((teamId) => ({ id: teamId })),
 				},
