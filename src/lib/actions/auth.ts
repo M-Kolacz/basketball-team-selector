@@ -12,6 +12,7 @@ import {
 	getAuthSession,
 } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
+import { requireRateLimit } from '#app/lib/ratelimit.server'
 import { safeRedirect } from '#app/lib/utils'
 import {
 	LoginSchema,
@@ -24,7 +25,16 @@ export const loginAction = async (_prevState: unknown, formData: FormData) => {
 
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			LoginSchema.transform(async (data, ctx) => {
+			LoginSchema.superRefine(async (ignoredData, ctx) => {
+				const rateLimit = await requireRateLimit('strongest')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many login attempts. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data, session: null }
 
 				const session = await login(data)
@@ -84,6 +94,15 @@ export const registerAction = async (
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			RegisterSchema.superRefine(async (data, ctx) => {
+				const rateLimitError = await requireRateLimit('strongest')
+				if (rateLimitError.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many registration attempts. Try again in ${rateLimitError.retryAfterSeconds} second${rateLimitError.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+
 				const existingUser = await prisma.user.findUnique({
 					where: { username: data.username },
 					select: { id: true },
