@@ -2,27 +2,60 @@
 
 # Frontend
 
-- Next.js v15.5
+## Core Framework
+- Next.js v16.0.3 with App Router and Turbopack
 - React v19
 - TypeScript v5
-- Conform to handle forms
+
+## Forms & Validation
+- Conform (`@conform-to/react`, `@conform-to/zod`) for form handling
 - Zod for schema validation
-- Tailwind v4
-- Shadcn/ui
+
+## Styling & UI
+- Tailwind CSS v4
+- Shadcn/ui component library
+- Radix UI primitives
+- Lucide React icons
+- `class-variance-authority` and `tailwind-merge` for styling utilities
+
+## Notable Libraries
+- `@dnd-kit` - Drag-and-drop functionality for team management
+- `date-fns` - Date formatting and manipulation
+- `recharts` - Charts and statistics visualization
+- `sonner` - Toast notifications
+- `next-themes` - Dark mode support
 
 # Backend
 
-- Next.js with Server Actions
-- Prisma ORM with PostgreSQL (neon)
-- AI SDK v5 for interaction with AI models
+## Server & Database
+- Next.js Server Actions for backend logic
+- Prisma ORM with PostgreSQL (hosted on Neon)
+- Generated Prisma client in `generated/prisma/`
+
+## Authentication
+- JWT-based auth via `jsonwebtoken`
+- Password hashing with `bcryptjs`
+- Session management with HTTP-only cookies
+
+## AI Integration
+- AI SDK v5 (`ai` package)
+- Google Gemini 2.0 Flash (`@ai-sdk/google`)
+- Team generation via structured output
 
 # Testing
 
-- Vitest for unit and integration tests
-- Playwright for end-to-end tests
-- Storybook for UI component testing and documentation
+- Vitest for unit (`*.test.ts` in Node env) and Storybook component tests (browser with Playwright)
+- Playwright for E2E tests (`src/e2e/`)
+- Storybook for UI component testing, documentation, and accessibility testing
 
-# Devops (CI/CD and Hosting):
+# Code Quality
 
-- Github Actions for CI/CD pipeline
-- Vercel for hosting the Next.js application
+- ESLint with Next.js config and custom rules
+- Prettier with Tailwind plugin
+- TypeScript strict mode
+- `@t3-oss/env-nextjs` for environment variable validation
+
+# DevOps (CI/CD and Hosting)
+
+- GitHub Actions for CI/CD pipeline
+- Vercel for hosting Next.js application

@@ -10,6 +10,11 @@ manual adjustments if needed, confirms teams, records results. Historical data
 stored for reference. MVP prioritizes speed over polish - 5-minute team
 selection goal.
 
+### Terminology
+
+- **Game Session**: Single event (date, selected players, AI propositions, final teams). Created once per basketball gathering.
+- **Game**: Individual match result (scores). Multiple games can be played within one game session.
+
 ## 2. User Problem
 
 Amateur basketball groups waste time manually organizing teams, creating
@@ -42,23 +47,28 @@ that considers player skills and positions while allowing manual override.
   - Position-focused
   - Skill-balanced
   - General balanced
-- 5v5 standard, even distribution for extras
+- Dynamic team count: 2-4 teams based on player count
+  - 10 players: 2 teams of 5
+  - 15 players: 3 teams of 5
+  - 20 players: 4 teams of 5
+  - Uneven counts distributed (e.g., 11 players: 5-6 per team)
 - No bench/starter distinction
 
-### 3.4 Game Management
+### 3.4 Game Session Management
 
-- Create games by date
-- Select available players
+- Create game sessions by date
+- Select available players for session
 - Review AI propositions
 - Manual player swaps between teams
 - Confirm final teams
-- Record game results (score)
+- Record game results (score) - multiple games per session
 - Store historical data
 
 ### 3.5 Data Storage
 
 - Player profiles
-- Game records (date, teams, scores)
+- Game sessions (date, selected players, propositions, final teams)
+- Games (match results with scores) - linked to game sessions
 - All generated propositions
 - Final team compositions
 
@@ -72,6 +82,7 @@ that considers player skills and positions while allowing manual override.
 - Manual adjustments
 - Result tracking
 - View-only user access
+- Edit game session details (date, description, players)
 
 ### Out of Scope
 
@@ -80,7 +91,6 @@ that considers player skills and positions while allowing manual override.
 - Performance analytics
 - AI learning from history
 - External integrations
-- Roster changes post-creation
 - Monetization
 - Engagement tracking
 
@@ -172,23 +182,23 @@ that considers player skills and positions while allowing manual override.
 ### US-009
 
 - ID: US-009
-- Title: Create Game
-- Description: As admin, I create new game for specific date
+- Title: Create Game Session
+- Description: As admin, I create new game session for specific date
 - Acceptance Criteria:
   - Select date/time
-  - Game saved with pending status
-  - Unique game ID generated
+  - Game session saved with pending status
+  - Unique session ID generated
 
 ### US-010
 
 - ID: US-010
 - Title: Select Available Players
-- Description: As admin, I select which players available for game
+- Description: As admin, I select which players available for game session
 - Acceptance Criteria:
   - Checkbox list of all active players
   - Min 10 players required
   - Max 20 players allowed
-  - Selection saved to game
+  - Selection saved to game session
 
 ### US-011
 
@@ -216,73 +226,79 @@ that considers player skills and positions while allowing manual override.
 
 - ID: US-013
 - Title: Adjust Team Composition
-- Description: As admin, I manually swap players between teams
+- Description: As admin, I manually swap players between teams before selection
 - Acceptance Criteria:
   - Drag-drop or select-swap interface
   - Maintain team size balance
   - Track number of swaps made
+  - Changes made to proposition preview only
 
 ### US-014
 
 - ID: US-014
 - Title: Select Final Teams
-- Description: As admin, I confirm final team composition
+- Description: As admin, I select one proposition to use for game session
 - Acceptance Criteria:
-  - Select one proposition or adjusted version
-  - Save final teams to database
-  - Mark game as confirmed
+  - Select one proposition (original or after adjustments)
+  - Save selected proposition to game session
+  - Mark game session as confirmed
+  - Selection is permanent (cannot change after selection)
   - Show success message
 
 ### US-015
 
 - ID: US-015
 - Title: Record Game Result
-- Description: As admin, I enter final score after game
+- Description: As admin, I enter final score after a match is played
 - Acceptance Criteria:
   - Input scores for each team
-  - Mark game as completed
+  - Create new game (match) record linked to game session
   - Store result in database
-  - Update game history
+  - Multiple games can be recorded per session
 
 ### US-016
 
 - ID: US-016
-- Title: View Game History
-- Description: As user, I view past games with teams and results
+- Title: View Game Session History
+- Description: As user, I view past game sessions with teams and match results
 - Acceptance Criteria:
-  - List games by date (descending)
-  - Show teams and scores
+  - List game sessions by date (descending)
+  - Show final teams for each session
+  - Display all games (matches) played in each session with scores
 
 ### US-017
 
 - ID: US-017
-- Title: View Game Details
-- Description: As user, I view detailed information for specific game
+- Title: View Game Session Details
+- Description: As user, I view detailed information for specific game session
 - Acceptance Criteria:
-  - Display date, teams, scores
+  - Display session date, final teams
+  - Show all games (matches) played with scores
   - Show all generated propositions
-  - Indicate which was selected
+  - Indicate which proposition was selected
 
 ### US-023
 
 - ID: US-023
-- Title: Handle Odd Player Count
-- Description: As admin, system handles uneven player numbers
+- Title: Handle Variable Player Count
+- Description: As admin, system handles different player counts with flexible team configurations
 - Acceptance Criteria:
-  - 11 players: 6v5 teams
-  - 13 players: 7v6 teams
-  - Clear indication of imbalance
-  - AI optimizes for fairness
+  - Min 10 players: creates 2 teams
+  - 11-14 players: creates 2 teams (distributed evenly)
+  - 15-19 players: creates 3 teams (distributed evenly)
+  - 20 players: creates 4 teams
+  - Clear indication of team sizes
+  - AI optimizes for fairness across all teams
 
 ## 6. Success Metrics
 
 ### Primary Metrics
 
-- Team selection completion: <5 minutes (95% of games)
+- Team selection completion: <5 minutes (95% of game sessions)
 - AI proposition acceptance: ≥1 proposition accepted with <3 swaps (80% of
-  games)
+  game sessions)
 
 ### Quality Indicators
 
-- Manual adjustment count per game
-- Time from game creation to confirmation
+- Manual adjustment count per game session
+- Time from game session creation to confirmation

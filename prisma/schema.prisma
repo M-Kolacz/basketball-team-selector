@@ -38,6 +38,12 @@ model Session {
   userId String
 }
 
+model RateLimiterFlexible {
+  key    String    @id
+  points Int
+  expire DateTime?
+}
+
 model Player {
   id        String     @id @default(uuid())
   name      String     @unique
