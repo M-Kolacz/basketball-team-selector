@@ -4,8 +4,14 @@ export const LoginSchema = z.object({
 	username: z
 		.string()
 		.min(3, 'Username is required')
-		.max(50, 'Username must be at most 50 characters'),
-	password: z.string().min(6, 'Password must be at least 6 characters'),
+		.max(50, 'Username must be at most 50 characters')
+		.trim()
+		.toLowerCase(),
+	password: z
+		.string()
+		.min(8, 'Password must be at least 8 characters')
+		.max(72, 'Password must be at most 72 characters')
+		.trim(),
 	redirectTo: z.string().optional(),
 })
 
@@ -17,11 +23,13 @@ export const RegisterSchema = z
 			.string()
 			.min(1, 'Username is required')
 			.max(50, 'Username must be at most 50 characters')
-			.trim(),
+			.trim()
+			.toLowerCase(),
 		password: z
 			.string()
 			.min(8, 'Password must be at least 8 characters')
-			.max(100, 'Password must be at most 100 characters'),
+			.max(72, 'Password must be at most 72 characters')
+			.trim(),
 		confirmPassword: z.string().min(1, 'Password confirmation is required'),
 		redirectTo: z.string().optional(),
 	})
