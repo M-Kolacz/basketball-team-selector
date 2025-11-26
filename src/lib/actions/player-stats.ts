@@ -1,8 +1,16 @@
 'use server'
 
+import { invariant } from '@epic-web/invariant'
 import { prisma } from '#app/lib/db.server'
+import { requireRateLimit } from '#app/lib/rate-limit.server'
 
 export const getPlayerStats = async () => {
+	const rateLimit = await requireRateLimit('general')
+	invariant(
+		rateLimit.status === 'success',
+		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+	)
+
 	const players = await prisma.player.findMany({
 		select: {
 			id: true,

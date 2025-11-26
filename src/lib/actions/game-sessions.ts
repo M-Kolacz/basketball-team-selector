@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/createTeamPropositions'
 import { prisma } from '#app/lib/db.server'
+import { requireRateLimit } from '#app/lib/rate-limit.server'
 import {
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
@@ -17,8 +18,15 @@ import {
 	EditGameScoreSchema,
 	DeleteGameSessionSchema,
 } from '#app/lib/validations/game-session'
+import { invariant } from '@epic-web/invariant'
 
 export const getGameSessions = async () => {
+	const rateLimit = await requireRateLimit('general')
+	invariant(
+		rateLimit.status === 'success',
+		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+	)
+
 	const gameSessions = await prisma.gameSession.findMany({
 		orderBy: { gameDatetime: 'desc' },
 		select: {
@@ -59,6 +67,12 @@ export const getGameSessions = async () => {
 export type GameSessions = Awaited<ReturnType<typeof getGameSessions>>
 
 export const getGameSession = async (id: string) => {
+	const rateLimit = await requireRateLimit('general')
+	invariant(
+		rateLimit.status === 'success',
+		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+	)
+
 	const { gameSessionId } = await GetGameSessionSchema.parseAsync({
 		gameSessionId: id,
 	})
@@ -136,7 +150,16 @@ export const createGameSessionAction = async (
 ) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			CreateGameSessionSchema.transform(async (data, ctx) => {
+			CreateGameSessionSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strongest')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const user = await getOptionalUser()
@@ -246,7 +269,16 @@ export const updateGameSessionAction = async (
 
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			UpdateGameSessionSchema.transform(async (data, ctx) => {
+			UpdateGameSessionSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strongest')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const gameSession = await prisma.gameSession.findUnique({
@@ -364,7 +396,16 @@ export const updateGameScore = async (
 
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			EditGameScoreSchema.transform(async (data, ctx) => {
+			EditGameScoreSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				return data
 			}),
 		async: true,
@@ -393,7 +434,16 @@ export const selectPropositionAction = async (
 	formData: FormData,
 ) => {
 	const submission = await parseWithZod(formData, {
-		schema: SelectPropositionSchema.transform(async (data, ctx) => {
+		schema: SelectPropositionSchema.superRefine(async (data, ctx) => {
+			const rateLimit = await requireRateLimit('strong')
+			if (rateLimit.status !== 'success') {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+				})
+				return
+			}
+		}).transform(async (data, ctx) => {
 			const user = await getOptionalUser()
 			if (!user || user.role !== 'admin') {
 				ctx.addIssue({
@@ -482,7 +532,16 @@ export const updatePropositionTeams = async (
 	await requireAdminUser()
 
 	const submission = await parseWithZod(formData, {
-		schema: SavePropositionSchema,
+		schema: SavePropositionSchema.superRefine(async (data, ctx) => {
+			const rateLimit = await requireRateLimit('strong')
+			if (rateLimit.status !== 'success') {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+				})
+				return
+			}
+		}),
 		async: true,
 	})
 
@@ -516,7 +575,16 @@ export const recordGameResultAction = async (
 
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			GameResultSchema.transform(async (data, ctx) => {
+			GameResultSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return data
 
 				const gameSession = await prisma.gameSession.findUnique({
@@ -571,7 +639,16 @@ export const deleteGameSession = async (
 
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			DeleteGameSessionSchema.transform(async (data, ctx) => {
+			DeleteGameSessionSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const gameSession = await prisma.gameSession.findUnique({
