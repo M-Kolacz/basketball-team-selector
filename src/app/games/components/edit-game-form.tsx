@@ -38,12 +38,14 @@ interface EditGameFormProps {
 	gameSession: GameSessions[number]
 	allPlayers: Players
 	updateOptimisticGameSession?: (formData: FormData) => void
+	isOptimistic: boolean
 }
 
 export const EditGameForm = ({
 	gameSession,
 	allPlayers,
 	updateOptimisticGameSession,
+	isOptimistic,
 }: EditGameFormProps) => {
 	const [open, setOpen] = useState(false)
 
@@ -80,7 +82,12 @@ export const EditGameForm = ({
 
 	return (
 		<>
-			<Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
+			<Button
+				variant="ghost"
+				size="sm"
+				onClick={() => setOpen(true)}
+				disabled={isOptimistic}
+			>
 				<Pencil className="h-4 w-4" />
 				<span className="sr-only">Edit game session</span>
 			</Button>

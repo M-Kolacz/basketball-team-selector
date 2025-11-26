@@ -9,7 +9,13 @@ import { deleteGameSession } from '#app/lib/actions/game-sessions'
 import { type GameSession } from '#app/lib/db.server'
 import { DeleteGameSessionSchema } from '#app/lib/validations/game-session'
 
-export const DeleteGameForm = ({ gameId }: { gameId: GameSession['id'] }) => {
+export const DeleteGameForm = ({
+	gameId,
+	isOptimistic,
+}: {
+	gameId: GameSession['id']
+	isOptimistic: boolean
+}) => {
 	const [lastResult, formAction, isSubmitting] = useActionState(
 		deleteGameSession,
 		undefined,
@@ -35,7 +41,7 @@ export const DeleteGameForm = ({ gameId }: { gameId: GameSession['id'] }) => {
 			<Button
 				variant="ghost"
 				size="sm"
-				disabled={isSubmitting}
+				disabled={isSubmitting || isOptimistic}
 				type="submit"
 				className="w-full justify-start text-destructive hover:text-destructive"
 			>

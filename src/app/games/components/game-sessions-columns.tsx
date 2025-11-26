@@ -6,22 +6,14 @@ import { ArrowUpDown, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
 import { EditGameForm } from '#app/app/games/components/edit-game-form'
+import { useGamesContext } from '#app/app/games/games-context'
 import { Button } from '#app/components/ui/button'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
-import { type Players } from '#app/lib/actions/players'
 
 type GameSession = GameSessions[number]
 
-interface GameSessionColumnsProps {
-	isAdmin: boolean
-	players: Players
-}
-
-export const createGameSessionColumns = ({
-	isAdmin,
-	players,
-}: GameSessionColumnsProps): ColumnDef<GameSession>[] => [
+export const gameSessionColumns: ColumnDef<GameSession>[] = [
 	{
 		accessorKey: 'gameDatetime',
 		header: ({ column }) => {
@@ -74,21 +66,35 @@ export const createGameSessionColumns = ({
 		id: 'Actions',
 		header: 'Actions',
 		cell: ({ row }) => {
+			// eslint-disable-next-line react-hooks/rules-of-hooks
+			const { isAdmin, players } = useGamesContext()
 			const gameId = row.original.id
 			const gameSession = row.original
+			const isOptimistic = gameId.startsWith('temp-')
 
 			return (
 				<div className="flex gap-4">
-					<Button variant="ghost" size="sm" type="submit" asChild>
-						<Link href={`/games/${gameId}`}>
+					<Link href={isOptimistic ? '' : `/games/${gameId}`}>
+						<Button
+							variant="ghost"
+							size="sm"
+							type="submit"
+							disabled={isOptimistic}
+						>
 							<ArrowUpRight className="h-4 w-4" />
 							<span className="sr-only">Check game details</span>
-						</Link>
-					</Button>
+						</Button>
+					</Link>
 					{isAdmin && (
-						<EditGameForm gameSession={gameSession} allPlayers={players} />
+						<EditGameForm
+							isOptimistic={isOptimistic}
+							gameSession={gameSession}
+							allPlayers={players}
+						/>
 					)}
-					{isAdmin && <DeleteGameForm gameId={gameId} />}
+					{isAdmin && (
+						<DeleteGameForm isOptimistic={isOptimistic} gameId={gameId} />
+					)}
 				</div>
 			)
 		},
