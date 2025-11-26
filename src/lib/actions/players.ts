@@ -1,17 +1,25 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import { invariant } from '@epic-web/invariant'
+import { redirect } from 'next/navigation'
 import z from 'zod'
 import { getOptionalUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
+import { requireRateLimit } from '#app/lib/rate-limit.server'
 import {
 	CreatePlayerSchema,
 	DeletePlayerSchema,
 	UpdatePlayerSchema,
 } from '#app/lib/validations/player'
-import { redirect } from 'next/navigation'
 
 export const getPlayers = async () => {
+	const rateLimit = await requireRateLimit('general')
+	invariant(
+		rateLimit.status === 'success',
+		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+	)
+
 	const currentUser = await getOptionalUser()
 
 	const isAdminUser = currentUser?.role === 'admin'
@@ -35,7 +43,16 @@ export type Players = Awaited<ReturnType<typeof getPlayers>>
 export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			CreatePlayerSchema.transform(async (data, ctx) => {
+			CreatePlayerSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const currentUser = await getOptionalUser()
@@ -88,7 +105,16 @@ export const createPlayer = async (_prevState: unknown, formData: FormData) => {
 export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			DeletePlayerSchema.transform(async (data, ctx) => {
+			DeletePlayerSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const currentUser = await getOptionalUser()
@@ -136,7 +162,16 @@ export const deletePlayer = async (_prevState: unknown, formData: FormData) => {
 export const updatePlayer = async (_prevState: unknown, formData: FormData) => {
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
-			UpdatePlayerSchema.transform(async (data, ctx) => {
+			UpdatePlayerSchema.superRefine(async (data, ctx) => {
+				const rateLimit = await requireRateLimit('strong')
+				if (rateLimit.status !== 'success') {
+					ctx.addIssue({
+						code: z.ZodIssueCode.custom,
+						message: `Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
+					})
+					return
+				}
+			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
 				const currentUser = await getOptionalUser()

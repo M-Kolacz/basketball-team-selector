@@ -12,7 +12,7 @@ import {
 	getAuthSession,
 } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
-import { requireRateLimit } from '#app/lib/ratelimit.server'
+import { requireRateLimit } from '#app/lib/rate-limit.server'
 import { safeRedirect } from '#app/lib/utils'
 import {
 	LoginSchema,
