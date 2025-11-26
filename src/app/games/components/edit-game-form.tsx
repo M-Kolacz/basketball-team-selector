@@ -80,14 +80,9 @@ export const EditGameForm = ({
 
 	return (
 		<>
-			<Button
-				variant="ghost"
-				size="sm"
-				onClick={() => setOpen(true)}
-				className="w-full justify-start"
-			>
+			<Button variant="ghost" size="sm" onClick={() => setOpen(true)}>
 				<Pencil className="h-4 w-4" />
-				Edit game session
+				<span className="sr-only">Edit game session</span>
 			</Button>
 
 			<Dialog open={open} onOpenChange={setOpen}>

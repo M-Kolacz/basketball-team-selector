@@ -40,7 +40,9 @@ export const DeleteGameForm = ({ gameId }: { gameId: GameSession['id'] }) => {
 				className="w-full justify-start text-destructive hover:text-destructive"
 			>
 				<Trash2 className="h-4 w-4" />
-				{isSubmitting ? 'Deleting...' : 'Delete game session'}
+				<span className="sr-only">
+					{isSubmitting ? 'Deleting...' : 'Delete game session'}
+				</span>
 			</Button>
 		</form>
 	)

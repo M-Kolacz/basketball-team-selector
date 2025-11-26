@@ -2,19 +2,11 @@
 
 import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { ArrowUpDown, MoreHorizontal, ArrowUpRight } from 'lucide-react'
+import { ArrowUpDown, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
 import { EditGameForm } from '#app/app/games/components/edit-game-form'
 import { Button } from '#app/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '#app/components/ui/dropdown-menu'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
 import { type Players } from '#app/lib/actions/players'
@@ -86,34 +78,18 @@ export const createGameSessionColumns = ({
 			const gameSession = row.original
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open game history actions</span>
-							<MoreHorizontal className="h-4 w-4" />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem asChild>
-							<Link href={`/games/${gameId}`}>
-								<ArrowUpRight className="h-4 w-4" />
-								Check game details
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						{isAdmin && (
-							<DropdownMenuItem asChild>
-								<EditGameForm gameSession={gameSession} allPlayers={players} />
-							</DropdownMenuItem>
-						)}
-						{isAdmin && (
-							<DropdownMenuItem asChild>
-								<DeleteGameForm gameId={gameId} />
-							</DropdownMenuItem>
-						)}
-					</DropdownMenuContent>
-				</DropdownMenu>
+				<div className="flex gap-4">
+					<Button variant="ghost" size="sm" type="submit" asChild>
+						<Link href={`/games/${gameId}`}>
+							<ArrowUpRight className="h-4 w-4" />
+							<span className="sr-only">Check game details</span>
+						</Link>
+					</Button>
+					{isAdmin && (
+						<EditGameForm gameSession={gameSession} allPlayers={players} />
+					)}
+					{isAdmin && <DeleteGameForm gameId={gameId} />}
+				</div>
 			)
 		},
 	},
