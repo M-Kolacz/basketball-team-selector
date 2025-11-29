@@ -1,7 +1,6 @@
 'use client'
 import {
 	type SortingState,
-	type ColumnDef,
 	flexRender,
 	getCoreRowModel,
 	useReactTable,
@@ -9,6 +8,8 @@ import {
 	getSortedRowModel,
 } from '@tanstack/react-table'
 import { useState } from 'react'
+import { gameSessionColumns } from '#app/app/games/components/game-sessions-columns'
+import { useGamesContext } from '#app/app/games/lib/games-context'
 import { Button } from '#app/components/ui/button'
 
 import {
@@ -20,20 +21,13 @@ import {
 	TableRow,
 } from '#app/components/ui/table'
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[]
-	data: TData[]
-}
-
-export const GameSessionsTable = <TData, TValue>({
-	columns,
-	data,
-}: DataTableProps<TData, TValue>) => {
+export const GameSessionsTable = () => {
 	const [sorting, setSorting] = useState<SortingState>([])
+	const { gameSessions } = useGamesContext()
 
 	const table = useReactTable({
-		data,
-		columns,
+		data: gameSessions,
+		columns: gameSessionColumns,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		onSortingChange: setSorting,
@@ -85,7 +79,7 @@ export const GameSessionsTable = <TData, TValue>({
 						) : (
 							<TableRow>
 								<TableCell
-									colSpan={columns.length}
+									colSpan={gameSessionColumns.length}
 									className="h-24 text-center"
 								>
 									No results.

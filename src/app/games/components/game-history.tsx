@@ -1,55 +1,22 @@
 'use client'
 
-import { parseWithZod } from '@conform-to/zod'
-import { useOptimistic } from 'react'
 import { AddGameForm } from '#app/app/games/components/add-game-form'
-import { gameSessionColumns } from '#app/app/games/components/game-sessions-columns'
 import { GameSessionsTable } from '#app/app/games/components/game-sessions-table'
-import { useGamesContext } from '#app/app/games/games-context'
+import { useGamesContext } from '#app/app/games/lib/games-context'
 import {
 	Empty,
 	EmptyHeader,
 	EmptyTitle,
 	EmptyDescription,
 } from '#app/components/ui/empty'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 
-import { type GameSessions } from '#app/lib/actions/game-sessions'
-import { CreateGameSessionSchema } from '#app/lib/validations/game-session'
+export const GameHistory = () => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
+	const { gameSessions } = useGamesContext()
 
-interface GameHistoryListProps {
-	gameSessions: GameSessions
-}
-
-export const GameHistory = ({ gameSessions }: GameHistoryListProps) => {
-	const { isAdmin } = useGamesContext()
-
-	const [optimisticGames, addOptimisticGame] = useOptimistic<
-		GameSessions,
-		GameSessions[number]
-	>(gameSessions, (state, newGame) => {
-		return [newGame, ...state].sort(
-			(a, b) => b.gameDatetime.getTime() - a.gameDatetime.getTime(),
-		)
-	})
-
-	const addOptimisticGameSession = (formData: FormData) => {
-		const submission = parseWithZod(formData, {
-			schema: CreateGameSessionSchema,
-		})
-		if (submission.status !== 'success') return
-
-		const { gameDatetime } = submission.value
-		addOptimisticGame({
-			id: `temp-${Date.now()}`,
-			gameDatetime: new Date(gameDatetime),
-			gamesCount: 0,
-			players: [],
-			description: null,
-			propositions: [],
-		})
-	}
-
-	if (optimisticGames.length === 0) {
+	if (gameSessions.length === 0) {
 		return (
 			<Empty>
 				<EmptyHeader>
@@ -58,12 +25,7 @@ export const GameHistory = ({ gameSessions }: GameHistoryListProps) => {
 						There are no game sessions recorded yet.
 					</EmptyDescription>
 				</EmptyHeader>
-				{isAdmin && (
-					<AddGameForm
-						key={isAdmin.toString()}
-						addOptimisticGameSession={addOptimisticGameSession}
-					/>
-				)}
+				{isAdmin && <AddGameForm key={isAdmin.toString()} />}
 			</Empty>
 		)
 	}
@@ -77,11 +39,9 @@ export const GameHistory = ({ gameSessions }: GameHistoryListProps) => {
 						View all past basketball game sessions
 					</p>
 				</div>
-				{isAdmin && (
-					<AddGameForm addOptimisticGameSession={addOptimisticGameSession} />
-				)}
+				{isAdmin && <AddGameForm />}
 			</div>
-			<GameSessionsTable columns={gameSessionColumns} data={optimisticGames} />
+			<GameSessionsTable />
 		</div>
 	)
 }

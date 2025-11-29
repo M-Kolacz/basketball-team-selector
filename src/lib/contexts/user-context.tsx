@@ -21,7 +21,6 @@ export const UserProvider = ({
 
 export const useOptionalUser = () => {
 	const context = use(UserContext)
-	invariant(context, 'useOptionalUser must be used within a UserProvider')
 
 	return context
 }
