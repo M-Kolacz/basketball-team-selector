@@ -5,21 +5,22 @@ import { useOptimistic } from 'react'
 import { AddGameScoreForm } from '#app/app/games/[id]/components/add-game-score-form'
 import { GameScoreCard } from '#app/app/games/[id]/components/game-score-card'
 import { type GameSession } from '#app/lib/actions/game-sessions'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 import { GameResultSchema } from '#app/lib/validations/game-session'
 
 type GameScoresSectionProps = {
 	gameSessionId: GameSession['id']
 	games: GameSession['games']
 	teams: NonNullable<GameSession['selectedProposition']>['teams'] | null
-	isAdmin: boolean
 }
 
 export const GameScoresSection = ({
 	gameSessionId,
 	games,
 	teams,
-	isAdmin,
 }: GameScoresSectionProps) => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
 	const [optimisticGameScores, addOptimisticGameScore] = useOptimistic<
 		GameSession['games'],
 		GameSession['games'][number]
@@ -77,7 +78,6 @@ export const GameScoresSection = ({
 							gameSessionId={gameSessionId}
 							gameIndex={index}
 							game={game}
-							isAdmin={isAdmin}
 						/>
 					))}
 				</div>

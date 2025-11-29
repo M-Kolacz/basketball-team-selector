@@ -2,21 +2,22 @@
 
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 import { cn } from '#app/lib/utils'
 
 type PlayerBadgeProps = {
 	player: { id: string; name: string }
 	propositionId: string
 	teamId: string
-	isAdmin: boolean
 }
 
 export const PlayerBadge = ({
 	player,
 	propositionId,
 	teamId,
-	isAdmin,
 }: PlayerBadgeProps) => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
 	const sortableId = `${propositionId}::${teamId}::${player.id}`
 	const {
 		attributes,

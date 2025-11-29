@@ -1,7 +1,6 @@
 import { type Metadata } from 'next'
 import { PlayersList } from '#app/app/players/components/PlayersList'
 import { getPlayers } from '#app/lib/actions/players'
-import { getOptionalUser } from '#app/lib/auth.server'
 
 export const metadata: Metadata = {
 	title: 'Players - Basketball Team Selector',
@@ -9,12 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function PlayersPage() {
-	const [players, currentUser] = await Promise.all([
-		getPlayers(),
-		getOptionalUser(),
-	])
+	const players = await getPlayers()
 
-	const isAdmin = currentUser?.role === 'admin'
-
-	return <PlayersList players={players} isAdmin={isAdmin} />
+	return <PlayersList players={players} />
 }

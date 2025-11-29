@@ -4,9 +4,7 @@ import { invariant } from '@epic-web/invariant'
 import { createContext, use } from 'react'
 import { type User } from '#app/lib/db.server'
 
-type UserContextType = {
-	user: User | null
-}
+type UserContextType = User | null
 
 const UserContext = createContext<null | UserContextType>(null)
 
@@ -17,16 +15,20 @@ export const UserProvider = ({
 	children: React.ReactNode
 	user: User | null
 }) => {
-	const value = {
-		user,
-	}
-
+	const value = user
 	return <UserContext.Provider value={value}>{children}</UserContext.Provider>
 }
 
-export const useUserContext = () => {
+export const useOptionalUser = () => {
 	const context = use(UserContext)
-	invariant(context, 'useUserContext must be used within a UserProvider')
+	invariant(context, 'useOptionalUser must be used within a UserProvider')
 
 	return context
+}
+
+export const useUser = () => {
+	const user = useOptionalUser()
+	invariant(user, 'useUser must be used when user is guaranteed to be present')
+
+	return user
 }

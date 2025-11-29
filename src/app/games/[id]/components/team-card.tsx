@@ -13,14 +13,12 @@ type TeamCardProps = {
 	}
 	teamLabel: string
 	propositionId: string
-	isAdmin: boolean
 }
 
 export const TeamCard = ({
 	team,
 	teamLabel,
 	propositionId,
-	isAdmin,
 }: TeamCardProps) => (
 	<Card>
 		<CardHeader>
@@ -36,7 +34,6 @@ export const TeamCard = ({
 				players={team.players}
 				teamId={team.id}
 				propositionId={propositionId}
-				isAdmin={isAdmin}
 			/>
 		</CardContent>
 	</Card>

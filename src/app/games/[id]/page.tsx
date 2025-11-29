@@ -3,7 +3,6 @@ import { GameScoresSection } from '#app/app/games/[id]/components/game-scores-se
 import { PropositionsSection } from '#app/app/games/[id]/components/propositions-section'
 import { SelectedTeamsSection } from '#app/app/games/[id]/components/selected-teams-section'
 import { getGameSession } from '#app/lib/actions/game-sessions'
-import { getOptionalUser } from '#app/lib/auth.server'
 
 type PageProps = {
 	params: Promise<{ id: string }>
@@ -12,9 +11,6 @@ type PageProps = {
 export default async function GameDetailsPage({ params }: PageProps) {
 	const { id } = await params
 	const gameSession = await getGameSession(id)
-
-	const currentUser = await getOptionalUser()
-	const isAdmin = currentUser?.role === 'admin'
 
 	return (
 		<main className="container mx-auto px-4 py-8">
@@ -28,13 +24,11 @@ export default async function GameDetailsPage({ params }: PageProps) {
 					propositions={gameSession.propositions}
 					gameSessionId={gameSession.id}
 					hasSelectedProposition={gameSession.selectedProposition !== null}
-					isAdmin={isAdmin}
 				/>
 
 				{gameSession.selectedProposition ? (
 					<SelectedTeamsSection
 						teams={gameSession.selectedProposition.teams}
-						isAdmin={isAdmin}
 					/>
 				) : (
 					<div className="rounded-lg border border-dashed p-8 text-center text-muted-foreground">
@@ -46,7 +40,6 @@ export default async function GameDetailsPage({ params }: PageProps) {
 					gameSessionId={gameSession.id}
 					games={gameSession.games}
 					teams={gameSession.selectedProposition?.teams ?? null}
-					isAdmin={isAdmin}
 				/>
 			</div>
 		</main>

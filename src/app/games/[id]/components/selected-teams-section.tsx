@@ -3,12 +3,10 @@ import { type GameSession } from '#app/lib/actions/game-sessions'
 
 type SelectedTeamsSectionProps = {
 	teams: NonNullable<GameSession['selectedProposition']>['teams']
-	isAdmin: boolean
 }
 
 export const SelectedTeamsSection = ({
 	teams,
-	isAdmin,
 }: SelectedTeamsSectionProps) => (
 	<section className="space-y-4">
 		<h2 className="text-2xl font-bold">Final Teams</h2>
@@ -18,7 +16,6 @@ export const SelectedTeamsSection = ({
 					propositionId={team.id}
 					key={team.id}
 					team={team}
-					isAdmin={isAdmin}
 					teamLabel={team.name}
 				/>
 			))}
