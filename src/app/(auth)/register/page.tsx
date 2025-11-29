@@ -4,5 +4,9 @@ import { requireAnonymous } from '#app/lib/auth.server'
 export default async function RegisterPage() {
 	await requireAnonymous()
 
-	return <RegistrationForm />
+	return (
+		<main>
+			<RegistrationForm />
+		</main>
+	)
 }

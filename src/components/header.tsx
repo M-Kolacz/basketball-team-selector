@@ -2,7 +2,18 @@ import { MenuIcon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
 import { LoginLink } from '#app/components/login-link'
 import { LogoutButton } from '#app/components/logout-button'
+import { Avatar, AvatarImage, AvatarFallback } from '#app/components/ui/avatar'
 import { Button } from '#app/components/ui/button'
+import {
+	DrawerTrigger,
+	DrawerContent,
+	DrawerHeader,
+	DrawerTitle,
+	DrawerDescription,
+	DrawerFooter,
+	DrawerClose,
+	Drawer,
+} from '#app/components/ui/drawer'
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -61,66 +72,58 @@ export const Header = async () => {
 				</NavigationMenu>
 
 				<div className="ml-auto flex items-center gap-2">
-					<DropdownMenu>
-						<DropdownMenuTrigger asChild>
-							<Button variant="ghost" size="icon" className="hidden md:flex">
-								<UserIcon className="size-5" />
-								<span className="sr-only">User menu</span>
-							</Button>
-						</DropdownMenuTrigger>
-						<DropdownMenuContent align="end">
-							<DropdownMenuLabel>
-								<div className="flex flex-col gap-1">
-									<p className="text-sm font-medium">
-										{currentUser?.username || 'Guest'}
-									</p>
-									<p className="text-xs text-muted-foreground">
-										{currentUser?.role === 'admin' ? 'Admin' : 'User'}
-									</p>
-								</div>
-							</DropdownMenuLabel>
-							<DropdownMenuSeparator />
-							<DropdownMenuItem asChild>
-								{currentUser?.id ? <LogoutButton /> : <LoginLink />}
-							</DropdownMenuItem>
-						</DropdownMenuContent>
-					</DropdownMenu>
+					<div className="hidden items-center gap-2 md:flex">
+						{currentUser?.role === 'admin' ? (
+							<Avatar>
+								<AvatarImage
+									src="https://github.com/shadcn.png"
+									alt="@shadcn"
+								/>
+								<AvatarFallback>CN</AvatarFallback>
+							</Avatar>
+						) : null}
+						{currentUser ? <LogoutButton /> : <LoginLink />}
+					</div>
 
-					<Sheet>
-						<SheetTrigger asChild>
+					<Drawer direction="right">
+						<DrawerTrigger asChild>
 							<Button variant="ghost" size="icon" className="md:hidden">
 								<MenuIcon className="size-5" />
 								<span className="sr-only">Toggle menu</span>
 							</Button>
-						</SheetTrigger>
-						<SheetContent side="right">
-							<SheetHeader>
-								<SheetTitle>Menu</SheetTitle>
-							</SheetHeader>
-							<div className="flex flex-col gap-4 pt-4">
-								<div className="flex flex-col gap-1">
-									<p className="text-sm font-medium">
-										{currentUser?.username || 'Guest'}
-									</p>
-									<p className="text-xs text-muted-foreground">
-										{currentUser?.role === 'admin' ? 'Admin' : 'User'}
-									</p>
-								</div>
-								<div className="flex flex-col gap-2">
-									{navLinks.map((link) => (
-										<Link key={link.href} href={link.href}>
-											<Button variant="ghost" className="w-full justify-start">
+						</DrawerTrigger>
+						<DrawerContent>
+							<DrawerHeader>
+								<DrawerTitle>Basketball Teams</DrawerTitle>
+							</DrawerHeader>
+							<div className="flex flex-col gap-2 p-4">
+								{navLinks.map((link) => (
+									<DrawerClose key={link.href} asChild>
+										<Link href={link.href}>
+											<Button variant="outline" className="w-full">
 												{link.label}
 											</Button>
 										</Link>
-									))}
-								</div>
+									</DrawerClose>
+								))}
 								<div className="border-t pt-4">
-									{currentUser?.id ? <LogoutButton /> : <LoginLink />}
+									{currentUser?.id ? (
+										<LogoutButton />
+									) : (
+										<DrawerClose asChild>
+											<LoginLink />
+										</DrawerClose>
+									)}
 								</div>
 							</div>
-						</SheetContent>
-					</Sheet>
+
+							<DrawerFooter>
+								<DrawerClose asChild>
+									<Button variant="outline">Close</Button>
+								</DrawerClose>
+							</DrawerFooter>
+						</DrawerContent>
+					</Drawer>
 				</div>
 			</div>
 		</header>

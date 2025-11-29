@@ -17,12 +17,7 @@ test('User can see game history', async ({ page }) => {
 test('User can see game`s details page', async ({ page }) => {
 	await page.goto('/games')
 
-	await page
-		.getByRole('button', { name: 'Open game history actions' })
-		.first()
-		.click()
-
-	await page.getByRole('menuitem', { name: 'Check game details' }).click()
+	await page.getByRole('button', { name: 'Check game details' }).click()
 
 	await expect(
 		page.getByRole('heading', { level: 2, name: 'Generated Propositions' }),

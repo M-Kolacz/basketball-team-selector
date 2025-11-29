@@ -2,34 +2,18 @@
 
 import { type ColumnDef } from '@tanstack/react-table'
 import { format } from 'date-fns'
-import { ArrowUpDown, MoreHorizontal, ArrowUpRight } from 'lucide-react'
+import { ArrowUpDown, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
 import { EditGameForm } from '#app/app/games/components/edit-game-form'
+import { useGamesContext } from '#app/app/games/games-context'
 import { Button } from '#app/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '#app/components/ui/dropdown-menu'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
-import { type Players } from '#app/lib/actions/players'
 
 type GameSession = GameSessions[number]
 
-interface GameSessionColumnsProps {
-	isAdmin: boolean
-	players: Players
-}
-
-export const createGameSessionColumns = ({
-	isAdmin,
-	players,
-}: GameSessionColumnsProps): ColumnDef<GameSession>[] => [
+export const gameSessionColumns: ColumnDef<GameSession>[] = [
 	{
 		accessorKey: 'gameDatetime',
 		header: ({ column }) => {
@@ -82,38 +66,36 @@ export const createGameSessionColumns = ({
 		id: 'Actions',
 		header: 'Actions',
 		cell: ({ row }) => {
+			// eslint-disable-next-line react-hooks/rules-of-hooks
+			const { isAdmin, players } = useGamesContext()
 			const gameId = row.original.id
 			const gameSession = row.original
+			const isOptimistic = gameId.startsWith('temp-')
 
 			return (
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button variant="ghost" className="h-8 w-8 p-0">
-							<span className="sr-only">Open game history actions</span>
-							<MoreHorizontal className="h-4 w-4" />
+				<div className="flex gap-4">
+					<Link href={isOptimistic ? '' : `/games/${gameId}`}>
+						<Button
+							variant="ghost"
+							size="sm"
+							type="submit"
+							disabled={isOptimistic}
+						>
+							<ArrowUpRight className="h-4 w-4" />
+							<span className="sr-only">Check game details</span>
 						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent align="end">
-						<DropdownMenuLabel>Actions</DropdownMenuLabel>
-						<DropdownMenuItem asChild>
-							<Link href={`/games/${gameId}`}>
-								<ArrowUpRight className="h-4 w-4" />
-								Check game details
-							</Link>
-						</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						{isAdmin && (
-							<DropdownMenuItem asChild>
-								<EditGameForm gameSession={gameSession} allPlayers={players} />
-							</DropdownMenuItem>
-						)}
-						{isAdmin && (
-							<DropdownMenuItem asChild>
-								<DeleteGameForm gameId={gameId} />
-							</DropdownMenuItem>
-						)}
-					</DropdownMenuContent>
-				</DropdownMenu>
+					</Link>
+					{isAdmin && (
+						<EditGameForm
+							isOptimistic={isOptimistic}
+							gameSession={gameSession}
+							allPlayers={players}
+						/>
+					)}
+					{isAdmin && (
+						<DeleteGameForm isOptimistic={isOptimistic} gameId={gameId} />
+					)}
+				</div>
 			)
 		},
 	},

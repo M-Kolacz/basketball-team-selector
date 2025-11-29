@@ -3,8 +3,9 @@
 import { parseWithZod } from '@conform-to/zod'
 import { useOptimistic } from 'react'
 import { AddGameForm } from '#app/app/games/components/add-game-form'
-import { createGameSessionColumns } from '#app/app/games/components/game-sessions-columns'
+import { gameSessionColumns } from '#app/app/games/components/game-sessions-columns'
 import { GameSessionsTable } from '#app/app/games/components/game-sessions-table'
+import { useGamesContext } from '#app/app/games/games-context'
 import {
 	Empty,
 	EmptyHeader,
@@ -13,21 +14,15 @@ import {
 } from '#app/components/ui/empty'
 
 import { type GameSessions } from '#app/lib/actions/game-sessions'
-import { type Players } from '#app/lib/actions/players'
 import { CreateGameSessionSchema } from '#app/lib/validations/game-session'
 
 interface GameHistoryListProps {
 	gameSessions: GameSessions
-	isAdmin: boolean
-	players: Players
 }
 
-export const GameHistory = ({
-	gameSessions,
+export const GameHistory = ({ gameSessions }: GameHistoryListProps) => {
+	const { isAdmin } = useGamesContext()
 
-	isAdmin,
-	players,
-}: GameHistoryListProps) => {
 	const [optimisticGames, addOptimisticGame] = useOptimistic<
 		GameSessions,
 		GameSessions[number]
@@ -43,19 +38,13 @@ export const GameHistory = ({
 		})
 		if (submission.status !== 'success') return
 
-		const { gameDatetime, playerIds, description } = submission.value
+		const { gameDatetime } = submission.value
 		addOptimisticGame({
 			id: `temp-${Date.now()}`,
 			gameDatetime: new Date(gameDatetime),
 			gamesCount: 0,
-			players: playerIds.map(
-				(playerId) =>
-					players.find((player) => player.id === playerId) ?? {
-						id: '',
-						name: '',
-					},
-			),
-			description: description ?? null,
+			players: [],
+			description: null,
 			propositions: [],
 		})
 	}
@@ -72,7 +61,6 @@ export const GameHistory = ({
 				{isAdmin && (
 					<AddGameForm
 						key={isAdmin.toString()}
-						players={players}
 						addOptimisticGameSession={addOptimisticGameSession}
 					/>
 				)}
@@ -90,19 +78,10 @@ export const GameHistory = ({
 					</p>
 				</div>
 				{isAdmin && (
-					<AddGameForm
-						players={players}
-						addOptimisticGameSession={addOptimisticGameSession}
-					/>
+					<AddGameForm addOptimisticGameSession={addOptimisticGameSession} />
 				)}
 			</div>
-			<GameSessionsTable
-				columns={createGameSessionColumns({
-					isAdmin,
-					players,
-				})}
-				data={optimisticGames}
-			/>
+			<GameSessionsTable columns={gameSessionColumns} data={optimisticGames} />
 		</div>
 	)
 }
