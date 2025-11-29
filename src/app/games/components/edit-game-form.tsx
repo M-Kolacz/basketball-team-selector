@@ -33,20 +33,21 @@ import {
 } from '#app/lib/actions/game-sessions'
 import { type Players } from '#app/lib/actions/players'
 import { UpdateGameSessionSchema } from '#app/lib/validations/game-session'
+import { useGamesContext } from '#app/app/games/lib/games-context'
 
 interface EditGameFormProps {
 	gameSession: GameSessions[number]
-	allPlayers: Players
+
 	updateOptimisticGameSession?: (formData: FormData) => void
 	isOptimistic: boolean
 }
 
 export const EditGameForm = ({
 	gameSession,
-	allPlayers,
 	updateOptimisticGameSession,
 	isOptimistic,
 }: EditGameFormProps) => {
+	const { players } = useGamesContext()
 	const [open, setOpen] = useState(false)
 
 	const [lastResult, formAction, isSubmitting] = useActionState(
@@ -137,7 +138,7 @@ export const EditGameForm = ({
 							<Field role="group" aria-labelledby={fields.playerIds.id}>
 								<FieldLabel id={fields.playerIds.id}>Players</FieldLabel>
 								<div className="grid grid-cols-2 gap-2">
-									{allPlayers.map((player) => (
+									{players.map((player) => (
 										<div key={player.id} className="flex items-center gap-2">
 											<Checkbox
 												id={`${fields.playerIds.id}-${player.id}`}
