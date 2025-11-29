@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 'use client'
 
 import { type ColumnDef } from '@tanstack/react-table'
@@ -6,10 +7,10 @@ import { ArrowUpDown, ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
 import { DeleteGameForm } from '#app/app/games/components/delete-game-form'
 import { EditGameForm } from '#app/app/games/components/edit-game-form'
-import { useGamesContext } from '#app/app/games/games-context'
 import { Button } from '#app/components/ui/button'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSessions } from '#app/lib/actions/game-sessions'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 
 type GameSession = GameSessions[number]
 
@@ -66,8 +67,9 @@ export const gameSessionColumns: ColumnDef<GameSession>[] = [
 		id: 'Actions',
 		header: 'Actions',
 		cell: ({ row }) => {
-			// eslint-disable-next-line react-hooks/rules-of-hooks
-			const { isAdmin, players } = useGamesContext()
+			const user = useOptionalUser()
+
+			const isAdmin = user?.role === 'admin'
 			const gameId = row.original.id
 			const gameSession = row.original
 			const isOptimistic = gameId.startsWith('temp-')
@@ -89,7 +91,6 @@ export const gameSessionColumns: ColumnDef<GameSession>[] = [
 						<EditGameForm
 							isOptimistic={isOptimistic}
 							gameSession={gameSession}
-							allPlayers={players}
 						/>
 					)}
 					{isAdmin && (

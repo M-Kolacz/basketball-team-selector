@@ -12,19 +12,17 @@ import {
 } from '#app/components/ui/card'
 import { Spinner } from '#app/components/ui/spinner'
 import { type GameSession } from '#app/lib/actions/game-sessions'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 
 type GameScoreCardProps = {
 	gameSessionId: GameSession['games'][number]['id']
 	gameIndex: number
 	game: GameSession['games'][number]
-	isAdmin: boolean
 }
 
-export const GameScoreCard = ({
-	gameIndex,
-	game,
-	isAdmin,
-}: GameScoreCardProps) => {
+export const GameScoreCard = ({ gameIndex, game }: GameScoreCardProps) => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
 	const [isEditing, setIsEditing] = useState(false)
 
 	if (isEditing) {

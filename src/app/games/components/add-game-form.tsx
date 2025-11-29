@@ -3,7 +3,7 @@
 import { getFormProps, getTextareaProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState, useState } from 'react'
-import { useGamesContext } from '#app/app/games/games-context'
+import { useGamesContext } from '#app/app/games/lib/games-context'
 import { Checkbox, DatePicker } from '#app/components/form'
 import { Button } from '#app/components/ui/button'
 import {
@@ -26,14 +26,8 @@ import { Textarea } from '#app/components/ui/textarea'
 import { createGameSessionAction } from '#app/lib/actions/game-sessions'
 import { CreateGameSessionSchema } from '#app/lib/validations/game-session'
 
-interface AddGameFormProps {
-	addOptimisticGameSession: (formData: FormData) => void
-}
-
-export const AddGameForm = ({
-	addOptimisticGameSession: addOptimisticGameSession,
-}: AddGameFormProps) => {
-	const { players } = useGamesContext()
+export const AddGameForm = () => {
+	const { players, addOptimisticGameSession } = useGamesContext()
 	const [open, setOpen] = useState(false)
 
 	const [lastResult, formAction, isSubmitting] = useActionState(

@@ -15,13 +15,13 @@ import { SavePropositionForm } from '#app/app/games/[id]/components/save-proposi
 import { SelectPropositionButton } from '#app/app/games/[id]/components/select-proposition-button'
 import { TeamCard } from '#app/app/games/[id]/components/team-card'
 import { type GameSession } from '#app/lib/actions/game-sessions'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 
 type PropositionItemProps = {
 	proposition: GameSession['propositions'][number]
 	propIndex: number
 	gameSessionId: GameSession['id']
 	hasSelectedProposition: boolean
-	isAdmin: boolean
 }
 
 export const PropositionItem = ({
@@ -29,8 +29,9 @@ export const PropositionItem = ({
 	propIndex,
 	gameSessionId,
 	hasSelectedProposition,
-	isAdmin,
 }: PropositionItemProps) => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
 	const [proposition, setProposition] =
 		useState<GameSession['propositions'][number]>(initialProposition)
 	const [activeId, setActiveId] = useState<string | number | null>(null)
@@ -133,7 +134,6 @@ export const PropositionItem = ({
 							team={team}
 							teamLabel={team.name}
 							propositionId={proposition.id}
-							isAdmin={isAdmin}
 						/>
 					))}
 				</div>

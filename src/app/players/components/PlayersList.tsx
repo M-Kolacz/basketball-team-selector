@@ -4,13 +4,15 @@ import { AddPlayerForm } from '#app/app/players/components/add-player-form'
 import { columns } from '#app/app/players/components/columns'
 import { DataTable } from '#app/app/players/components/data-table'
 import { type Players } from '#app/lib/actions/players'
+import { useOptionalUser } from '#app/lib/contexts/user-context'
 
 type PlayersListProps = {
 	players: Players
-	isAdmin: boolean
 }
 
-export const PlayersList = ({ players, isAdmin }: PlayersListProps) => {
+export const PlayersList = ({ players }: PlayersListProps) => {
+	const user = useOptionalUser()
+	const isAdmin = user?.role === 'admin'
 	const playerColumns = isAdmin
 		? columns
 		: columns.filter((column: (typeof columns)[number]) => {

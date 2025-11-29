@@ -5,14 +5,12 @@ type PropositionsSectionProps = {
 	propositions: GameSession['propositions']
 	gameSessionId: string
 	hasSelectedProposition: boolean
-	isAdmin: boolean
 }
 
 export const PropositionsSection = ({
 	propositions,
 	gameSessionId,
 	hasSelectedProposition,
-	isAdmin,
 }: PropositionsSectionProps) => {
 	return (
 		<section className="space-y-4">
@@ -25,7 +23,6 @@ export const PropositionsSection = ({
 						propIndex={propIndex}
 						gameSessionId={gameSessionId}
 						hasSelectedProposition={hasSelectedProposition}
-						isAdmin={isAdmin}
 					/>
 				))}
 			</div>
