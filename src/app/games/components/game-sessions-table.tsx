@@ -9,7 +9,7 @@ import {
 } from '@tanstack/react-table'
 import { useState } from 'react'
 import { gameSessionColumns } from '#app/app/games/components/game-sessions-columns'
-import { useGamesContext } from '#app/app/games/lib/games-context'
+import { useGamesContext } from '#app/app/games/helpers/games-context'
 import { Button } from '#app/components/ui/button'
 
 import {

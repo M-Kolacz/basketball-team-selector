@@ -33,7 +33,7 @@ import {
 } from '#app/lib/actions/game-sessions'
 import { type Players } from '#app/lib/actions/players'
 import { UpdateGameSessionSchema } from '#app/lib/validations/game-session'
-import { useGamesContext } from '#app/app/games/lib/games-context'
+import { useGamesContext } from '#app/app/games/helpers/games-context'
 
 interface EditGameFormProps {
 	gameSession: GameSessions[number]
