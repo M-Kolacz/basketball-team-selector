@@ -106,8 +106,9 @@ jobs:
       - name: Export UI
         run: npx evalite export --output=./ui-export
 
-      - name: Upload static UI
-        uses: actions/upload-artifact@v3
+      - name: 📊 Upload ui export
+        uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: evalite-ui
           path: ui-export
