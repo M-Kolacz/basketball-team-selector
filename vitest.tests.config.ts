@@ -21,6 +21,7 @@ export default defineConfig({
 					name: 'unit',
 					environment: 'node',
 					include: ['src/**/*.test.ts'],
+					exclude: ['src/**/*.eval.ts'],
 				},
 			},
 			{
@@ -38,6 +39,7 @@ export default defineConfig({
 						provider: 'playwright',
 						instances: [{ browser: 'chromium' }],
 					},
+					include: ['src/**/*.stories.tsx'],
 					setupFiles: ['.storybook/vitest.setup.ts'],
 				},
 			},
