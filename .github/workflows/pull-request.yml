@@ -83,6 +83,38 @@ jobs:
 
       - name: ⚡ Run vitest
         run: npm run test -- --coverage
+  evalite:
+    name: 🤖 Evalite
+    runs-on: ubuntu-22.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+
+      - name: 📥 Download deps
+        uses: bahmutov/npm-install@v1
+
+      - name: 🛠 Setup Database
+        run: npm run db:generate
+
+      - name: Run evaluations
+        env:
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+        run: npx evalite --threshold=70
+
+      - name: Export UI
+        run: npx evalite export --output=./ui-export
+
+      - name: 📊 Upload ui export
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evalite-ui
+          path: ui-export
 
   playwright:
     name: 🎭 Playwright
