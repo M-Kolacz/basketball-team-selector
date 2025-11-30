@@ -8,7 +8,7 @@ import {
 	POSITION_LABELS,
 	SKILL_TIER_COLORS,
 	SKILL_TIER_LABELS,
-} from '#app/app/players/constants'
+} from '#app/app/players/helpers/constants'
 import { Badge } from '#app/components/ui/badge'
 import { Button } from '#app/components/ui/button'
 import {

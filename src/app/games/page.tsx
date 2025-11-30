@@ -1,6 +1,6 @@
 import { type Metadata } from 'next'
 import { GameHistory } from '#app/app/games/components/game-history'
-import { GamesProvider } from '#app/app/games/lib/games-context'
+import { GamesProvider } from '#app/app/games/helpers/games-context'
 import { getGameSessions } from '#app/lib/actions/game-sessions'
 import { getPlayers } from '#app/lib/actions/players'
 

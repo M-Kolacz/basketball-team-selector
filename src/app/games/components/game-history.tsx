@@ -2,7 +2,7 @@
 
 import { AddGameForm } from '#app/app/games/components/add-game-form'
 import { GameSessionsTable } from '#app/app/games/components/game-sessions-table'
-import { useGamesContext } from '#app/app/games/lib/games-context'
+import { useGamesContext } from '#app/app/games/helpers/games-context'
 import {
 	Empty,
 	EmptyHeader,

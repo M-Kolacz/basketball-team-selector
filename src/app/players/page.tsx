@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { PlayersList } from '#app/app/players/components/PlayersList'
+import { PlayersList } from '#app/app/players/components/player-list'
 import { getPlayers } from '#app/lib/actions/players'
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { LoginForm } from '#app/app/(auth)/login/login-form'
+import { LoginForm } from '#app/app/(auth)/login/components/login-form'
 import { requireAnonymous } from '#app/lib/auth.server'
 
 export const metadata: Metadata = {
