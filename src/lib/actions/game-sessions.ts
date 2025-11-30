@@ -148,6 +148,8 @@ export const createGameSessionAction = async (
 	_prevState: unknown,
 	formData: FormData,
 ) => {
+	await requireAdminUser()
+
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreateGameSessionSchema.superRefine(async (data, ctx) => {
@@ -162,16 +164,6 @@ export const createGameSessionAction = async (
 			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const user = await getOptionalUser()
-				if (!user || user.role !== 'admin') {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Unauthorized access',
-					})
-					return z.NEVER
-				}
-
-				// Player count validation
 				if (data.playerIds.length < 10) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,
