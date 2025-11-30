@@ -1,11 +1,12 @@
 'use server'
 
 import { parseWithZod } from '@conform-to/zod'
+import { invariant } from '@epic-web/invariant'
 import { revalidatePath } from 'next/cache'
 import { notFound, redirect } from 'next/navigation'
 import { z } from 'zod'
 import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
-import { generatePropositions } from '#app/lib/createTeamPropositions'
+import { generatePropositions } from '#app/lib/create-team-propositions'
 import { prisma } from '#app/lib/db.server'
 import { requireRateLimit } from '#app/lib/rate-limit.server'
 import {
@@ -18,7 +19,6 @@ import {
 	EditGameScoreSchema,
 	DeleteGameSessionSchema,
 } from '#app/lib/validations/game-session'
-import { invariant } from '@epic-web/invariant'
 
 export const getGameSessions = async () => {
 	const rateLimit = await requireRateLimit('general')
@@ -148,6 +148,8 @@ export const createGameSessionAction = async (
 	_prevState: unknown,
 	formData: FormData,
 ) => {
+	await requireAdminUser()
+
 	const submission = await parseWithZod(formData, {
 		schema: (intent) =>
 			CreateGameSessionSchema.superRefine(async (data, ctx) => {
@@ -162,16 +164,6 @@ export const createGameSessionAction = async (
 			}).transform(async (data, ctx) => {
 				if (intent !== null) return { ...data }
 
-				const user = await getOptionalUser()
-				if (!user || user.role !== 'admin') {
-					ctx.addIssue({
-						code: z.ZodIssueCode.custom,
-						message: 'Unauthorized access',
-					})
-					return z.NEVER
-				}
-
-				// Player count validation
 				if (data.playerIds.length < 10) {
 					ctx.addIssue({
 						code: z.ZodIssueCode.custom,

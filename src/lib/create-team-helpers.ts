@@ -2,10 +2,13 @@ import { type Player } from '#app/lib/db.server'
 
 type Players = Omit<Player, 'createdAt' | 'updatedAt'>[]
 
-export const getOptimalTeamConfiguration = (players: Players) => {
+export const getTeamsConfiguration = (players: Players) => {
 	const totalPlayers = players.length
 	const minPlayersPerTeam = 5
-	const maxPossibleTeams = Math.floor(totalPlayers / minPlayersPerTeam)
+	const maxPossibleTeams = Math.min(
+		4,
+		Math.floor(totalPlayers / minPlayersPerTeam),
+	)
 
 	if (maxPossibleTeams < 2) {
 		throw new Error(

@@ -1,17 +1,11 @@
 import { generateObject } from 'ai'
 import { z } from 'zod'
-import { getOptimalTeamConfiguration } from '#app/lib/createTeamHelpers'
+import { getTeamsConfiguration } from '#app/lib/create-team-helpers'
 import { createTeamsModel } from '#app/lib/models'
 
 export const generatePropositions = (selectedPlayers: Player[]) => {
-	const randomnessLevel: number = 0.8
-	const randomSeed = Math.random()
-
-	const {
-		numberOfTeams,
-		minPlayersPerTeam: minNumberOfPlayersInTeam,
-		maxPlayersPerTeam: maxNumberOfPlayersInTeam,
-	} = getOptimalTeamConfiguration(selectedPlayers)
+	const { numberOfTeams, minPlayersPerTeam, maxPlayersPerTeam } =
+		getTeamsConfiguration(selectedPlayers)
 
 	const shuffledPlayers = [...selectedPlayers].sort(() => Math.random() - 0.5)
 
@@ -21,12 +15,11 @@ export const generatePropositions = (selectedPlayers: Player[]) => {
 		schemaDescription: 'Result of the team selection process.',
 		schema: getTeamSelectionSchema({
 			numberOfTeams,
-			minNumberOfPlayersInTeam,
-			maxNumberOfPlayersInTeam,
+			minPlayersPerTeam,
+			maxPlayersPerTeam,
 		}),
-		temperature: randomnessLevel,
+		temperature: 0.8,
 		topP: 0.9,
-		seed: Math.floor(randomSeed * 1000000),
 		system: `
 You are an expert basketball team selector. Your role is to create balanced and competitive teams based on a provided list of players.
 
@@ -38,17 +31,15 @@ You will receive a list of players, each with their name, position(s), and tierL
 
 **PROPOSITION 3 - Mixed Approach**: Create teams using both tierListPosition and position information. Balance both skill levels and positional diversity simultaneously. This approach should consider both factors equally to create the most strategically balanced teams.
 
-**Team sizing rule**: Every team must have at least 5 players (minimum for basketball). You must create exactly ${numberOfTeams} teams with ${minNumberOfPlayersInTeam}${
-			minNumberOfPlayersInTeam !== maxNumberOfPlayersInTeam
-				? `-${maxNumberOfPlayersInTeam}`
-				: ''
+**Team sizing rule**: Every team must have at least 5 players (minimum for basketball). You must create exactly ${numberOfTeams} teams with ${minPlayersPerTeam}${
+			minPlayersPerTeam !== maxPlayersPerTeam ? `-${maxPlayersPerTeam}` : ''
 		} players each. Distribute all ${
 			selectedPlayers.length
 		} players across these teams.
 
 For each proposition, provide a descriptive title that reflects the balancing strategy used and a clear rationale explaining how you applied that specific approach.
 
-IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minNumberOfPlayersInTeam} and ${maxNumberOfPlayersInTeam} players.
+IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players.
 `,
 		prompt: `
     <Players>
@@ -72,7 +63,7 @@ IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, w
     2. **Second proposition**: Focus on position distribution (positional balance)  
     3. **Third proposition**: Combined approach using both tierListPosition and position
 
-    You MUST create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minNumberOfPlayersInTeam} and ${maxNumberOfPlayersInTeam} players. Use all players and ensure no player appears in multiple teams within the same proposition.
+    You MUST create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players. Use all players and ensure no player appears in multiple teams within the same proposition.
     `,
 	})
 
@@ -81,12 +72,12 @@ IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, w
 
 export const getTeamSelectionSchema = ({
 	numberOfTeams,
-	minNumberOfPlayersInTeam,
-	maxNumberOfPlayersInTeam,
+	minPlayersPerTeam,
+	maxPlayersPerTeam,
 }: {
 	numberOfTeams: number
-	minNumberOfPlayersInTeam: number
-	maxNumberOfPlayersInTeam: number
+	minPlayersPerTeam: number
+	maxPlayersPerTeam: number
 }) =>
 	z.object({
 		propositions: z
@@ -105,17 +96,13 @@ export const getTeamSelectionSchema = ({
 							z
 								.array(z.string().describe('Name of the player in the team.'))
 								.describe('List of player names in a basketball team.')
-								.min(minNumberOfPlayersInTeam)
-								.max(maxNumberOfPlayersInTeam),
+								.min(minPlayersPerTeam)
+								.max(maxPlayersPerTeam),
 						)
 						.length(numberOfTeams)
 						.describe(
 							'Array of teams, where each team is an array of player names.',
 						),
-					likes: z
-						.number()
-						.default(0)
-						.describe('Number of likes for this proposition'),
 				}),
 			)
 			.length(3)
