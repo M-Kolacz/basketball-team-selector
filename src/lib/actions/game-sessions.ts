@@ -104,6 +104,7 @@ export const getGameSession = async (id: string) => {
 			propositions: {
 				select: {
 					id: true,
+					type: true,
 					teams: {
 						select: {
 							id: true,
@@ -239,7 +240,7 @@ export const createGameSessionAction = async (
 
 		await prisma.proposition.create({
 			data: {
-				type: 'general',
+				type: proposition.type,
 				teams: {
 					connect: teams.map((teamId) => ({ id: teamId })),
 				},
@@ -365,7 +366,7 @@ export const updateGameSessionAction = async (
 
 		await prisma.proposition.create({
 			data: {
-				type: 'general',
+				type: proposition.type,
 				teams: {
 					connect: teams.map((teamId) => ({ id: teamId })),
 				},
