@@ -25,11 +25,11 @@ You are an expert basketball team selector. Your role is to create balanced and 
 
 You will receive a list of players, each with their name, position(s), and tierListPosition (skill level). You must create exactly 3 team setup propositions, each using a different balancing approach:
 
-**PROPOSITION 1 - Skill-Based Balance**: Create teams based primarily on tierListPosition (skill level). Distribute players across teams to ensure each team has a similar combined skill level. Focus on balancing the tier rankings (S, A, B, C, D) so that each team has roughly equal overall power.
+**PROPOSITION 1 - Skill-Based Balance (type: skill_balanced)**: Create teams based primarily on tierListPosition (skill level). Distribute players across teams to ensure each team has a similar combined skill level. Focus on balancing the tier rankings (S, A, B, C, D) so that each team has roughly equal overall power.
 
-**PROPOSITION 2 - Position-Based Balance**: Create teams based primarily on positions that players can play. Ensure each team has a good mix of positions (Point Guard, Shooting Guard, Small Forward, Power Forward, Center) for strategic diversity and fair play. Focus on positional balance rather than skill balance.
+**PROPOSITION 2 - Position-Based Balance (type: position_focused)**: Create teams based primarily on positions that players can play. Ensure each team has a good mix of positions (Point Guard, Shooting Guard, Small Forward, Power Forward, Center) for strategic diversity and fair play. Focus on positional balance rather than skill balance.
 
-**PROPOSITION 3 - Mixed Approach**: Create teams using both tierListPosition and position information. Balance both skill levels and positional diversity simultaneously. This approach should consider both factors equally to create the most strategically balanced teams.
+**PROPOSITION 3 - Mixed Approach (type: general)**: Create teams using both tierListPosition and position information. Balance both skill levels and positional diversity simultaneously. This approach should consider both factors equally to create the most strategically balanced teams.
 
 **Team sizing rule**: Every team must have at least 5 players (minimum for basketball). You must create exactly ${numberOfTeams} teams with ${minPlayersPerTeam}${
 			minPlayersPerTeam !== maxPlayersPerTeam ? `-${maxPlayersPerTeam}` : ''
@@ -37,7 +37,7 @@ You will receive a list of players, each with their name, position(s), and tierL
 			selectedPlayers.length
 		} players across these teams.
 
-For each proposition, provide a descriptive title that reflects the balancing strategy used and a clear rationale explaining how you applied that specific approach.
+For each proposition, provide the correct type field (skill_balanced, position_focused, or general), a descriptive title that reflects the balancing strategy used, and a clear rationale explaining how you applied that specific approach.
 
 IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players.
 `,
@@ -59,9 +59,9 @@ IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, w
 			selectedPlayers.length
 		} players, create exactly 3 team setup propositions using the three distinct approaches specified in the system prompt:
 
-    1. **First proposition**: Focus on tierListPosition (skill balance)
-    2. **Second proposition**: Focus on position distribution (positional balance)  
-    3. **Third proposition**: Combined approach using both tierListPosition and position
+    1. **First proposition** (type: "skill_balanced"): Focus on tierListPosition (skill balance)
+    2. **Second proposition** (type: "position_focused"): Focus on position distribution (positional balance)
+    3. **Third proposition** (type: "general"): Combined approach using both tierListPosition and position
 
     You MUST create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players. Use all players and ensure no player appears in multiple teams within the same proposition.
     `,
@@ -83,6 +83,11 @@ export const getTeamSelectionSchema = ({
 		propositions: z
 			.array(
 				z.object({
+					type: z
+						.enum(['skill_balanced', 'position_focused', 'general'])
+						.describe(
+							'Type of balancing approach used: skill_balanced (focus on skill tiers), position_focused (focus on positions), or general (mixed approach)',
+						),
 					title: z
 						.string()
 						.describe('A descriptive title for this team setup proposition'),

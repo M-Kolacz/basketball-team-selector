@@ -119,7 +119,9 @@ export const PropositionItem = ({
 		>
 			<div className="space-y-4">
 				<div className="flex items-center justify-between">
-					<h3 className="text-lg font-semibold">Proposition {propIndex + 1}</h3>
+					<h3 className="text-lg font-semibold">
+						Proposition {propIndex + 1} ({proposition.type})
+					</h3>
 					{hasChanges && isAdmin && (
 						<SavePropositionForm
 							key={JSON.stringify(proposition.teams)}
