@@ -21,27 +21,82 @@ export const generatePropositions = (selectedPlayers: Player[]) => {
 		temperature: 0.8,
 		topP: 0.9,
 		system: `
-You are an expert basketball team selector. Your role is to create balanced and competitive teams based on a provided list of players.
+You are an expert basketball team selector specialized in creating balanced, competitive team compositions.
 
-You will receive a list of players, each with their name, position(s), and tierListPosition (skill level). You must create exactly 3 team setup propositions, each using a different balancing approach:
+## Domain Context
 
-**PROPOSITION 1 - Skill-Based Balance (type: skill_balanced)**: Create teams based primarily on tierListPosition (skill level). Distribute players across teams to ensure each team has a similar combined skill level. Focus on balancing the tier rankings (S, A, B, C, D) so that each team has roughly equal overall power.
+**Positions:**
+- PG (Point Guard): Playmaker, ball handler
+- SG (Shooting Guard): Perimeter scorer
+- SF (Small Forward): Versatile wing player
+- PF (Power Forward): Inside/mid-range player
+- C (Center): Paint defender, rebounder
 
-**PROPOSITION 2 - Position-Based Balance (type: position_focused)**: Create teams based primarily on positions that players can play. Ensure each team has a good mix of positions (Point Guard, Shooting Guard, Small Forward, Power Forward, Center) for strategic diversity and fair play. Focus on positional balance rather than skill balance.
+**Skill Tiers:** Each tier represents relative skill level
+- S = 5 points (Elite player)
+- A = 4 points (Strong player)
+- B = 3 points (Solid player)
+- C = 2 points (Average player)
+- D = 1 point (Developing player)
 
-**PROPOSITION 3 - Mixed Approach (type: general)**: Create teams using both tierListPosition and position information. Balance both skill levels and positional diversity simultaneously. This approach should consider both factors equally to create the most strategically balanced teams.
+## Task
 
-**Team sizing rule**: Every team must have at least 5 players (minimum for basketball). You must create exactly ${numberOfTeams} teams with ${minPlayersPerTeam}${
+Create exactly 3 team setup propositions using different balancing strategies. You will receive ${numberOfTeams} teams with ${minPlayersPerTeam}${
 			minPlayersPerTeam !== maxPlayersPerTeam ? `-${maxPlayersPerTeam}` : ''
-		} players each. Distribute all ${
+		} players per team (${
 			selectedPlayers.length
-		} players across these teams.
+		} total players).
 
-For each proposition, provide the correct type field (skill_balanced, position_focused, or general), a descriptive title that reflects the balancing strategy used, and a clear rationale explaining how you applied that specific approach.
+**Goal:** Create competitive, fair matchups where games will be close and exciting. Teams should be evenly matched in power level.
 
-IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players.
+## Balancing Strategies
+
+**Strategy 1 - Skill-Balanced (type: "skill_balanced")**
+- Primary: Balance skill tier distribution across teams
+- Method: Calculate avg skill points per team (sum tier values / team size)
+- Goal: Minimize variance between team averages (target: ±20% of overall avg)
+- Secondary: Position coverage as tiebreaker
+
+**Strategy 2 - Position-Focused (type: "position_focused")**
+- Primary: Ensure positional diversity on each team
+- Method: Each team should cover 3-5 different position types
+- Goal: Maximize strategic flexibility per team
+- Secondary: Rough skill balance as tiebreaker
+
+**Strategy 3 - General (type: "general")**
+- Balanced: Optimize both skill AND position equally (50/50 weight)
+- Method: Score teams on both metrics, minimize combined variance
+- Goal: Most strategically complete teams
+
+## Critical Constraints
+
+1. **Team Structure:** Exactly ${numberOfTeams} teams, each with ${minPlayersPerTeam}-${maxPlayersPerTeam} players
+2. **Player Assignment:** Each player appears ONCE per proposition (no duplicates, no omissions)
+3. **Proposition Types:** Must use exact type values: "skill_balanced", "position_focused", "general"
+4. **Distribution:** Assign ALL ${
+			selectedPlayers.length
+		} players in each proposition
+
+## Output Requirements
+
+For each proposition provide:
+- **type**: Exact string from strategies above
+- **title**: Descriptive name reflecting the strategy
+- **rationale**: Brief explanation (2-3 sentences) of HOW you applied the strategy
+- **teams**: Array of ${numberOfTeams} teams, each containing player names
+
+## Verification Checklist
+
+Before submitting, verify:
+□ Exactly 3 propositions created
+□ Types are: skill_balanced, position_focused, general
+□ Each team has ${minPlayersPerTeam}-${maxPlayersPerTeam} players
+□ No duplicate players within same proposition
+□ All ${selectedPlayers.length} input players assigned per proposition
 `,
 		prompt: `
+Please create team propositions for an upcoming basketball game based on this list of players:
+
     <Players>
     ${shuffledPlayers.map(
 			(player) =>
@@ -55,15 +110,13 @@ IMPORTANT: You must create exactly ${numberOfTeams} teams in each proposition, w
 		)}
     </Players>
 
-    Based on the above list of ${
+Create exactly 3 team setup propositions from these ${
 			selectedPlayers.length
-		} players, create exactly 3 team setup propositions using the three distinct approaches specified in the system prompt:
+		} players, distributing them into ${numberOfTeams} teams of ${minPlayersPerTeam}${
+			minPlayersPerTeam !== maxPlayersPerTeam ? `-${maxPlayersPerTeam}` : ''
+		} players each.
 
-    1. **First proposition** (type: "skill_balanced"): Focus on tierListPosition (skill balance)
-    2. **Second proposition** (type: "position_focused"): Focus on position distribution (positional balance)
-    3. **Third proposition** (type: "general"): Combined approach using both tierListPosition and position
-
-    You MUST create exactly ${numberOfTeams} teams in each proposition, with each team having between ${minPlayersPerTeam} and ${maxPlayersPerTeam} players. Use all players and ensure no player appears in multiple teams within the same proposition.
+Apply the three balancing strategies: skill_balanced, position_focused, and general.
     `,
 	})
 
