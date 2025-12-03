@@ -17,6 +17,7 @@
     "test:e2e:run": "cross-env CI=true playwright test",
     "test:e2e:dev": "playwright test --ui",
     "test": "vitest --config vitest.tests.config.ts",
+    "eval": "evalite",
     "eval:dev": "evalite watch",
     "postinstall": "prisma generate",
     "db:push": "prisma db push",

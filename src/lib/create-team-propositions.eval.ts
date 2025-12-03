@@ -202,5 +202,35 @@ evalite('Generate propositions', {
 				return 1
 			},
 		},
+		{
+			name: 'Position Balance',
+			description:
+				'Verifies each team has diverse position coverage (3+ different positions)',
+			scorer: ({ output, input }) => {
+				const { propositions } = output.object
+
+				for (const proposition of propositions) {
+					for (const team of proposition.teams) {
+						const positionsCovered = new Set<string>()
+
+						for (const playerName of team) {
+							const player = input.find((p) => p.name === playerName)
+							if (player) {
+								player.positions.forEach((pos) => positionsCovered.add(pos))
+							}
+						}
+
+						if (positionsCovered.size < 3) {
+							console.error(
+								`❌ Proposition (${proposition.type}) team has only ${positionsCovered.size} positions covered: ${[...positionsCovered].join(', ')}`,
+							)
+							return 0
+						}
+					}
+				}
+
+				return 1
+			},
+		},
 	],
 })
