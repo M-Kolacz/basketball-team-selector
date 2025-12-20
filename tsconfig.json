@@ -3,8 +3,9 @@
 	"compilerOptions": {
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"esModuleInterop": true,
-		"module": "esnext",
+		"module": "ESNext",
 		"moduleResolution": "bundler",
+		"target": "ES2023",
 		"resolveJsonModule": true,
 		"plugins": [
 			{
