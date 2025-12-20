@@ -1,8 +1,10 @@
 'use server'
 
 import { invariant } from '@epic-web/invariant'
+import { getOptionalUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import { requireRateLimit } from '#app/lib/rate-limit.server'
+import { formatPlayerName } from '#app/lib/utils/anonymize-player'
 
 export const getPlayerStats = async () => {
 	const rateLimit = await requireRateLimit('general')
@@ -10,6 +12,9 @@ export const getPlayerStats = async () => {
 		rateLimit.status === 'success',
 		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
 	)
+
+	const currentUser = await getOptionalUser()
+	const isAdmin = currentUser?.role === 'admin'
 
 	const players = await prisma.player.findMany({
 		select: {
@@ -81,7 +86,7 @@ export const getPlayerStats = async () => {
 
 		return {
 			id: player.id,
-			name: player.name,
+			name: formatPlayerName(player.name, isAdmin),
 			gameSessions: uniqueGameSessions.size,
 			totalGames: gamesPlayed,
 			gamesWon,
