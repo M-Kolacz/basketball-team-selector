@@ -208,11 +208,7 @@ export const MultiSelect = ({
 
 	return (
 		<>
-			<select multiple name={name} ref={control.register} hidden>
-				{(control.options ?? []).map((value) => (
-					<option key={value} value={value} />
-				))}
-			</select>
+			<select multiple name={name} ref={control.register} hidden />
 			<ShadcnMultiSelect
 				values={control.options ?? []}
 				onValuesChange={(values) => control.change(values)}

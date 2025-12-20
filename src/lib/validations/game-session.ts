@@ -24,7 +24,7 @@ export const CreateGameSessionSchema = z.object({
 		}, 'Invalid date format'),
 
 	description: z.string().max(500).optional(),
-	playerIds: z.array(z.string().uuid()),
+	playerIds: z.array(z.string().uuid()).min(10).max(20),
 })
 
 export type CreateGameSessionCommand = z.infer<typeof CreateGameSessionSchema>
