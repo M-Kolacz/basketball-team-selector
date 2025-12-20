@@ -157,13 +157,13 @@ evalite('Generate propositions', {
 			scorer: ({ output, input }) => {
 				const MAX_VARIANCE = 0.3
 				const { propositions } = output.object
-				const skillValues: Record<SkillTier, number> = {
+				const skillValues = {
 					S: 5,
 					A: 4,
 					B: 3,
 					C: 2,
 					D: 1,
-				}
+				} as const
 
 				const playerSkills = new Map<string, number>()
 				for (const player of input) {

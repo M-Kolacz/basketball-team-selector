@@ -14,6 +14,10 @@ jobs:
   lint:
     name: ⬣ ESLint
     runs-on: ubuntu-22.04
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -63,6 +67,10 @@ jobs:
   vitest:
     name: ⚡ Vitest
     runs-on: ubuntu-22.04
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -86,6 +94,10 @@ jobs:
   evalite:
     name: 🤖 Evalite
     runs-on: ubuntu-22.04
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4

@@ -2,6 +2,7 @@
   "name": "basketball-team-selector",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
@@ -36,7 +37,8 @@
     "@epic-web/remember": "^1.1.0",
     "@hookform/resolvers": "^5.2.2",
     "@neondatabase/serverless": "^1.0.2",
-    "@prisma/client": "^6.17.1",
+    "@prisma/adapter-neon": "7.2.0",
+    "@prisma/client": "7.2.0",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
     "@radix-ui/react-aspect-ratio": "^1.1.7",
@@ -87,6 +89,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "vaul": "^1.1.2",
+    "ws": "8.18.3",
     "zod": "^3.25.76"
   },
   "devDependencies": {
@@ -106,6 +109,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/ws": "^8.18.1",
     "@vitest/browser": "^3.2.4",
     "@vitest/coverage-v8": "^3.2.4",
     "autoevals": "^0.0.131",
@@ -121,7 +125,7 @@
     "playwright": "^1.55.1",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.14",
-    "prisma": "^6.17.1",
+    "prisma": "7.2.0",
     "shadcn": "^3.3.1",
     "storybook": "^10.0.8",
     "tailwindcss": "^4",
