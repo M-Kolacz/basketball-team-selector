@@ -4,7 +4,7 @@ import { getFormProps, getTextareaProps, useForm } from '@conform-to/react'
 import { parseWithZod } from '@conform-to/zod'
 import { useActionState, useState } from 'react'
 import { useGamesContext } from '#app/app/games/helpers/games-context'
-import { Checkbox, DatePicker } from '#app/components/form'
+import { DatePicker, MultiSelect } from '#app/components/form'
 import { Button } from '#app/components/ui/button'
 import {
 	Dialog,
@@ -87,25 +87,20 @@ export const AddGameForm = () => {
 							<FieldError errors={fields.description.errors} />
 						</Field>
 
-						<Field role="group" aria-labelledby={fields.playerIds.id}>
-							<FieldLabel id={fields.playerIds.id}>Players</FieldLabel>
-							<div className="grid grid-cols-2 gap-2">
-								{players.map((player) => (
-									<div key={player.id} className="flex items-center gap-2">
-										<Checkbox
-											id={`${fields.playerIds.id}-${player.id}`}
-											name={fields.playerIds.name}
-											value={player.id}
-											defaultChecked={fields.playerIds.defaultOptions?.includes(
-												player.id,
-											)}
-										/>
-										<label htmlFor={`${fields.playerIds.id}-${player}`}>
-											{player.name}
-										</label>
-									</div>
-								))}
-							</div>
+						<Field>
+							<FieldLabel htmlFor={fields.playerIds.id}>Players</FieldLabel>
+							<MultiSelect
+								id={fields.playerIds.id}
+								name={fields.playerIds.name}
+								items={players.map((player) => ({
+									name: player.name,
+									value: player.id,
+								}))}
+								defaultValue={fields.playerIds.defaultOptions}
+								placeholder="Select players"
+								searchPlaceholder="Search players..."
+								emptyMessage="No players found"
+							/>
 							<FieldError errors={fields.playerIds.errors} />
 						</Field>
 

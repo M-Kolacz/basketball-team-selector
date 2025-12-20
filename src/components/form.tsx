@@ -6,6 +6,13 @@ import { Button } from '#app/components/ui/button'
 import { Calendar } from '#app/components/ui/calendar'
 import { Checkbox as ShadcnCheckbox } from '#app/components/ui/checkbox'
 import {
+	MultiSelect as ShadcnMultiSelect,
+	MultiSelectTrigger,
+	MultiSelectValue,
+	MultiSelectContent,
+	MultiSelectItem,
+} from '#app/components/ui/multi-select'
+import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
@@ -167,6 +174,63 @@ export const DatePicker = ({
 					/>
 				</PopoverContent>
 			</Popover>
+		</>
+	)
+}
+
+export type MultiSelectProps = {
+	id?: string
+	name: string
+	items: Array<{ name: string; value: string }>
+	placeholder: string
+	defaultValue?: string[]
+	searchPlaceholder?: string
+	emptyMessage?: string
+	['aria-describedby']?: string
+}
+
+export const MultiSelect = ({
+	name,
+	items,
+	placeholder,
+	defaultValue,
+	searchPlaceholder = 'Search...',
+	emptyMessage = 'No results found.',
+	...props
+}: MultiSelectProps) => {
+	const triggerRef = useRef<HTMLButtonElement>(null)
+	const control = useControl({
+		defaultValue,
+		onFocus: () => {
+			triggerRef.current?.focus()
+		},
+	})
+
+	return (
+		<>
+			<select multiple name={name} ref={control.register} hidden />
+			<ShadcnMultiSelect
+				values={control.options ?? []}
+				onValuesChange={(values) => control.change(values)}
+				onOpenChange={(open) => {
+					if (!open) {
+						control.blur()
+					}
+				}}
+			>
+				<MultiSelectTrigger {...props} ref={triggerRef}>
+					<MultiSelectValue placeholder={placeholder} />
+				</MultiSelectTrigger>
+				<MultiSelectContent
+					search={{ placeholder: searchPlaceholder, emptyMessage }}
+				>
+					{items.map((item) => (
+						<MultiSelectItem key={item.value} value={item.value}>
+							{item.name}
+						</MultiSelectItem>
+					))}
+				</MultiSelectContent>
+			</ShadcnMultiSelect>
 		</>
 	)
 }
