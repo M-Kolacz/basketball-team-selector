@@ -7,6 +7,7 @@ import z from 'zod'
 import { getOptionalUser } from '#app/lib/auth.server'
 import { prisma } from '#app/lib/db.server'
 import { requireRateLimit } from '#app/lib/rate-limit.server'
+import { formatPlayerName } from '#app/lib/utils/anonymize-player'
 import {
 	CreatePlayerSchema,
 	DeletePlayerSchema,
@@ -35,7 +36,10 @@ export const getPlayers = async () => {
 		},
 	})
 
-	return players
+	return players.map((player) => ({
+		...player,
+		name: formatPlayerName(player.name, isAdminUser),
+	}))
 }
 
 export type Players = Awaited<ReturnType<typeof getPlayers>>

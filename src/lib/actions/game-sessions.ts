@@ -9,6 +9,7 @@ import { getOptionalUser, requireAdminUser } from '#app/lib/auth.server'
 import { generatePropositions } from '#app/lib/create-team-propositions'
 import { prisma } from '#app/lib/db.server'
 import { requireRateLimit } from '#app/lib/rate-limit.server'
+import { formatPlayerName } from '#app/lib/utils/anonymize-player'
 import {
 	GetGameSessionSchema,
 	CreateGameSessionSchema,
@@ -26,6 +27,9 @@ export const getGameSessions = async () => {
 		rateLimit.status === 'success',
 		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
 	)
+
+	const currentUser = await getOptionalUser()
+	const isAdmin = currentUser?.role === 'admin'
 
 	const gameSessions = await prisma.gameSession.findMany({
 		orderBy: { gameDatetime: 'desc' },
@@ -58,7 +62,12 @@ export const getGameSessions = async () => {
 		gamesCount: games.length,
 		players: Array.from(
 			new Set(
-				session.propositions[0]?.teams.flatMap((team) => team.players) ?? [],
+				session.propositions[0]?.teams.flatMap((team) =>
+					team.players.map((player) => ({
+						...player,
+						name: formatPlayerName(player.name, isAdmin),
+					})),
+				) ?? [],
 			),
 		),
 	}))
@@ -72,6 +81,9 @@ export const getGameSession = async (id: string) => {
 		rateLimit.status === 'success',
 		`Too many requests. Try again in ${rateLimit.retryAfterSeconds} second${rateLimit.retryAfterSeconds !== 1 ? 's' : ''}.`,
 	)
+
+	const currentUser = await getOptionalUser()
+	const isAdmin = currentUser?.role === 'admin'
 
 	const { gameSessionId } = await GetGameSessionSchema.parseAsync({
 		gameSessionId: id,
@@ -140,7 +152,31 @@ export const getGameSession = async (id: string) => {
 
 	if (!gameSession) notFound()
 
-	return gameSession
+	return {
+		...gameSession,
+		selectedProposition: gameSession.selectedProposition
+			? {
+					...gameSession.selectedProposition,
+					teams: gameSession.selectedProposition.teams.map((team) => ({
+						...team,
+						players: team.players.map((player) => ({
+							...player,
+							name: formatPlayerName(player.name, isAdmin),
+						})),
+					})),
+				}
+			: null,
+		propositions: gameSession.propositions.map((prop) => ({
+			...prop,
+			teams: prop.teams.map((team) => ({
+				...team,
+				players: team.players.map((player) => ({
+					...player,
+					name: formatPlayerName(player.name, isAdmin),
+				})),
+			})),
+		})),
+	}
 }
 
 export type GameSession = Awaited<ReturnType<typeof getGameSession>>
