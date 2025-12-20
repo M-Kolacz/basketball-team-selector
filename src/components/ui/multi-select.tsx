@@ -265,6 +265,7 @@ export const MultiSelectContent = ({
 	children: ReactNode
 } & Omit<ComponentPropsWithoutRef<typeof Command>, 'children'>) => {
 	const canSearch = typeof search === 'object' ? true : search
+	const [searchValue, setSearchValue] = useState('')
 
 	return (
 		<>
@@ -280,6 +281,13 @@ export const MultiSelectContent = ({
 							placeholder={
 								typeof search === 'object' ? search.placeholder : undefined
 							}
+							value={searchValue}
+							onValueChange={setSearchValue}
+							onKeyDown={(e) => {
+								if (e.key === 'Enter') {
+									setSearchValue('')
+								}
+							}}
 						/>
 					) : (
 						<button autoFocus className="sr-only" />
