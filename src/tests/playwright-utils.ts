@@ -34,8 +34,6 @@ export const test = base.extend<{
 				sameSite: 'Lax' as 'Lax',
 			}
 
-			console.log({ newConfig })
-
 			await page.context().addCookies([newConfig])
 			return user
 		})

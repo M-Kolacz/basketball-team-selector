@@ -1,5 +1,7 @@
 import { faker } from '@faker-js/faker'
 import { UniqueEnforcer } from 'enforce-unique'
+import { getPasswordHash } from '#app/lib/auth.server'
+import { prisma } from '#app/lib/db.server'
 
 const uniqueUsernameEnforcer = new UniqueEnforcer()
 
@@ -23,5 +25,20 @@ export const createUser = () => {
 		.replace(/[^a-z0-9_]/g, '_')
 	return {
 		username,
+	}
+}
+
+export const registerUser = async () => {
+	const password = faker.internet.password()
+	const user = await prisma.user.create({
+		data: {
+			...createUser(),
+			password: { create: { hash: await getPasswordHash(password) } },
+		},
+	})
+
+	return {
+		...user,
+		password,
 	}
 }
