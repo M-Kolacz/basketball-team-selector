@@ -45,12 +45,14 @@ type GetOrInsertUserOptions = {
 	id?: string
 	username?: User['username']
 	password?: string
+	role?: User['role']
 }
 
 const getOrInsertUser = async ({
 	id,
 	username,
 	password,
+	role = 'user',
 }: GetOrInsertUserOptions = {}): Promise<User> => {
 	const select = {
 		id: true,
@@ -74,6 +76,7 @@ const getOrInsertUser = async ({
 			data: {
 				...userData,
 				username,
+				role,
 				password: { create: { hash: await getPasswordHash(password) } },
 			},
 		})
