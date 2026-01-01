@@ -1,18 +1,39 @@
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { cookies } from 'next/headers'
-import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers.js'
+import { redirect } from 'next/navigation.js'
 import { prisma, type User } from '#app/lib/db.server'
 import { env } from '#app/lib/env.mjs'
 import { type Register, type Login } from '#app/lib/validations/auth'
 
-type AuthCookie = { sessionId: string }
+export type AuthCookie = { sessionId: string }
 
 export const SESSION_EXPIRATION_TIME = 1000 * 60 * 60 * 24 * 30
 export const getSessionExpirationDate = () =>
 	new Date(Date.now() + SESSION_EXPIRATION_TIME)
 
 export const AUTH_SESSION_KEY = 'bts-session'
+
+export const createAuthToken = (sessionId: string) =>
+	jwt.sign({ sessionId: sessionId } as AuthCookie, env.JWT_SECRET, {
+		algorithm: 'HS256',
+		expiresIn: '30d',
+	})
+
+export const createAuthCookie = (
+	authToken: string,
+	expirationDate = getSessionExpirationDate(),
+) => {
+	return {
+		name: AUTH_SESSION_KEY,
+		value: authToken,
+		sameSite: 'lax' as boolean | 'none' | 'lax' | 'strict' | undefined,
+		path: '/',
+		httpOnly: true,
+		secure: env.NODE_ENV === 'production',
+		expires: expirationDate,
+	}
+}
 
 export const getUserId = async () => {
 	const sessionCookie = await getAuthSession()
@@ -144,19 +165,10 @@ export const handleNewSession = async ({
 	id: string
 	expirationDate: Date
 }) => {
-	const token = jwt.sign({ sessionId: id } as AuthCookie, env.JWT_SECRET, {
-		algorithm: 'HS256',
-		expiresIn: '30d',
-	})
+	const token = createAuthToken(id)
 
 	const cookieStore = await cookies()
-	cookieStore.set(AUTH_SESSION_KEY, token, {
-		sameSite: 'lax',
-		path: '/',
-		httpOnly: true,
-		secure: env.NODE_ENV === 'production',
-		expires: expirationDate,
-	})
+	cookieStore.set(createAuthCookie(token, expirationDate))
 }
 
 export const getAuthSession = async () => {

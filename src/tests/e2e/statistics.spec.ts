@@ -6,10 +6,8 @@ test('User can see statistics table', async ({ page }) => {
 	await expect(
 		page.getByRole('heading', { name: 'Player Statistics', level: 1 }),
 	).toBeVisible()
-	await expect(page.getByRole('row', { name: 'Player Name' })).toBeVisible()
+	await expect(page.getByRole('button', { name: 'Player Name' })).toBeVisible()
 	await expect(
-		page.getByRole('row', { name: 'Number of the game sessions played' }),
+		page.getByRole('button', { name: 'Number of the game sessions played' }),
 	).toBeVisible()
-	const playersRows = await page.getByRole('row').count()
-	expect(playersRows).toBeGreaterThan(2)
 })

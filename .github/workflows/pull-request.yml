@@ -43,6 +43,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -71,6 +72,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -98,6 +100,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -136,6 +139,7 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       JWT_SECRET: ${{ secrets.JWT_SECRET }}
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+      NODE_ENV: ${{ secrets.NODE_ENV }}
     steps:
       - name: ⬇️ Checkout repo
         uses: actions/checkout@v4
@@ -154,8 +158,11 @@ jobs:
       - name: 📥 Install Playwright Browsers
         run: npm run test:e2e:install
 
-      - name: 🌱 Seed Database
+      - name: 💾 Migrate database
         run: npx prisma migrate reset --force
+
+      - name: 🌱 Seed database
+        run: npm run db:seed
 
       - name: 🏗 Build
         run: npm run build
