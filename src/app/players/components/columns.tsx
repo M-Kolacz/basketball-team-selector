@@ -1,7 +1,7 @@
 'use client'
 
 import { type ColumnDef } from '@tanstack/react-table'
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react'
+import { ArrowUpDown } from 'lucide-react'
 import { DeletePlayerForm } from '#app/app/players/components/delete-player-form'
 import { EditPlayerDialog } from '#app/app/players/components/edit-player-form'
 import {
@@ -11,14 +11,6 @@ import {
 } from '#app/app/players/helpers/constants'
 import { Badge } from '#app/components/ui/badge'
 import { Button } from '#app/components/ui/button'
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from '#app/components/ui/dropdown-menu'
 import { type Players } from '#app/lib/actions/players'
 import { type Position, type SkillTier } from '#app/lib/db.server'
 

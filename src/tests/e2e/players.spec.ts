@@ -61,7 +61,7 @@ test('Admin user can delete a player', async ({ page, login }) => {
 })
 
 test('Admin user can edit a player', async ({ page, login }) => {
-	const player = await prisma.player.create({
+	const oldPlayer = await prisma.player.create({
 		data: {
 			name: faker.person.fullName(),
 			skillTier: 'B',
@@ -71,7 +71,7 @@ test('Admin user can edit a player', async ({ page, login }) => {
 	await login({ role: 'admin' })
 	await page.goto('/players')
 
-	await page.getByRole('button', { name: `Edit ${player.name}` }).click()
+	await page.getByRole('button', { name: `Edit ${oldPlayer.name}` }).click()
 
 	const dialog = page.getByRole('dialog', { name: 'Edit Player' })
 	const newPlayerName = faker.person.fullName()
@@ -90,5 +90,5 @@ test('Admin user can edit a player', async ({ page, login }) => {
 		row.getByRole('cell', { name: 'Point Guard Shooting Guard' }),
 	).toBeVisible()
 
-	await prisma.player.deleteMany({ where: { id: player.id } })
+	await prisma.player.deleteMany({ where: { id: oldPlayer.id } })
 })
