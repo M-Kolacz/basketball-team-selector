@@ -56,9 +56,8 @@ export const EditPlayerDialog = ({ player }: EditPlayerDialogProps) => {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant={'ghost'}>
+				<Button variant={'ghost'} aria-label={`Edit ${player?.name}`}>
 					<Pencil className="h-4 w-4" />
-					Edit player
 				</Button>
 			</DialogTrigger>
 

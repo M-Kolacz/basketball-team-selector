@@ -55,6 +55,10 @@ export const DataTable = <TData, TValue>({
 			sorting,
 			columnFilters,
 			columnVisibility,
+			pagination: {
+				pageSize: 40,
+				pageIndex: 0,
+			},
 		},
 	})
 
@@ -120,6 +124,7 @@ export const DataTable = <TData, TValue>({
 								<TableRow
 									key={row.id}
 									data-state={row.getIsSelected() && 'selected'}
+									data-testid={`table-row-${row.getValue('name')}`}
 								>
 									{row.getVisibleCells().map((cell) => (
 										<TableCell key={cell.id}>
