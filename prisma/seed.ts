@@ -181,16 +181,7 @@ const seed = async () => {
 	}
 }
 
-if (require.main === module) {
-	seed()
-		.then(() => {
-			console.log('🏁 Seeding process finished')
-			process.exit(0)
-		})
-		.catch((error) => {
-			console.error('💥 Fatal error during seeding:', error)
-			process.exit(1)
-		})
-}
+await seed()
+console.log('🏁 Seeding process finished')
 
 export { seed }
